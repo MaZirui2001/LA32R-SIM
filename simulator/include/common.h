@@ -10,4 +10,6 @@
 #define SBITS(a, m, n) \
     (((a) >> (n)) & ((1 << ((m) - (n) + 1)) - 1)) | \
     (((a) >> (m)) & 1 ? (~0 << (m - n + 1)) : 0)
+
+enum {RUNNING, STOP, ABORT};
 #endif

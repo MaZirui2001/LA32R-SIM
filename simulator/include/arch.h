@@ -2,6 +2,7 @@
 #define __ARCH_H__
 
 #include <bits/stdc++.h>
+#include <config.h>
 
 // loongarch reg name
 // const char* reg_name[32] = {
@@ -28,5 +29,15 @@ std::unordered_map<unsigned int, const char*> csr_name = {
     {0x44, "ticlr"},    {0x60, "llbctl"},   {0x88, "tlbrentry"},    {0x98, "ctag"},
     {0x180, "dmw0"},    {0x181, "dmw1"}
 };
+
+#define RESET_VECTOR CONFIG_PMEM_BASE
+
+typedef struct {
+    uint32_t pc;
+    uint32_t reg[32];
+    uint32_t csr[512];
+    int state;
+    uint32_t halt_pc;
+} CPU_State;
 
 #endif // __ARCH_H__
