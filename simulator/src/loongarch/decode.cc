@@ -4,7 +4,7 @@
 
 #define R(i) cpu.reg[i]
 
-#define INST_MATCH(opcode, mask, type, ...) {\
+#define INST_MATCH(opcode, mask, type, name, ...) {\
     if(((opcode ^ inst) & mask) == 0){ \
        decode_oprand(inst, type, rd, src1, src2, dst, imm); \
         __VA_ARGS__ ; \
@@ -48,108 +48,60 @@ void decode_exec(uint32_t inst){
     uint32_t imm = 0;
     uint32_t dst = 0;
     uint32_t npc = cpu.pc + 4;
-    // ADD.W
-    INST_MATCH(0x00100000, 0xffff8000, TYPE_3R, R(rd) = src1 + src2) 
-    // SUB.W
-    INST_MATCH(0x00110000, 0xffff8000, TYPE_3R, R(rd) = src1 - src2) 
-    // SLT
-    INST_MATCH(0x00120000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 < (int32_t)src2)
-    // SLTU
-    INST_MATCH(0x00128000, 0xffff8000, TYPE_3R, R(rd) = src1 < src2)
-    // NOR
-    INST_MATCH(0x00140000, 0xffff8000, TYPE_3R, R(rd) = ~(src1 | src2))
-    // AND
-    INST_MATCH(0x00148000, 0xffff8000, TYPE_3R, R(rd) = src1 & src2)
-    // OR
-    INST_MATCH(0x00150000, 0xffff8000, TYPE_3R, R(rd) = src1 | src2)
-    // XOR
-    INST_MATCH(0x00158000, 0xffff8000, TYPE_3R, R(rd) = src1 ^ src2)
-    // SLL.W
-    INST_MATCH(0x00170000, 0xffff8000, TYPE_3R, R(rd) = src1 << src2)
-    // SRL.W
-    INST_MATCH(0x00178000, 0xffff8000, TYPE_3R, R(rd) = src1 >> src2)
-    // SRA.W
-    INST_MATCH(0x00180000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 >> src2)
-    // MUL.W
-    INST_MATCH(0x001c0000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 * (int32_t)src2)
-    // MULH.W
-    INST_MATCH(0x001c8000, 0xffff8000, TYPE_3R, R(rd) = ((int64_t)(int32_t)src1 * (int64_t)(int32_t)src2) >> 32)
-    // MULHU.W
-    INST_MATCH(0x001d0000, 0xffff8000, TYPE_3R, R(rd) = ((uint64_t)src1 * (uint64_t)src2) >> 32)
-    // DIV.W
-    INST_MATCH(0x00200000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 / (int32_t)src2)
-    // MOD.W
-    INST_MATCH(0x00208000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 % (int32_t)src2)
-    // DIV.WU
-    INST_MATCH(0x00210000, 0xffff8000, TYPE_3R, R(rd) = src1 / src2)
-    // MOD.WU
-    INST_MATCH(0x00218000, 0xffff8000, TYPE_3R, R(rd) = src1 % src2)
-    // BREAK
-    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R, cpu.state = SIM_END; cpu.halt_pc = cpu.pc)
-    // SYSCALL
-    // INST_MATCH(0x002b0000, 0xffff8000, TYPE_3R, )
-    // SLLI.W
-    INST_MATCH(0x00408000, 0xffff8000, TYPE_2RI8, R(rd) = src1 << BITS(imm, 4, 0))
-    // SRLI.W
-    INST_MATCH(0x00448000, 0xffff8000, TYPE_2RI8, R(rd) = src1 >> BITS(imm, 4, 0))
-    // SRAI.W
-    INST_MATCH(0x00488000, 0xffff8000, TYPE_2RI8, R(rd) = (int32_t)src1 >> BITS(imm, 4, 0))
-    // SLTI
-    INST_MATCH(0x02000000, 0xffc00000, TYPE_2RI12, R(rd) = (int32_t)src1 < (int32_t)imm)
-    // SLTUI
-    INST_MATCH(0x02400000, 0xffc00000, TYPE_2RI12, R(rd) = src1 < imm)
-    // ADDI.W
-    INST_MATCH(0x02800000, 0xffc00000, TYPE_2RI12, R(rd) = src1 + imm)
-    // ANDI.W
-    INST_MATCH(0x03400000, 0xffc00000, TYPE_2RI12, R(rd) = src1 & BITS(imm, 11, 0))
-    // ORI.W
-    INST_MATCH(0x03800000, 0xffc00000, TYPE_2RI12, R(rd) = src1 | BITS(imm, 11, 0))
-    // XORI.W
-    INST_MATCH(0x03c00000, 0xffc00000, TYPE_2RI12, R(rd) = src1 ^ BITS(imm, 11, 0))
-    // LU12I.W
-    INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, R(rd) = BITS(inst, 24, 5) << 12)
-    // PCADDU12I
-    INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
-    // LD.B
-    INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))
-    // LD.H
-    INST_MATCH(0x28400000, 0xffc00000, TYPE_2RI12, R(rd) = SBITS(paddr_read(src1 + imm, 2), 15, 0))
-    // LD.W
-    INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, R(rd) = paddr_read(src1 + imm, 4);)
-    // ST.B
-    INST_MATCH(0x29000000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, BITS(dst, 7, 0), 1))
-    // ST.H
-    INST_MATCH(0x29400000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, BITS(dst, 15, 0), 2))
-    // ST.W
-    INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, dst, 4))
-    // LD.BU
-    INST_MATCH(0x2a000000, 0xffc00000, TYPE_2RI12, R(rd) = BITS(paddr_read(src1 + imm, 1), 7, 0))
-    // LD.HU
-    INST_MATCH(0x2a400000, 0xffc00000, TYPE_2RI12, R(rd) = BITS(paddr_read(src1 + imm, 2), 15, 0))
+    INST_MATCH(0x00100000, 0xffff8000, TYPE_3R,   ADD.W,        R(rd) = src1 + src2) 
+    INST_MATCH(0x00110000, 0xffff8000, TYPE_3R,   SUB.W,        R(rd) = src1 - src2) 
+    INST_MATCH(0x00120000, 0xffff8000, TYPE_3R,   SLT,          R(rd) = (int32_t)src1 < (int32_t)src2)
+    INST_MATCH(0x00128000, 0xffff8000, TYPE_3R,   SLTU,         R(rd) = src1 < src2)
+    INST_MATCH(0x00140000, 0xffff8000, TYPE_3R,   NOR,          R(rd) = ~(src1 | src2))
+    INST_MATCH(0x00148000, 0xffff8000, TYPE_3R,   AND,          R(rd) = src1 & src2)
+    INST_MATCH(0x00150000, 0xffff8000, TYPE_3R,   OR,           R(rd) = src1 | src2)
+    INST_MATCH(0x00158000, 0xffff8000, TYPE_3R,   XOR,          R(rd) = src1 ^ src2)
+    INST_MATCH(0x00170000, 0xffff8000, TYPE_3R,   SLL.W,        R(rd) = src1 << src2)
+    INST_MATCH(0x00178000, 0xffff8000, TYPE_3R,   SRL.W,        R(rd) = src1 >> src2)
+    INST_MATCH(0x00180000, 0xffff8000, TYPE_3R,   SRA.W,        R(rd) = (int32_t)src1 >> src2)
+    INST_MATCH(0x001c0000, 0xffff8000, TYPE_3R,   MUL.W,        R(rd) = (int32_t)src1 * (int32_t)src2)
+    INST_MATCH(0x001c8000, 0xffff8000, TYPE_3R,   MULH.W,       R(rd) = ((int64_t)(int32_t)src1 * (int64_t)(int32_t)src2) >> 32)
+    INST_MATCH(0x001d0000, 0xffff8000, TYPE_3R,   MULH.WU,      R(rd) = ((uint64_t)src1 * (uint64_t)src2) >> 32)
+    INST_MATCH(0x00200000, 0xffff8000, TYPE_3R,   DIV.W,        R(rd) = (int32_t)src1 / (int32_t)src2)
+    INST_MATCH(0x00208000, 0xffff8000, TYPE_3R,   MOD.W,        R(rd) = (int32_t)src1 % (int32_t)src2)
+    INST_MATCH(0x00210000, 0xffff8000, TYPE_3R,   DIV.WU,       R(rd) = src1 / src2)
+    INST_MATCH(0x00218000, 0xffff8000, TYPE_3R,   MOD.WU,       R(rd) = src1 % src2)
+    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R,   BREAK,        cpu.state = SIM_END; cpu.halt_pc = cpu.pc)
+    // INST_MATCH(0x002b0000, 0xffff8000, SYSCALL, TYPE_3R, )
+    INST_MATCH(0x00408000, 0xffff8000, TYPE_2RI8,  SLLI.W,      R(rd) = src1 << BITS(imm, 4, 0))
+    INST_MATCH(0x00448000, 0xffff8000, TYPE_2RI8,  SRLI.W,      R(rd) = src1 >> BITS(imm, 4, 0))
+    INST_MATCH(0x00488000, 0xffff8000, TYPE_2RI8,  SRAI.W,      R(rd) = (int32_t)src1 >> BITS(imm, 4, 0))
+    INST_MATCH(0x02000000, 0xffc00000, TYPE_2RI12, SLTI,        R(rd) = (int32_t)src1 < (int32_t)imm)
+    INST_MATCH(0x02400000, 0xffc00000, TYPE_2RI12, SLTUI,       R(rd) = src1 < imm)
+    INST_MATCH(0x02800000, 0xffc00000, TYPE_2RI12, ADDI.W,      R(rd) = src1 + imm)
+    INST_MATCH(0x03400000, 0xffc00000, TYPE_2RI12, ANDI,        R(rd) = src1 & BITS(imm, 11, 0))
+    INST_MATCH(0x03800000, 0xffc00000, TYPE_2RI12, ORI,         R(rd) = src1 | BITS(imm, 11, 0))
+    INST_MATCH(0x03c00000, 0xffc00000, TYPE_2RI12, XORI,        R(rd) = src1 ^ BITS(imm, 11, 0)) 
+    INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,     R(rd) = BITS(inst, 24, 5) << 12)
+    INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,   R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
+    INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,        R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))
+    INST_MATCH(0x28400000, 0xffc00000, TYPE_2RI12, LD.H,        R(rd) = SBITS(paddr_read(src1 + imm, 2), 15, 0))
+    INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, LD.W,        R(rd) = paddr_read(src1 + imm, 4);)
+    INST_MATCH(0x29000000, 0xffc00000, TYPE_2RI12, ST.B,        paddr_write(src1 + imm, BITS(dst, 7, 0), 1))
+    INST_MATCH(0x29400000, 0xffc00000, TYPE_2RI12, ST.H,        paddr_write(src1 + imm, BITS(dst, 15, 0), 2))
+    INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, ST.W,        paddr_write(src1 + imm, dst, 4)) 
+    INST_MATCH(0x2a000000, 0xffc00000, TYPE_2RI12, LD.BU,       R(rd) = BITS(paddr_read(src1 + imm, 1), 7, 0))
+    INST_MATCH(0x2a400000, 0xffc00000, TYPE_2RI12, LD.HU,       R(rd) = BITS(paddr_read(src1 + imm, 2), 15, 0))
     // PRELD
-    // INST_MATCH(0x2a800000, 0xffc00000, TYPE_2RI12, )
+    // INST_MATCH(0x2a800000, 0xffc00000, PRELD, TYPE_2RI12, )
     // DBAR
-    // INST_MATCH(0x2b000000, 0xffc00000, TYPE_2RI12, )
+    // INST_MATCH(0x2b000000, 0xffc00000, DBAR, TYPE_2RI12, )
     // IBAR
-    // INST_MATCH(0x2b400000, 0xffc00000, TYPE_2RI12, )
-    // JIRL
-    INST_MATCH(0x4c000000, 0xfc000000, TYPE_2RI16, R(rd) = cpu.pc + 4; npc = src1 + (imm << 2))
-    // B
-    INST_MATCH(0x50000000, 0xfc000000, TYPE_I26, npc = cpu.pc + (imm << 2))
-    // BL
-    INST_MATCH(0x54000000, 0xfc000000, TYPE_I26, R(1) = cpu.pc + 4; npc = cpu.pc + (imm << 2))
-    // BEQ
-    INST_MATCH(0x58000000, 0xfc000000, TYPE_2RI16, if(src1 == dst) npc = cpu.pc + (imm << 2))
-    // BNE
-    INST_MATCH(0x5c000000, 0xfc000000, TYPE_2RI16, if(src1 != dst) npc = cpu.pc + (imm << 2))
-    // BLT
-    INST_MATCH(0x60000000, 0xfc000000, TYPE_2RI16, if((int32_t)src1 < (int32_t)dst) npc = cpu.pc + (imm << 2))
-    // BGE
-    INST_MATCH(0x64000000, 0xfc000000, TYPE_2RI16, if((int32_t)src1 >= (int32_t)dst) npc = cpu.pc + (imm << 2))
-    // BLTU
-    INST_MATCH(0x68000000, 0xfc000000, TYPE_2RI16, if(src1 < dst) npc = cpu.pc + (imm << 2))
-    // BGEU
-    INST_MATCH(0x6c000000, 0xfc000000, TYPE_2RI16, if(src1 >= dst) npc = cpu.pc + (imm << 2))
+    // INST_MATCH(0x2b400000, 0xffc00000, IBAR, TYPE_2RI12, ) 
+    INST_MATCH(0x4c000000, 0xfc000000, TYPE_2RI16, JIRL,        R(rd) = cpu.pc + 4; npc = src1 + (imm << 2))
+    INST_MATCH(0x50000000, 0xfc000000, TYPE_I26,   B,           npc = cpu.pc + (imm << 2))
+    INST_MATCH(0x54000000, 0xfc000000, TYPE_I26,   BL,          R(1) = cpu.pc + 4; npc = cpu.pc + (imm << 2))
+    INST_MATCH(0x58000000, 0xfc000000, TYPE_2RI16, BEQ,         if(src1 == dst) npc = cpu.pc + (imm << 2))
+    INST_MATCH(0x5c000000, 0xfc000000, TYPE_2RI16, BNE,         if(src1 != dst) npc = cpu.pc + (imm << 2))
+    INST_MATCH(0x60000000, 0xfc000000, TYPE_2RI16, BLT,         if((int32_t)src1 < (int32_t)dst) npc = cpu.pc + (imm << 2))
+    INST_MATCH(0x64000000, 0xfc000000, TYPE_2RI16, BGE,         if((int32_t)src1 >= (int32_t)dst) npc = cpu.pc + (imm << 2))
+    INST_MATCH(0x68000000, 0xfc000000, TYPE_2RI16, BLTU,        if(src1 < dst) npc = cpu.pc + (imm << 2))
+    INST_MATCH(0x6c000000, 0xfc000000, TYPE_2RI16, BGEU,        if(src1 >= dst) npc = cpu.pc + (imm << 2))
 
     
 
