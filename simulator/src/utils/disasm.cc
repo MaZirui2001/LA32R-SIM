@@ -23,9 +23,9 @@ void disasm(char* buf, uint32_t inst) {
             // jirl rd, rj, offs
             case 3: sprintf(buf, "%-12s %-4s, %-4s, %d\t", "jirl", rd, rj, SBITS(inst, 25, 10) << 2); return;
             // b offs
-            case 4: sprintf(buf, "%-12s %d\t", "b", SBITS(inst, 25, 10) << 2); return;
+            case 4: sprintf(buf, "%-12s %d\t", "b", (BITS(inst, 25, 10) | (SBITS(inst, 9, 0) << 16)) << 2); return;
             // bl offs
-            case 5: sprintf(buf, "%-12s %d\t", "bl", SBITS(inst, 25, 10) << 2); return;
+            case 5: sprintf(buf, "%-12s %d\t", "bl", (BITS(inst, 25, 10) | (SBITS(inst, 9, 0) << 16)) << 2); return;
             // beq rj, rd, offs
             case 6: sprintf(buf, "%-12s %-4s, %-4s, %d\t", "beq", rj, rd, SBITS(inst, 25, 10) << 2); return;
             // bne rj, rd, offs

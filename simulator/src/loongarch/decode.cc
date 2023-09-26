@@ -34,8 +34,8 @@ void decode_oprand(uint32_t inst, int type, uint32_t &rd, uint32_t &src1, uint32
         case TYPE_2RI12: imm = SBITS(inst, 21, 10); break;
         case TYPE_2RI14: imm = SBITS(inst, 23, 10); break;
         case TYPE_2RI16: imm = SBITS(inst, 25, 10); break;
-        case TYPE_1RI21: imm = BITS(inst, 25, 10) | SBITS(inst, 4, 0) << 16; break;
-        case TYPE_I26:   imm = BITS(inst, 25, 10) | SBITS(inst, 9, 0) << 16; break;
+        case TYPE_1RI21: imm = BITS(inst, 25, 10) | (SBITS(inst, 4, 0) << 16); break;
+        case TYPE_I26:   imm = BITS(inst, 25, 10) | (SBITS(inst, 9, 0) << 16); break;
         default:         imm = 0; break;
     }
 
@@ -135,9 +135,9 @@ void decode_exec(uint32_t inst){
     // JIRL
     INST_MATCH(0x4c000000, 0xfc000000, TYPE_2RI16, R(rd) = cpu.pc + 4; npc = src1 + (imm << 2))
     // B
-    INST_MATCH(0x50000000, 0xfc000000, TYPE_I26, npc = cpu.pc + imm)
+    INST_MATCH(0x50000000, 0xfc000000, TYPE_I26, npc = cpu.pc + (imm << 2))
     // BL
-    INST_MATCH(0x54000000, 0xfc000000, TYPE_I26, R(rd) = cpu.pc + 4; npc = cpu.pc + (imm << 2))
+    INST_MATCH(0x54000000, 0xfc000000, TYPE_I26, R(1) = cpu.pc + 4; npc = cpu.pc + (imm << 2))
     // BEQ
     INST_MATCH(0x58000000, 0xfc000000, TYPE_2RI16, if(src1 == dst) npc = cpu.pc + (imm << 2))
     // BNE

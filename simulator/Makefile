@@ -1,5 +1,7 @@
 
-SRCS=  $(shell find ./src -name "*.cc")
+SRCS =  $(shell find ./src -name "*.cc")
+
+IMG = 
 
 
 COLOR_RED   		= \033[31m

@@ -36,7 +36,7 @@ $(BINARY): $(OBJS)
 ARGS = 
 run: $(BINARY)
 	@echo "$(COLOR_YELLOW)[RUN]$(COLOR_NONE) build/$(notdir $<)"
-	@$(BINARY) $(ARGS)
+	@$(BINARY) $(IMG) $(ARGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
