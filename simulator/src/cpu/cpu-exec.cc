@@ -28,11 +28,11 @@ void cpu_exec(uint64_t n){
 
     }
     switch(cpu.state){
-        case SIM_END: case SIM_ABORT:
-        std::cout << "simulation end, state = " << 
-                ((cpu.state == SIM_END) ? (cpu.reg[4] == 0 ? "HIT GOOD TRAP" : "HIT BAD TRAP") : "ABORT") << std::endl;
+        case SIM_END: 
+        Log("simulation %s at pc = " FMT_WORD, (cpu.reg[4] == 0 ? INLINE_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : 
+            INLINE_FMT("HIT BAD TRAP", ANSI_FG_RED)), cpu.halt_pc); break;
+        case SIM_ABORT:
         break;
     }
-    std::cout << cpu.state << std::endl;
 
 }

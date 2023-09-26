@@ -35,7 +35,7 @@ $(BINARY): $(OBJS)
 
 ARGS = 
 run: $(BINARY)
-	@echo "$(COLOR_PURPLE)[RUN]$(COLOR_NONE) build/$(notdir $<)"
+	@echo "$(COLOR_YELLOW)[RUN]$(COLOR_NONE) build/$(notdir $<)"
 	@$(BINARY) $(ARGS)
 
 clean:

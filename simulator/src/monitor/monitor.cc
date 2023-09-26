@@ -14,7 +14,8 @@ static const uint32_t img [] = {
 
 static uint64_t load_img(char* img_file){
     if(img_file == NULL){
-        std::cout << "No image file specified" << std::endl;
+        memcpy(pmem, img, sizeof(img));
+        Log("No image file specified, using built-in image");
         return 0;
     }
     FILE* fp = fopen(img_file, "rb");
@@ -36,7 +37,6 @@ static uint64_t load_img(char* img_file){
 }
 
 void init_monitor(int argc, char *argv[]) {
-    memcpy(pmem, img, sizeof(img));
     load_img(argc >= 2 ? argv[1] : NULL);
     reset();
 }

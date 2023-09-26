@@ -4,6 +4,7 @@
 #include <bits/stdc++.h>
 #include <arch.h>
 #include <config.h>
+#include <utils.h>
 
 #define BITS(a, m, n) (((a) >> (n)) & ((1 << ((m) - (n) + 1)) - 1))
 

@@ -6,10 +6,6 @@ using namespace std;
 bitset<32> inst_bit;
 
 
-// void init_disasm(){
-
-// }
-
 void disasm(char* buf, uint32_t inst) {
     inst_bit = bitset<32> (inst);
 

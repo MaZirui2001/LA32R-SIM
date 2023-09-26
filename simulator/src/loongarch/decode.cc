@@ -109,13 +109,13 @@ void decode_exec(uint32_t inst){
     // LU12I.W
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, R(rd) = BITS(inst, 24, 5) << 12)
     // PCADDU12I
-    INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12);)
+    INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
     // LD.B
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))
     // LD.H
     INST_MATCH(0x28400000, 0xffc00000, TYPE_2RI12, R(rd) = SBITS(paddr_read(src1 + imm, 2), 15, 0))
     // LD.W
-    INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, R(rd) = paddr_read(src1 + imm, 4))
+    INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, R(rd) = paddr_read(src1 + imm, 4);)
     // ST.B
     INST_MATCH(0x29000000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, BITS(dst, 7, 0), 1))
     // ST.H
