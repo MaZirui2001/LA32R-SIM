@@ -51,7 +51,7 @@ void decode_exec(uint32_t inst){
     // ADD.W
     INST_MATCH(0x00100000, 0xffff8000, TYPE_3R, R(rd) = src1 + src2) 
     // SUB.W
-    INST_MATCH(0x00110000, 0xffff8000, TYPE_3R, R(rd) = src1 + src2) 
+    INST_MATCH(0x00110000, 0xffff8000, TYPE_3R, R(rd) = src1 - src2) 
     // SLT
     INST_MATCH(0x00120000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 < (int32_t)src2)
     // SLTU
@@ -77,7 +77,7 @@ void decode_exec(uint32_t inst){
     // MULHU.W
     INST_MATCH(0x001d0000, 0xffff8000, TYPE_3R, R(rd) = ((uint64_t)src1 * (uint64_t)src2) >> 32)
     // DIV.W
-    INST_MATCH(0x0020000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 / (int32_t)src2)
+    INST_MATCH(0x00200000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 / (int32_t)src2)
     // MOD.W
     INST_MATCH(0x00208000, 0xffff8000, TYPE_3R, R(rd) = (int32_t)src1 % (int32_t)src2)
     // DIV.WU
@@ -85,7 +85,7 @@ void decode_exec(uint32_t inst){
     // MOD.WU
     INST_MATCH(0x00218000, 0xffff8000, TYPE_3R, R(rd) = src1 % src2)
     // BREAK
-    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R, cpu.state = SIM_END; cpu.halt_pc = cpu.pc;)
+    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R, cpu.state = SIM_END; cpu.halt_pc = cpu.pc)
     // SYSCALL
     // INST_MATCH(0x002b0000, 0xffff8000, TYPE_3R, )
     // SLLI.W
@@ -94,9 +94,9 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x00448000, 0xffff8000, TYPE_2RI8, R(rd) = src1 >> BITS(imm, 4, 0))
     // SRAI.W
     INST_MATCH(0x00488000, 0xffff8000, TYPE_2RI8, R(rd) = (int32_t)src1 >> BITS(imm, 4, 0))
-    // SLTI.W
+    // SLTI
     INST_MATCH(0x02000000, 0xffc00000, TYPE_2RI12, R(rd) = (int32_t)src1 < (int32_t)imm)
-    // SLTIU.W
+    // SLTUI
     INST_MATCH(0x02400000, 0xffc00000, TYPE_2RI12, R(rd) = src1 < imm)
     // ADDI.W
     INST_MATCH(0x02800000, 0xffc00000, TYPE_2RI12, R(rd) = src1 + imm)
@@ -121,7 +121,7 @@ void decode_exec(uint32_t inst){
     // ST.H
     INST_MATCH(0x29400000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, BITS(dst, 15, 0), 2))
     // ST.W
-    INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, dst, 4); )
+    INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, dst, 4))
     // LD.BU
     INST_MATCH(0x2a000000, 0xffc00000, TYPE_2RI12, R(rd) = BITS(paddr_read(src1 + imm, 1), 7, 0))
     // LD.HU

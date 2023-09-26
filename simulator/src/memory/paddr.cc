@@ -1,5 +1,5 @@
 #include <common.h>
-
+#include <cpu.h>
 
 uint8_t pmem[CONFIG_PMEM_SIZE];
 
@@ -19,7 +19,11 @@ uint32_t pmem_read(uint32_t addr, uint32_t len) {
     }
 }
 uint32_t paddr_read(uint32_t addr, uint32_t len) {
-    assert(in_pmem(addr));
+    if(!in_pmem(addr)){
+        std::cout << "Read: Physical address " << std::hex << addr << " is outside of physical memory!" << std::endl;
+        cpu.state = SIM_ABORT;
+        return 0;
+    }
     return pmem_read(addr, len);
 }
 
@@ -34,7 +38,11 @@ void pmem_write(uint32_t addr, uint32_t data, uint32_t len) {
 
 }
 void paddr_write(uint32_t addr, uint32_t data, uint32_t len) {
-    assert(in_pmem(addr));
+    if(!in_pmem(addr)){
+        std::cout << "Write: Physical address " << std::hex << addr - CONFIG_PMEM_BASE << " is outside of physical memory!" << std::endl;
+        cpu.state = SIM_ABORT;
+        return;
+    }
     pmem_write(addr, data, len);
     return;
 }

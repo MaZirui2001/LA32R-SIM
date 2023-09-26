@@ -209,9 +209,9 @@ void disasm(char* buf, uint32_t inst) {
             // slli.w rd, rj, ui5
             case 0x1: sprintf(buf, "%-12s %-4s, %-4s, %d\t", "slli.w", rd, rj, SBITS(inst, 14, 10)); return;
             // srli.w rd, rj, ui5
-            case 0x5: sprintf(buf, "%-12s %-4s, %-4s, %d\t", "srli.w", rd, rj, SBITS(inst, 14, 10)); return;
+            case 0x9: sprintf(buf, "%-12s %-4s, %-4s, %d\t", "srli.w", rd, rj, SBITS(inst, 14, 10)); return;
             // srai.w rd, rj, ui5
-            case 0x9: sprintf(buf, "%-12s %-4s, %-4s, %d\t", "srai.w", rd, rj, SBITS(inst, 14, 10)); return;
+            case 0x11: sprintf(buf, "%-12s %-4s, %-4s, %d\t", "srai.w", rd, rj, SBITS(inst, 14, 10)); return;
 
             default: sprintf(buf, "%-16s", "unimp\t"); return;
         }

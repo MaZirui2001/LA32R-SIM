@@ -38,5 +38,5 @@ static uint64_t load_img(char* img_file){
 
 void init_monitor(int argc, char *argv[]) {
     load_img(argc >= 2 ? argv[1] : NULL);
-    reset();
+    
 }
