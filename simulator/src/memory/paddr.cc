@@ -23,7 +23,7 @@ uint32_t paddr_read(uint32_t addr, uint32_t len) {
     return pmem_read(addr, len);
 }
 
-uint32_t pmem_write(uint32_t addr, uint32_t data, uint32_t len) {
+void pmem_write(uint32_t addr, uint32_t data, uint32_t len) {
     uint8_t* p = addr_convert(addr);
     switch(len){
         case 1: *p = data; break;
@@ -31,8 +31,10 @@ uint32_t pmem_write(uint32_t addr, uint32_t data, uint32_t len) {
         case 4: *(uint32_t*)p = data; break;
         default: assert(0);
     }
+
 }
 void paddr_write(uint32_t addr, uint32_t data, uint32_t len) {
     assert(in_pmem(addr));
     pmem_write(addr, data, len);
+    return;
 }

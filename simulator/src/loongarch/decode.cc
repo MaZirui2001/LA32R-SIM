@@ -5,9 +5,9 @@
 #define R(i) cpu.reg[i]
 
 #define INST_MATCH(opcode, mask, type, ...) {\
-    if((opcode ^ inst) & mask){ \
+    if(((opcode ^ inst) & mask) == 0){ \
        decode_oprand(inst, type, rd, src1, src2, dst, imm); \
-       ## __VA_ARGS__; \
+        __VA_ARGS__ ; \
        goto finish; \
     } \
 } 
@@ -19,9 +19,9 @@ enum {
 void decode_oprand(uint32_t inst, int type, uint32_t &rd, uint32_t &src1, uint32_t &src2, uint32_t &dst, uint32_t &imm){
     int rj = BITS(inst, 9, 5);
     int rk = BITS(inst, 14, 10);
-    int ra = BITS(inst, 19, 15);
-
+    // int ra = BITS(inst, 19, 15);
     rd = BITS(inst, 4, 0);
+
     src1 = R(rj);
     src2 = R(rk);
     dst = R(rd);
@@ -85,7 +85,7 @@ void decode_exec(uint32_t inst){
     // MOD.WU
     INST_MATCH(0x00218000, 0xffff8000, TYPE_3R, R(rd) = src1 % src2)
     // BREAK
-    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R, cpu.state = STOP; cpu.halt_pc = cpu.pc)
+    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R, cpu.state = SIM_END; cpu.halt_pc = cpu.pc;)
     // SYSCALL
     // INST_MATCH(0x002b0000, 0xffff8000, TYPE_3R, )
     // SLLI.W
@@ -109,7 +109,7 @@ void decode_exec(uint32_t inst){
     // LU12I.W
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, R(rd) = BITS(inst, 24, 5) << 12)
     // PCADDU12I
-    INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, R(rd) = cpu.pc + BITS(inst, 24, 5) << 12)
+    INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12);)
     // LD.B
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))
     // LD.H
@@ -121,7 +121,7 @@ void decode_exec(uint32_t inst){
     // ST.H
     INST_MATCH(0x29400000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, BITS(dst, 15, 0), 2))
     // ST.W
-    INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, dst, 4))
+    INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, paddr_write(src1 + imm, dst, 4); )
     // LD.BU
     INST_MATCH(0x2a000000, 0xffc00000, TYPE_2RI12, R(rd) = BITS(paddr_read(src1 + imm, 1), 7, 0))
     // LD.HU
@@ -133,23 +133,25 @@ void decode_exec(uint32_t inst){
     // IBAR
     // INST_MATCH(0x2b400000, 0xffc00000, TYPE_2RI12, )
     // JIRL
-    INST_MATCH(0x4c000000, 0xfc000000, TYPE_2RI16, R(rd) = cpu.pc + 4; npc = src1 + imm)
+    INST_MATCH(0x4c000000, 0xfc000000, TYPE_2RI16, R(rd) = cpu.pc + 4; npc = src1 + (imm << 2))
     // B
     INST_MATCH(0x50000000, 0xfc000000, TYPE_I26, npc = cpu.pc + imm)
     // BL
-    INST_MATCH(0x54000000, 0xfc000000, TYPE_I26, R(rd) = cpu.pc + 4; npc = cpu.pc + imm)
+    INST_MATCH(0x54000000, 0xfc000000, TYPE_I26, R(rd) = cpu.pc + 4; npc = cpu.pc + (imm << 2))
     // BEQ
-    INST_MATCH(0x58000000, 0xfc000000, TYPE_2RI16, if(src1 == dst) npc = cpu.pc + imm)
+    INST_MATCH(0x58000000, 0xfc000000, TYPE_2RI16, if(src1 == dst) npc = cpu.pc + (imm << 2))
     // BNE
-    INST_MATCH(0x5c000000, 0xfc000000, TYPE_2RI16, if(src1 != dst) npc = cpu.pc + imm)
+    INST_MATCH(0x5c000000, 0xfc000000, TYPE_2RI16, if(src1 != dst) npc = cpu.pc + (imm << 2))
     // BLT
-    INST_MATCH(0x60000000, 0xfc000000, TYPE_2RI16, if((int32_t)src1 < (int32_t)dst) npc = cpu.pc + imm)
+    INST_MATCH(0x60000000, 0xfc000000, TYPE_2RI16, if((int32_t)src1 < (int32_t)dst) npc = cpu.pc + (imm << 2))
     // BGE
-    INST_MATCH(0x64000000, 0xfc000000, TYPE_2RI16, if((int32_t)src1 >= (int32_t)dst) npc = cpu.pc + imm)
+    INST_MATCH(0x64000000, 0xfc000000, TYPE_2RI16, if((int32_t)src1 >= (int32_t)dst) npc = cpu.pc + (imm << 2))
     // BLTU
-    INST_MATCH(0x68000000, 0xfc000000, TYPE_2RI16, if(src1 < dst) npc = cpu.pc + imm)
+    INST_MATCH(0x68000000, 0xfc000000, TYPE_2RI16, if(src1 < dst) npc = cpu.pc + (imm << 2))
     // BGEU
-    INST_MATCH(0x6c000000, 0xfc000000, TYPE_2RI16, if(src1 >= dst) npc = cpu.pc + imm)
+    INST_MATCH(0x6c000000, 0xfc000000, TYPE_2RI16, if(src1 >= dst) npc = cpu.pc + (imm << 2))
+
+    
 
 finish:
     R(0) = 0;
@@ -157,3 +159,6 @@ finish:
     return;
 }
 
+uint32_t inst_fetch(uint32_t pc){
+    return paddr_read(pc, 4);
+}

@@ -277,7 +277,7 @@ void disasm(char* buf, uint32_t inst) {
         return;
     }
     if(BITS(inst, 14, 13) == 3){
-        switch(inst, 12, 10){
+        switch(BITS(inst, 12, 10)){
             // rdcntid.w rj or rdcntvl.w rd
             case 0: sprintf(buf, "%-12s %-4s\t", BITS(inst, 4, 0) != 0 ? "rdcntvl.w" : "rdcntid.w", BITS(inst, 4, 0) != 0 ? rd : rj); return;
             // rdcntvh.w rd
