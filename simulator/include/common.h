@@ -13,4 +13,9 @@
     (((a) >> (m)) & 1 ? (~0 << (m - n + 1)) : 0))
 
 enum {SIM_RUNNING, SIM_STOP, SIM_END, SIM_ABORT};
+
+typedef uint32_t paddr_t;
+typedef uint32_t word_t;
+
+
 #endif

@@ -36,7 +36,11 @@ static uint64_t load_img(char* img_file){
     return size;
 }
 
+extern void init_mmio();
 void init_monitor(int argc, char *argv[]) {
     load_img(argc >= 2 ? argv[1] : NULL);
+#ifdef DEVICE
+    init_mmio();
+#endif
     
 }

@@ -24,15 +24,18 @@
 #define FMT_WORD "0x%08x"
 
 #define _Log(...) \
-  do { \
-    printf(__VA_ARGS__); \
-  } while (0)
+    do { \
+        printf(__VA_ARGS__); \
+    } while (0)
 
 #define Log(format, ...) \
-    _Log(ANSI_FMT("[%s:%d %s] ", ANSI_FG_MAGENTA), \
-        __FILE__, __LINE__, __func__); \
-    _Log(ANSI_FMT(format, ANSI_FG_CYAN) "\n", \
-     ## __VA_ARGS__)
+    _Log(ANSI_FMT("[%s:%d %s] ", ANSI_FG_MAGENTA), __FILE__, __LINE__, __func__); \
+    _Log(ANSI_FMT(format, ANSI_FG_CYAN) "\n", ## __VA_ARGS__)
 
-  
+#define Panic(fomat, ...) \
+    do { \
+        Log(ANSI_FMT("PANIC: " fomat, ANSI_FG_RED), ## __VA_ARGS__); \
+        assert(0); \
+    } while (0)
+
 #endif
