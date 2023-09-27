@@ -52,9 +52,9 @@ void cpu_exec(uint64_t n){
         // std::cout << buf << std::endl;
 #endif
         decode_exec(inst);
-#ifdef DEVICE
-        if(cpu.state == SIM_RUNNING) device_update();
-#endif
+// #ifdef DEVICE
+//         if(cpu.state == SIM_RUNNING) device_update();
+// #endif
         if(cpu.state != SIM_RUNNING) break;
     }
 #ifndef CONFIG_REF
@@ -67,6 +67,8 @@ void cpu_exec(uint64_t n){
             INLINE_FMT("HIT BAD TRAP", ANSI_FG_RED)), cpu.halt_pc); break;
         case SIM_ABORT:
         Log("simulation %s at pc = " FMT_WORD, INLINE_FMT("ABORT", ANSI_FG_RED), cpu.halt_pc); break;
+        case SIM_STOP:
+        Log("simulation %s at pc = " FMT_WORD, INLINE_FMT("STOP", ANSI_FG_YELLOW), cpu.halt_pc); break;
         break;
     }
 #endif
