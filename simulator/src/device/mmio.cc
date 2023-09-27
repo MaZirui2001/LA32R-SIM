@@ -54,10 +54,12 @@ void mmio_write(paddr_t addr, word_t data, uint32_t len){
     host_write((uint8_t*)iter->second.base + offset, data, len);
     iter->second.handler(iter->second.base, offset, len, true);
 }
-extern void init_serial();
-extern void init_rtc();
-void init_mmio(){
-    init_serial();
-    init_rtc();
-}
+// extern void init_serial();
+// extern void init_rtc();
+// extern void init_keyboard();
+// void init_mmio(){
+//     init_serial();
+//     init_rtc();
+//     init_keyboard();
+// }
 

@@ -18,6 +18,8 @@ LDFLGAS = -O3
 
 OBJS = $(addprefix $(TAR_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
 
+LIBS += -lSDL2 -ldl -pie
+
 
 $(TAR_DIR)/%.o: %.c
 	@mkdir -p $(dir $@) && echo "$(COLOR_DBLUE)[CC]$(COLOR_NONE) $<"
@@ -31,11 +33,12 @@ app: $(BINARY)
 
 $(BINARY): $(OBJS)
 	@mkdir -p $(dir $@) && echo "$(COLOR_YELLOW)[LD]$(COLOR_NONE) build/$(notdir $@)"
-	@$(LD) $(LDFLGAS) $^ -o $@
+	@$(LD) $(LDFLGAS)  $^ -o $@ $(LIBS)
 
 ARGS = 
 run: $(BINARY)
 	@echo "$(COLOR_YELLOW)[RUN]$(COLOR_NONE) build/$(notdir $<)"
+
 	@$(BINARY) $(IMG) $(ARGS)
 
 clean:

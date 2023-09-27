@@ -1,12 +1,12 @@
 #ifndef __MMIO_H__
 #define __MMIO_H__
 
-#define CONFIG_SERIAL_MMIO      0xa00003f8
-#define CONFIG_RTC_MMIO         0xa0000040
-#define CONFIG_I8042_DATA_MMIO  0xa0000060
+#define CONFIG_SERIAL_MMIO          0xa00003f8
+#define CONFIG_RTC_MMIO             0xa0000040
+#define CONFIG_KEYBOARD_DATA_MMIO   0xa0000060
 
-#define CONFIG_VGA_CTL_MMIO     0xa0000100
-#define CONFIG_FB_ADDR          0xa1000000
+#define CONFIG_VGA_CTL_MMIO         0xa0000100
+#define CONFIG_FB_ADDR              0xa1000000
 
 #include <common.h>
 

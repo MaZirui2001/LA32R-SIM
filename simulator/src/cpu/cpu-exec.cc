@@ -3,6 +3,7 @@
 #include <cpu.h>
 #include <decode.h>
 #include <disasm.h>
+#include <device.h>
 
 #ifdef ITRACE
 typedef struct{
@@ -51,6 +52,9 @@ void cpu_exec(uint64_t n){
         // std::cout << buf << std::endl;
 #endif
         decode_exec(inst);
+#ifdef DEVICE
+        if(cpu.state == SIM_RUNNING) device_update();
+#endif
         if(cpu.state != SIM_RUNNING) break;
     }
 #ifndef CONFIG_REF
