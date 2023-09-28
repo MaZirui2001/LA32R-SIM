@@ -6,7 +6,7 @@
 
 #ifndef CONFIT_REF
 #define ITRACE
-// #define DEVICE
+#define DEVICE
 #endif
 
 #define PAGE_SHIFT        12

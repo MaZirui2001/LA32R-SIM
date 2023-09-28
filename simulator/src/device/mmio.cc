@@ -54,6 +54,12 @@ void mmio_write(paddr_t addr, word_t data, uint32_t len){
     host_write((uint8_t*)iter->second.base + offset, data, len);
     if(iter->second.handler != NULL) iter->second.handler(iter->second.base, offset, len, true);
 }
+void free_io_space(){
+    for(auto iter = io_space.begin(); iter != io_space.end(); iter++){
+        if(iter->second.base != NULL) delete [] (uint8_t*)(iter->second.base);
+    }
+}
+
 // extern void init_serial();
 // extern void init_rtc();
 // extern void init_keyboard();
