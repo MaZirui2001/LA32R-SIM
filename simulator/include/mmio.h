@@ -7,6 +7,7 @@
 
 #define CONFIG_VGA_CTL_MMIO         0xa0000100
 #define CONFIG_FB_ADDR              0xa1000000
+#define CONFIG_FFB_ADDR             0xa2000000
 
 #include <common.h>
 

@@ -18,7 +18,7 @@ void register_io_map(const char* name, paddr_t addr, paddr_t len, void* base, io
         return !(p.first.first > high || p.first.second < low);
     });
     assert(iter == io_space.end());
-    assert(handler != NULL);
+    // assert(handler != NULL);
     io_space[std::make_pair(low, high)] = {name, base, handler};
     Log("Register io map: %s at 0x%08x ~ 0x%08x", name, low, high);
 }
@@ -35,7 +35,7 @@ word_t mmio_read(paddr_t addr, uint32_t len){
         return 0;
     }
     paddr_t offset = addr - iter->first.first;
-    iter->second.handler(iter->second.base, offset, len, false);
+    if(iter->second.handler != NULL) iter->second.handler(iter->second.base, offset, len, false);
     return host_read((uint8_t*)iter->second.base + offset, len);
 }
 
@@ -52,7 +52,7 @@ void mmio_write(paddr_t addr, word_t data, uint32_t len){
     }
     paddr_t offset = addr - iter->first.first;
     host_write((uint8_t*)iter->second.base + offset, data, len);
-    iter->second.handler(iter->second.base, offset, len, true);
+    if(iter->second.handler != NULL) iter->second.handler(iter->second.base, offset, len, true);
 }
 // extern void init_serial();
 // extern void init_rtc();
