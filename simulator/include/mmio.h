@@ -24,5 +24,4 @@ typedef struct {
 void register_io_map(const char* name, paddr_t addr, paddr_t len, void* base, io_handler_t handler);
 word_t mmio_read(paddr_t addr, uint32_t len);
 void mmio_write(paddr_t addr, word_t data, uint32_t len);
-void free_io_space();
 #endif

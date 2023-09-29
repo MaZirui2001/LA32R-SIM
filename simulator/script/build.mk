@@ -40,6 +40,10 @@ run: $(BINARY)
 	@echo "$(COLOR_YELLOW)[RUN]$(COLOR_NONE) build/$(notdir $<)"
 	@$(BINARY) $(IMG) $(ARGS)
 
+gdb: $(BINARY)
+	@echo "$(COLOR_YELLOW)[GDB]$(COLOR_NONE) build/$(notdir $<)"
+	@gdb $(SIM_PATH) $(BINARY) $(IMG)
+
 clean:
 	rm -rf $(BUILD_DIR)
 

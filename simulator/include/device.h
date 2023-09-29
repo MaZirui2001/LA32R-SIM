@@ -5,5 +5,6 @@
 
 void init_device();
 void device_update();
+void free_device();
 
 #endif

@@ -1,5 +1,4 @@
 #include <devtest.h>
-
 void hello() {
   for (int i = 0; i < 10; i ++) {
     printf("%d: Hello, CECS 2023!\n", i);
