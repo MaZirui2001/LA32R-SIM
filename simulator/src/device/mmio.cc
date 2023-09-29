@@ -4,7 +4,13 @@
 
 #define IO_SPACE_SIZE (2 * 1024 * 1024)
 
-std::map<std::pair<paddr_t, paddr_t>, io_map_t> io_space;
+struct cmpMap
+{
+    bool operator()(const std::pair<paddr_t, paddr_t> & l, const std::pair<paddr_t, paddr_t>& r) const
+    { return l.first < r.first;}
+};
+
+std::map<std::pair<paddr_t, paddr_t>, io_map_t, cmpMap> io_space;
 
 void register_io_map(const char* name, paddr_t addr, paddr_t len, void* base, io_handler_t handler){
     paddr_t low = addr;
