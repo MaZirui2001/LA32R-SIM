@@ -2,3 +2,8 @@ build/
 ramdisk.img
 .vscode/
 .result
+.scala-build/
+.metals/
+project/
+.bloop/
+target/
