@@ -7,3 +7,4 @@ ramdisk.img
 project/
 .bloop/
 target/
+*.vcd

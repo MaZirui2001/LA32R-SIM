@@ -44,10 +44,13 @@ uint32_t set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdat
 bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
     if(commit_en){
         auto inst = set_cpu_state(pc, rd, rd_valid, rf_wdata);
-        cpu.state = test_break(inst) ? SIM_END : cpu.state;
 #ifdef ITRACE
-        add_ilog(pc, inst);
+        if(cpu.state == SIM_RUNNING) add_ilog(pc, inst);
 #endif
+        if(test_break(inst)){
+            cpu.state = SIM_END;
+            cpu.halt_pc = pc;
+        }
         return true;
     }
     return false;
