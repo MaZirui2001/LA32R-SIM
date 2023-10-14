@@ -21,7 +21,7 @@ void print_ilog(){
         char buf[100];
         disasm(buf, ilog[(ilog_idx+i)%ILOG_SIZE].inst);
         std::cout << std::left << std::setw(32) << std::setfill(' ') << buf << '\t';
-        std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].rf_wdata << std::endl;
+        std::cout << std::right << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].rf_wdata << std::endl;
     }
 }
 void add_ilog(uint32_t pc, uint32_t inst, uint32_t rf_wdata){
