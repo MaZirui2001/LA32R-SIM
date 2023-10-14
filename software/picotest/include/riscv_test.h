@@ -41,7 +41,7 @@
 
 #define RVTEST_FAIL			\
 	li	a0, 0xFFFFFFFF;	\
-	ebreak;				\
+	break 0;				\
 	j fail;
 
 #define RVTEST_CODE_END

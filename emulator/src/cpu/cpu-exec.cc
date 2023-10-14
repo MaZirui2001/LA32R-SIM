@@ -8,6 +8,7 @@
 typedef struct{
     uint32_t pc;
     uint32_t inst;
+    uint32_t rf_wdata;
 }inst_log_t;
 
 #define ILOG_SIZE 16
@@ -19,12 +20,14 @@ void print_ilog(){
         std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].inst << '\t';
         char buf[100];
         disasm(buf, ilog[(ilog_idx+i)%ILOG_SIZE].inst);
-        std::cout << buf << std::endl;
+        std::cout << std::left << std::setw(32) << std::setfill(' ') << buf << '\t';
+        std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].rf_wdata << std::endl;
     }
 }
-void add_ilog(uint32_t pc, uint32_t inst){
+void add_ilog(uint32_t pc, uint32_t inst, uint32_t rf_wdata){
     ilog[ilog_idx].pc = pc;
     ilog[ilog_idx].inst = inst;
+    ilog[ilog_idx].rf_wdata = rf_wdata;
     ilog_idx = (ilog_idx + 1) % ILOG_SIZE;
 }
 #endif
@@ -45,7 +48,7 @@ bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint
     if(commit_en){
         auto inst = set_cpu_state(pc, rd, rd_valid, rf_wdata);
 #ifdef ITRACE
-        if(cpu.state == SIM_RUNNING) add_ilog(pc, inst);
+        if(cpu.state == SIM_RUNNING) add_ilog(pc, inst, rf_wdata);
 #endif
         if(test_break(inst)){
             cpu.state = SIM_END;
