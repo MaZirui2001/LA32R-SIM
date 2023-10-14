@@ -22,6 +22,7 @@
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 #define INLINE_FMT(str, fmt) fmt str ANSI_NONE ANSI_FG_CYAN
 #define FMT_WORD "0x%08x"
+#define FMT_DWORD "0x%lx"
 
 #define _Log(...) \
     do { \

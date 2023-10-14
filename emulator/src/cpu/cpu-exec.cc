@@ -9,15 +9,20 @@ typedef struct{
     uint32_t pc;
     uint32_t inst;
     uint32_t rf_wdata;
+    uint32_t prd;
+    uint32_t prj;
+    uint32_t prk;
 }inst_log_t;
+
+static uint32_t reg_rename_table[32];
 
 #define ILOG_SIZE 16
 static inst_log_t ilog[ILOG_SIZE];
 static int ilog_idx = 0;
 void print_ilog(){
     for(int i = 0; i < ILOG_SIZE; i++){
-        std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].pc << ": ";
-        std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].inst << '\t';
+        std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].pc << ": \t";
+        // std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].inst << '\t';
         char buf[100];
         disasm(buf, ilog[(ilog_idx+i)%ILOG_SIZE].inst);
         std::cout << std::left << std::setw(32) << std::setfill(' ') << buf << '\t';
@@ -28,6 +33,10 @@ void add_ilog(uint32_t pc, uint32_t inst, uint32_t rf_wdata){
     ilog[ilog_idx].pc = pc;
     ilog[ilog_idx].inst = inst;
     ilog[ilog_idx].rf_wdata = rf_wdata;
+    // reg_rename_table[rd] = prd;
+    // ilog[ilog_idx].prd = prd;
+    // ilog[ilog_idx].prj = reg_rename_table[rj];
+    // ilog[ilog_idx].prk = reg_rename_table[rk];
     ilog_idx = (ilog_idx + 1) % ILOG_SIZE;
 }
 #endif
@@ -73,7 +82,7 @@ void single_cycle(){
             paddr_write(uint32_t(dut->io_mem_addr_ex), dut->io_mem_wdata_ex, 1 << ((dut->io_mem_type_ex) % 4));
         }
     }
-    m_trace->dump(sim_time++);
+    // m_trace->dump(sim_time++);
     dut->clock = 1;
     dut->eval();
     m_trace->dump(sim_time++);
@@ -90,7 +99,12 @@ void reset(){
     dut->reset = 0;
     std::cout << "Reset at pc = " << std::hex << dut->io_pc_IF << std::endl;
 }
-
+uint64_t total_clocks = 0;
+uint64_t total_insts = 0;
+void statistic(){
+    // output the IPC
+    Log("Total instructions = %lu, Total clocks = %lu, IPC = %lf", total_insts, total_clocks, double(total_insts) / total_clocks);
+}
 void cpu_exec(uint64_t n){
 #ifndef CONFIG_REF
     switch(cpu.state){
@@ -108,6 +122,8 @@ void cpu_exec(uint64_t n){
         commit_num += commit_update(dut->io_commit_en4, dut->io_commit_pc_4, dut->io_commit_rd4, dut->io_commit_rd_valid4, dut->io_commit_rf_wdata4);
         if(cpu.state != SIM_RUNNING) break;
         single_cycle();
+        total_clocks++;
+        total_insts += commit_num;
     }
 #ifndef CONFIG_REF
 #ifdef ITRACE
@@ -123,6 +139,7 @@ void cpu_exec(uint64_t n){
         Log("simulation %s at pc = " FMT_WORD, INLINE_FMT("STOP", ANSI_FG_YELLOW), cpu.halt_pc); break;
         break;
     }
+    statistic();
 #endif
 }
 
