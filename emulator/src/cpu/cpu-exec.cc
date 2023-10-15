@@ -3,6 +3,7 @@
 #include <cpu.h>
 #include <disasm.h>
 #include <device.h>
+#include <difftest.h>
 
 #ifdef ITRACE
 typedef struct{
@@ -45,20 +46,21 @@ inline bool test_break(uint32_t inst){
     return inst == 0x002a0000;
 }
 
-uint32_t set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
+void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
     if(rd_valid){
         cpu.reg[rd] = rf_wdata;
     }
     cpu.pc = pc;
-    return paddr_read(pc, 4);
 }
 
 bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
     if(commit_en){
-        auto inst = set_cpu_state(pc, rd, rd_valid, rf_wdata);
-#ifdef ITRACE
-        if(cpu.state == SIM_RUNNING) add_ilog(pc, inst, rf_wdata);
-#endif
+        auto inst = paddr_read(cpu.pc, 4);
+        #ifdef ITRACE
+            if(cpu.state == SIM_RUNNING) add_ilog(cpu.pc, inst, rf_wdata);
+        #endif
+        set_cpu_state(pc, rd, rd_valid, rf_wdata);
+
         if(test_break(inst)){
             cpu.state = SIM_END;
             cpu.halt_pc = pc;
@@ -121,6 +123,9 @@ void cpu_exec(uint64_t n){
         commit_num += commit_update(dut->io_commit_en3, dut->io_commit_pc_3, dut->io_commit_rd3, dut->io_commit_rd_valid3, dut->io_commit_rf_wdata3);
         commit_num += commit_update(dut->io_commit_en4, dut->io_commit_pc_4, dut->io_commit_rd4, dut->io_commit_rd_valid4, dut->io_commit_rf_wdata4);
         if(cpu.state != SIM_RUNNING) break;
+#ifdef DIFFTEST
+        if(commit_num != 0) difftest_step(commit_num);
+#endif
         single_cycle();
         total_clocks++;
         total_insts += commit_num;

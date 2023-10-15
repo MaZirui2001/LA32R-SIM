@@ -13,8 +13,8 @@ extern std::unordered_map<unsigned int, const char*> csr_name;
 #define RESET_VECTOR CONFIG_PMEM_BASE
 
 typedef struct {
-    uint32_t pc;
     uint32_t reg[32];
+    uint32_t pc;
     uint32_t csr[512];
     int state;
     uint32_t halt_pc;

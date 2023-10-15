@@ -1,5 +1,6 @@
 #include <common.h>
 #include <cpu.h>
+#include <difftest.h>
 
 
 extern uint8_t pmem[CONFIG_PMEM_SIZE];
@@ -38,7 +39,11 @@ static uint64_t load_img(char* img_file){
 
 extern void init_device();
 void init_monitor(int argc, char *argv[]) {
-    load_img(argc >= 2 ? argv[1] : NULL);
+    uint64_t size = load_img(argc >= 3 ? argv[1] : NULL);
+#ifdef DIFFTEST
+    // uint64_t size = load_img(argc >= 3 ? argv[1] : NULL);
+    init_difftest(argc >= 3 ? argv[2] : argv[1], (long)size);
+#endif
 #ifdef DEVICE
     init_device();
 #endif

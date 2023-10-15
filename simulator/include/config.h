@@ -4,7 +4,9 @@
 #define CONFIG_PMEM_SIZE 0x08000000 // 128 MB
 #define CONFIG_PMEM_BASE 0x1c000000
 
-#ifndef CONFIT_REF
+#define CONFIG_REF
+
+#ifndef CONFIG_REF
 #define ITRACE
 #define DEVICE
 #endif

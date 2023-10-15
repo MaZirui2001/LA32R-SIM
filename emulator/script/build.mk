@@ -1,6 +1,8 @@
 .DEFUALT_GOAL := app
-
 SCALA_SRCS = $(WORK_DIR)
+SIMU_DIR = $(abspath $(WORK_DIR)/../simulator)
+SIMUISO = $(SIMU_DIR)/build/simulator-so
+
 
 # CC = gcc
 # CXX = g++
@@ -15,6 +17,10 @@ SCALA_SRCS = $(WORK_DIR)
 # OBJS = $(addprefix $(TAR_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
 
 # LIBS += -lSDL2 -ldl -pie
+
+$(SIMUISO):
+	@echo "$(COLOR_YELLOW)[Make DIFF]$(COLOR_NONE) $(notdir $(SIMU_DIR))/build/simulator-so"
+	@make -s -C $(SIMU_DIR)
 
 $(BINARY): FORCE
 	@make -s -C ../LA32R-pipeline-scala
@@ -33,13 +39,13 @@ FORCE:
 # 	@mkdir -p $(dir $@) && echo "$(COLOR_DBLUE)[CXX]$(COLOR_NONE) $<"
 # 	@$(CXX) $(CFLAGS) -c $< -o $@
 
-app: $(BINARY)
+app: $(BINARY) $(SIMUISO)
 	
 
 ARGS = 
-run: $(BINARY)
+run: $(BINARY) $(SIMUISO)
 	@echo "$(COLOR_YELLOW)[RUN]$(COLOR_NONE) build/$(notdir $<)"
-	@$(BINARY) $(IMG) $(ARGS)
+	$(BINARY) $(IMG) $(SIMUISO) $(ARGS)
 
 gdb: $(BINARY)
 	@echo "$(COLOR_YELLOW)[GDB]$(COLOR_NONE) build/$(notdir $<)"

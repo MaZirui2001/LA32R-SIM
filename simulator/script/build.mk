@@ -1,5 +1,15 @@
 .DEFUALT_GOAL := app
 
+SHARE = 1
+ifeq ($(SHARE),1)
+SO = -so
+CFLAGS  += -fPIC -fvisibility=hidden
+LDFLAGS += -shared -fPIC
+else 
+SO =
+LIBS += -lSDL2 -ldl -pie
+endif
+
 CC = gcc
 CXX = g++
 LD = $(CXX)
@@ -8,17 +18,15 @@ WORK_DIR = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
 TAR_DIR = $(BUILD_DIR)/obj
 
-BINARY = $(BUILD_DIR)/simulator
+BINARY = $(BUILD_DIR)/simulator$(SO)
 
 INC_PATH = $(WORK_DIR)/include
 INCLUDE = $(addprefix -I, $(INC_PATH))
 
-CFLAGS = -O3 -MMD -Wall -Werror $(INCLUDE) 
-LDFLGAS = -O3
+CFLAGS := -O3 -MMD -Wall -Werror $(INCLUDE) $(CFLAGS)
+LDFLAGS := -O3 $(LDFLAGS)
 
 OBJS = $(addprefix $(TAR_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
-
-LIBS += -lSDL2 -ldl -pie
 
 
 $(TAR_DIR)/%.o: %.c
@@ -31,9 +39,10 @@ $(TAR_DIR)/%.o: %.cc
 
 app: $(BINARY)
 
-$(BINARY): $(OBJS)
+$(BINARY): $(OBJS) 
 	@mkdir -p $(dir $@) && echo "$(COLOR_YELLOW)[LD]$(COLOR_NONE) build/$(notdir $@)"
-	@$(LD) $(LDFLGAS)  $^ -o $@ $(LIBS)
+	echo $(LD) $(LDFLAGS)  $^ -o $@ $(LIBS)
+	$(LD) $(LDFLAGS)  $^ -o $@
 
 ARGS = 
 run: $(BINARY)
