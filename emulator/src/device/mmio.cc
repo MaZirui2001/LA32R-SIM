@@ -36,8 +36,9 @@ word_t mmio_read(paddr_t addr, uint32_t len){
         return low >= p.first.first && high <= p.first.second;
     });
     if(iter == io_space.end()){
-        std::cout << "Read: Physical address " << std::hex << addr << " is outside of io space!" << std::endl;
-        cpu.state = SIM_ABORT;
+        // std::cout << "Read: Physical address " << std::hex << addr << " is outside of io space!" << std::endl;
+        // cpu.state = SIM_ABORT;
+        // return 0;
         return 0;
     }
     paddr_t offset = addr - iter->first.first;

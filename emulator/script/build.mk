@@ -1,8 +1,10 @@
-.DEFUALT_GOAL := app
+
+
 SCALA_SRCS = $(WORK_DIR)
 SIMU_DIR = $(abspath $(WORK_DIR)/../simulator)
 SIMUISO = $(SIMU_DIR)/build/simulator-so
 
+all: $(BINARY) 
 
 # CC = gcc
 # CXX = g++
@@ -29,7 +31,6 @@ $(BINARY): FORCE
 	@verilator $(VFLAGS) $(CSRCS) $(CINC_PATH) $(VERILOG_TOP)
 	@make -s -C $(BUILD_DIR) -f $(REWRITE)
 	
-FORCE:
 
 # $(TAR_DIR)/%.o: %.c
 # 	@mkdir -p $(dir $@) && echo "$(COLOR_DBLUE)[CC]$(COLOR_NONE) $<"
@@ -39,7 +40,7 @@ FORCE:
 # 	@mkdir -p $(dir $@) && echo "$(COLOR_DBLUE)[CXX]$(COLOR_NONE) $<"
 # 	@$(CXX) $(CFLAGS) -c $< -o $@
 
-app: $(BINARY) $(SIMUISO)
+
 	
 
 ARGS = 
@@ -49,9 +50,9 @@ run: $(BINARY) $(SIMUISO)
 
 gdb: $(BINARY)
 	@echo "$(COLOR_YELLOW)[GDB]$(COLOR_NONE) build/$(notdir $<)"
-	@gdb $(SIM_PATH) $(BINARY) $(IMG)
+	gdb --args  $(BINARY) $(IMG) $(SIMUISO) $(ARGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
 
-
+FORCE:

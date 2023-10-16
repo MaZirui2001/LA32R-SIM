@@ -18,9 +18,10 @@ loop:
     add.w $r20, $r10, $r11
     li.w $r10, 34
 
-    bne $r14, $r10, fail
+    
     bne $r12, $r10, fail
     bne $r13, $r10, fail
+    bne $r14, $r10, fail
     addi.w $r5, $r5, -1
     beq $r5, $r0, pass
     b loop

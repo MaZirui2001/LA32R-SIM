@@ -41,7 +41,7 @@ app: $(BINARY)
 
 $(BINARY): $(OBJS) 
 	@mkdir -p $(dir $@) && echo "$(COLOR_YELLOW)[LD]$(COLOR_NONE) build/$(notdir $@)"
-	echo $(LD) $(LDFLAGS)  $^ -o $@ $(LIBS)
+	@echo $(LD) $(LDFLAGS)  $^ -o $@ $(LIBS)
 	$(LD) $(LDFLAGS)  $^ -o $@
 
 ARGS = 
@@ -51,7 +51,7 @@ run: $(BINARY)
 
 gdb: $(BINARY)
 	@echo "$(COLOR_YELLOW)[GDB]$(COLOR_NONE) build/$(notdir $<)"
-	@gdb $(SIM_PATH) $(BINARY) $(IMG)
+	@gdb $(SIM_PATH) --args $(BINARY) $(IMG)
 
 clean:
 	rm -rf $(BUILD_DIR)

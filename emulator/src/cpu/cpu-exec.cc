@@ -76,13 +76,11 @@ void single_cycle(){
     dut->io_inst3_IF = paddr_read(dut->io_pc_IF + 8, 4);
     dut->io_inst4_IF = paddr_read(dut->io_pc_IF + 12, 4);
     dut->eval();
-    if(dut->io_mem_type_ex != 0){
-        if(BITS(dut->io_mem_type_ex, 4, 4)){
-            dut->io_mem_rdata_ex = paddr_read(uint32_t(dut->io_mem_addr_ex), 1 << ((dut->io_mem_type_ex) % 4));
-        }
-        else {
-            paddr_write(uint32_t(dut->io_mem_addr_ex), dut->io_mem_wdata_ex, 1 << ((dut->io_mem_type_ex) % 4));
-        }
+    if(dut->io_mem_is_store_cmt){
+        paddr_write(uint32_t(dut->io_mem_waddr_cmt), dut->io_mem_wdata_cmt, 1 << ((dut->io_mem_wlen_cmt) % 4));
+    }
+    if(dut->io_mem_is_load_ex){
+        dut->io_mem_rdata_ex = paddr_read(uint32_t(dut->io_mem_raddr_ex), 1 << ((dut->io_mem_rlen_ex) % 4));
     }
     // m_trace->dump(sim_time++);
     dut->clock = 1;
