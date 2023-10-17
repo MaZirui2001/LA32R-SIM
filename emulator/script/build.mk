@@ -1,47 +1,31 @@
 
 
-SCALA_SRCS = $(WORK_DIR)
 SIMU_DIR = $(abspath $(WORK_DIR)/../simulator)
 SIMUISO = $(SIMU_DIR)/build/simulator-so
 
+SCALA_DIR = $(abspath $(WORK_DIR)/../LA32R-pipeline-scala)
+
+SCALA_SRCS := $(shell find $(SCALA_DIR)/src/main/scala -name "*.scala")
+CSRCS := $(shell find $(WORK_DIR)/src -name "*.cc")
+
+VERILOG := $(shell find $(SCALA_DIR)/verilog -name "*.sv")
+
 all: $(BINARY) 
-
-# CC = gcc
-# CXX = g++
-# LD = $(CXX)
-
-# INC_PATH = $(WORK_DIR)/include
-# INCLUDE = $(addprefix -I, $(INC_PATH))
-
-# CFLAGS = -O3 -MMD -Wall -Werror $(INCLUDE) 
-# LDFLGAS = -O3
-
-# OBJS = $(addprefix $(TAR_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
-
-# LIBS += -lSDL2 -ldl -pie
 
 $(SIMUISO):
 	@echo "$(COLOR_YELLOW)[Make DIFF]$(COLOR_NONE) $(notdir $(SIMU_DIR))/build/simulator-so"
 	@make -s -C $(SIMU_DIR)
 
-$(BINARY): FORCE
-	@make -s -C ../LA32R-pipeline-scala
+$(VERILOG): $(SCALA_SRCS)
+	@make -s -C $(SCALA_DIR) verilog
+
+$(BINARY): $(VERILOG) $(CSRCS)
 	@echo "$(COLOR_DBLUE)[VERILATE]$(COLOR_NONE) $(notdir $(BUILD_DIR))/VCPU"
 	@mkdir -p $(BUILD_DIR)
 	@verilator $(VFLAGS) $(CSRCS) $(CINC_PATH) $(VERILOG_TOP)
 	@make -s -C $(BUILD_DIR) -f $(REWRITE)
-	
-
-# $(TAR_DIR)/%.o: %.c
-# 	@mkdir -p $(dir $@) && echo "$(COLOR_DBLUE)[CC]$(COLOR_NONE) $<"
-# 	@$(CC) $(CFLAGS) -c $< -o $@
-
-# $(TAR_DIR)/%.o: %.cc
-# 	@mkdir -p $(dir $@) && echo "$(COLOR_DBLUE)[CXX]$(COLOR_NONE) $<"
-# 	@$(CXX) $(CFLAGS) -c $< -o $@
 
 
-	
 
 ARGS = 
 run: $(BINARY) $(SIMUISO)
@@ -55,4 +39,3 @@ gdb: $(BINARY)
 clean:
 	rm -rf $(BUILD_DIR)
 
-FORCE:

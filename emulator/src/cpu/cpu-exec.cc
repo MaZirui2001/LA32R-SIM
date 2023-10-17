@@ -15,29 +15,33 @@ typedef struct{
     uint32_t prk;
 }inst_log_t;
 
-static uint32_t reg_rename_table[32];
+uint32_t reg_rename_table[32];
 
 #define ILOG_SIZE 16
 static inst_log_t ilog[ILOG_SIZE];
 static int ilog_idx = 0;
 void print_ilog(){
+    std::cout << std::left << std::setw(16) << std::setfill(' ') << "PC" ;
+    std::cout << std::left << std::setw(46) << std::setfill(' ') << "INSTRUCTION" << '\t' << "RF_WDATA" << std::endl;
+    std::cout << std::left << std::setw(16+46+10) << std::setfill('-') << "" << std::endl;
     for(int i = 0; i < ILOG_SIZE; i++){
         std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].pc << ": \t";
-        // std::cout << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].inst << '\t';
         char buf[100];
-        disasm(buf, ilog[(ilog_idx+i)%ILOG_SIZE].inst);
-        std::cout << std::left << std::setw(32) << std::setfill(' ') << buf << '\t';
+        disasm(buf, ilog[(ilog_idx+i)%ILOG_SIZE].inst, ilog[(ilog_idx+i)%ILOG_SIZE].prd, ilog[(ilog_idx+i)%ILOG_SIZE].prj, ilog[(ilog_idx+i)%ILOG_SIZE].prk);
+        std::cout << std::left << std::setw(46) << std::setfill(' ') << buf << '\t';
         std::cout << std::right << std::hex << std::setw(8) << std::setfill('0') << ilog[(ilog_idx+i)%ILOG_SIZE].rf_wdata << std::endl;
     }
 }
-void add_ilog(uint32_t pc, uint32_t inst, uint32_t rf_wdata){
+void add_ilog(uint32_t pc, uint32_t inst, uint32_t rf_wdata, uint32_t prd, uint32_t rd, bool rd_valid, uint32_t rj, uint32_t rk){
     ilog[ilog_idx].pc = pc;
     ilog[ilog_idx].inst = inst;
     ilog[ilog_idx].rf_wdata = rf_wdata;
-    // reg_rename_table[rd] = prd;
-    // ilog[ilog_idx].prd = prd;
-    // ilog[ilog_idx].prj = reg_rename_table[rj];
-    // ilog[ilog_idx].prk = reg_rename_table[rk];
+    if(rd_valid){
+        reg_rename_table[rd] = prd;
+    }
+    ilog[ilog_idx].prd = prd;
+    ilog[ilog_idx].prj = reg_rename_table[rj];
+    ilog[ilog_idx].prk = reg_rename_table[rk];
     ilog_idx = (ilog_idx + 1) % ILOG_SIZE;
 }
 #endif
@@ -53,11 +57,11 @@ void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
     cpu.pc = pc;
 }
 
-bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
+bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd){
     if(commit_en){
         auto inst = paddr_read(cpu.pc, 4);
         #ifdef ITRACE
-            if(cpu.state == SIM_RUNNING) add_ilog(cpu.pc, inst, rf_wdata);
+            if(cpu.state == SIM_RUNNING) add_ilog(cpu.pc, inst, rf_wdata, prd, BITS(inst, 4, 0), rd_valid, BITS(inst, 9, 5), BITS(inst, 14, 10));
         #endif
         set_cpu_state(pc, rd, rd_valid, rf_wdata);
 
@@ -116,10 +120,10 @@ void cpu_exec(uint64_t n){
 #endif
     while(n--){
         uint32_t commit_num = 0;
-        commit_num += commit_update(dut->io_commit_en1, dut->io_commit_pc_1, dut->io_commit_rd1, dut->io_commit_rd_valid1, dut->io_commit_rf_wdata1);
-        commit_num += commit_update(dut->io_commit_en2, dut->io_commit_pc_2, dut->io_commit_rd2, dut->io_commit_rd_valid2, dut->io_commit_rf_wdata2);
-        commit_num += commit_update(dut->io_commit_en3, dut->io_commit_pc_3, dut->io_commit_rd3, dut->io_commit_rd_valid3, dut->io_commit_rf_wdata3);
-        commit_num += commit_update(dut->io_commit_en4, dut->io_commit_pc_4, dut->io_commit_rd4, dut->io_commit_rd_valid4, dut->io_commit_rf_wdata4);
+        commit_num += commit_update(dut->io_commit_en1, dut->io_commit_pc_1, dut->io_commit_rd1, dut->io_commit_rd_valid1, dut->io_commit_rf_wdata1, dut->io_commit_prd1);
+        commit_num += commit_update(dut->io_commit_en2, dut->io_commit_pc_2, dut->io_commit_rd2, dut->io_commit_rd_valid2, dut->io_commit_rf_wdata2, dut->io_commit_prd2);
+        commit_num += commit_update(dut->io_commit_en3, dut->io_commit_pc_3, dut->io_commit_rd3, dut->io_commit_rd_valid3, dut->io_commit_rf_wdata3, dut->io_commit_prd3);
+        commit_num += commit_update(dut->io_commit_en4, dut->io_commit_pc_4, dut->io_commit_rd4, dut->io_commit_rd_valid4, dut->io_commit_rf_wdata4, dut->io_commit_prd4);
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
         if(commit_num != 0) difftest_step(commit_num);

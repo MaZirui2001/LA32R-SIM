@@ -6,6 +6,7 @@
 
 // loongarch reg name
 extern const char* reg_name[32];
+extern const char* preg_name[64];
 
 
 // loongarch csr name 
