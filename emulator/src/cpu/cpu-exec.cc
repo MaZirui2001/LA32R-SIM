@@ -37,12 +37,13 @@ void add_ilog(uint32_t pc, uint32_t inst, uint32_t rf_wdata, uint32_t prd, uint3
     ilog[ilog_idx].pc = pc;
     ilog[ilog_idx].inst = inst;
     ilog[ilog_idx].rf_wdata = rf_wdata;
+    ilog[ilog_idx].prj = reg_rename_table[rj];
+    ilog[ilog_idx].prk = reg_rename_table[rk];
     if(rd_valid){
         reg_rename_table[rd] = prd;
     }
     ilog[ilog_idx].prd = prd;
-    ilog[ilog_idx].prj = reg_rename_table[rj];
-    ilog[ilog_idx].prk = reg_rename_table[rk];
+
     ilog_idx = (ilog_idx + 1) % ILOG_SIZE;
 }
 #endif

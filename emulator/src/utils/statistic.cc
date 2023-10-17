@@ -40,10 +40,7 @@ void statistic::predict_update(bool predict_fail, uint32_t commit_num){
 }
 void statistic::print_stat(){
     Log("Total instructions = %lu, Total clocks = %lu, IPC = %lf", total_insts, total_clocks, double(total_insts) / total_clocks);
-    Log("1 commit rate = %lf", double(commit_1) / total_commits);
-    Log("2 commit rate = %lf", double(commit_2) / total_commits);
-    Log("3 commit rate = %lf", double(commit_3) / total_commits);
-    Log("4 commit rate = %lf", double(commit_4) / total_commits);
+    Log("1 commit rate = %lf, 2 commit rate = %lf, 3 commit rate = %lf, 4 commit rate = %lf", double(commit_1) / total_commits, double(commit_2) / total_commits, double(commit_3) / total_commits, double(commit_4) / total_commits);
     Log("Bubbles by predict fail = %lu, Bubble rate = %lf", bubble_by_predict_fail, double(bubble_by_predict_fail) / total_clocks);
 
 }
