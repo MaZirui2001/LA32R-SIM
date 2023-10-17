@@ -30,7 +30,7 @@ $(BINARY): $(VERILOG) $(CSRCS)
 ARGS = 
 run: $(BINARY) $(SIMUISO)
 	@echo "$(COLOR_YELLOW)[RUN]$(COLOR_NONE) build/$(notdir $<)"
-	$(BINARY) $(IMG) $(SIMUISO) $(ARGS)
+	@$(BINARY) $(IMG) $(SIMUISO) $(ARGS)
 
 gdb: $(BINARY)
 	@echo "$(COLOR_YELLOW)[GDB]$(COLOR_NONE) build/$(notdir $<)"

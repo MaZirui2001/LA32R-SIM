@@ -3,12 +3,7 @@
 #include <cpu.h>
 #include <monitor.h>
 #include <device.h>
-
-#include <common.h>
-#include <command.h>
-#include <cpu.h>
-#include <monitor.h>
-#include <device.h>
+#include <statistic.h>
 #include "verilated_vcd_c.h"
 #include "VCPU.h"
 

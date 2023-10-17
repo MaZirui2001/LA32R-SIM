@@ -1,6 +1,7 @@
 #include <common.h>
 #include <cpu.h>
 #include <difftest.h>
+#include <statistic.h>
 
 
 extern uint8_t pmem[CONFIG_PMEM_SIZE];

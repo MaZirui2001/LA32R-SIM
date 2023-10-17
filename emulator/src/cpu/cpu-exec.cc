@@ -4,6 +4,7 @@
 #include <disasm.h>
 #include <device.h>
 #include <difftest.h>
+#include <statistic.h>
 
 #ifdef ITRACE
 typedef struct{
@@ -103,13 +104,9 @@ void reset(){
     dut->reset = 0;
     std::cout << "Reset at pc = " << std::hex << dut->io_pc_IF << std::endl;
 }
-uint64_t total_clocks = 0;
-uint64_t total_insts = 0;
-void statistic(){
-    // output the IPC
-    Log("Total instructions = %lu, Total clocks = %lu, IPC = %lf", total_insts, total_clocks, double(total_insts) / total_clocks);
-}
+
 void cpu_exec(uint64_t n){
+    auto stat = new statistic;
 #ifndef CONFIG_REF
     switch(cpu.state){
         case SIM_ABORT: case SIM_END:
@@ -128,9 +125,10 @@ void cpu_exec(uint64_t n){
 #ifdef DIFFTEST
         if(commit_num != 0) difftest_step(commit_num);
 #endif
+        stat->ipc_update(commit_num);
+        stat->mul_commit_update(commit_num);
+        stat->predict_update(dut->io_commit_predict_fail, commit_num);
         single_cycle();
-        total_clocks++;
-        total_insts += commit_num;
     }
 #ifndef CONFIG_REF
 #ifdef ITRACE
@@ -146,7 +144,7 @@ void cpu_exec(uint64_t n){
         Log("simulation %s at pc = " FMT_WORD, INLINE_FMT("STOP", ANSI_FG_YELLOW), cpu.halt_pc); break;
         break;
     }
-    statistic();
+    stat->print_stat();
 #endif
 }
 
