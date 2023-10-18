@@ -14,16 +14,16 @@ all: $(BINARY)
 
 $(SIMUISO):
 	@echo "$(COLOR_YELLOW)[Make DIFF]$(COLOR_NONE) $(notdir $(SIMU_DIR))/build/simulator-so"
-	@make -s -C $(SIMU_DIR)
+	@$(MAKE) -s -C $(SIMU_DIR)
 
-$(BINARY): $(SCALA_SRCS) $(CSRCS) $(VERILOG)
+$(BINARY): $(CSRCS) $(VERILOG)
 	@echo "$(COLOR_DBLUE)[VERILATE]$(COLOR_NONE) $(notdir $(BUILD_DIR))/VCPU"
 	@mkdir -p $(BUILD_DIR)
 	@verilator $(VFLAGS) $(CSRCS) $(CINC_PATH) $(VERILOG_TOP)
-	@make -s -C $(BUILD_DIR) -f $(REWRITE)
+	@$(MAKE) -s -C $(BUILD_DIR) -f $(REWRITE)
 
 $(VERILOG): $(SCALA_SRCS)
-	@make -s -C $(SCALA_DIR) verilog
+	@$(MAKE) -s -C $(SCALA_DIR) verilog
 
 
 ARGS = 

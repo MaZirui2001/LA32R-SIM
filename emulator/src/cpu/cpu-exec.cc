@@ -88,7 +88,8 @@ void single_cycle(){
     if(dut->io_mem_is_load_ex){
         dut->io_mem_rdata_ex = paddr_read(uint32_t(dut->io_mem_raddr_ex), 1 << ((dut->io_mem_rlen_ex) % 4));
     }
-    // m_trace->dump(sim_time++);
+
+    //m_trace->dump(sim_time++);
     dut->clock = 1;
     dut->eval();
     m_trace->dump(sim_time++);

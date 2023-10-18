@@ -18,7 +18,7 @@ NAMES ?= $(sort $(basename $(notdir $(shell find src/. -name "*.c"))))
 all: $(NAMES)
 
 %: src/%.c
-	@if BASE_PORT=$(BASE_PORT) SIM_PATH=$(SIM_PATH) NAMES=$* SRCS=$<  ARGS=-b make -s -f $(BASE_PORT)/Makefile $(MAKECMDGOALS) ; then\
+	@if BASE_PORT=$(BASE_PORT) SIM_PATH=$(SIM_PATH) NAMES=$* SRCS=$<  ARGS=-b $(MAKE) -s -f $(BASE_PORT)/Makefile $(MAKECMDGOALS) ; then\
 		printf "%14s: [$(COLOR_GREEN)ACCEPT$(COLOR_NONE)]\n" $(notdir $*) >> $(RESULT);\
 	else\
 		printf "%14s: [$(COLOR_RED)FAILED$(COLOR_NONE)]\n" $(notdir $*) >> $(RESULT);\

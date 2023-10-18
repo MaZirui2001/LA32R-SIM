@@ -42,7 +42,7 @@ app: $(BINARY)
 $(BINARY): $(OBJS) 
 	@mkdir -p $(dir $@) && echo "$(COLOR_YELLOW)[LD]$(COLOR_NONE) build/$(notdir $@)"
 	@echo $(LD) $(LDFLAGS)  $^ -o $@ $(LIBS)
-	$(LD) $(LDFLAGS)  $^ -o $@
+	@$(LD) $(LDFLAGS)  $^ -o $@
 
 ARGS = 
 run: $(BINARY)

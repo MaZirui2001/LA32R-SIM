@@ -6,8 +6,6 @@
 
 // loongarch reg name
 extern const char* reg_name[32];
-
-
 // loongarch csr name 
 extern std::unordered_map<unsigned int, const char*> csr_name;
 #define RESET_VECTOR CONFIG_PMEM_BASE

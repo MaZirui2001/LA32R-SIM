@@ -48,8 +48,8 @@ $(TAR_DIR)/%.o: %.S
 
 # make libbase
 $(LIBS):
-	@make -s -C $(BASE_PORT)/base libkernel
-	@make -s -C $(BASE_PORT)/tool libkernel
+	@$(MAKE) -s -C $(BASE_PORT)/base libkernel
+	@$(MAKE) -s -C $(BASE_PORT)/tool libkernel
 
 # Linkage
 $(IMAGE).elf: $(OBJS) $(LIBS)
@@ -61,10 +61,10 @@ $(IMAGE).elf: $(OBJS) $(LIBS)
 image: $(IMAGE).elf
 
 run: image
-	@make -s -C $(SIM_PATH) run IMG=$(IMAGE).bin ARGS=$(ARGS)
+	@$(MAKE) -s -C $(SIM_PATH) run IMG=$(IMAGE).bin ARGS=$(ARGS)
 
 gdb: image
-	@make -s -C $(SIM_PATH) gdb IMG=$(IMAGE).bin ARGS=$(ARGS)
+	@$(MAKE) -s -C $(SIM_PATH) gdb IMG=$(IMAGE).bin ARGS=$(ARGS)
 
 clean: 
 	rm -rf $(BUILD_DIR)
