@@ -6,7 +6,7 @@
 
 #define ITRACE
 #define DEVICE
-// #define DIFFTEST
+#define DIFFTEST
 #define DUMP_WAVE
 #define DEVICE
 
