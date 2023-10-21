@@ -22,14 +22,13 @@ uint32_t pmem_read(uint32_t addr, uint32_t len) {
     uint8_t* p = addr_convert(addr);
     return host_read(p, len);
 }
-
 uint32_t paddr_read(uint32_t addr, uint32_t len) {
     if(!in_pmem(addr)){
 #ifndef DEVICE
         std::cout << "Read: Physical address " << std::hex << addr << " is outside of physical memory!" << std::endl;
         cpu.state = SIM_ABORT;
         return 0;
-#else
+#else   
         return mmio_read(addr, len);
 #endif
     }

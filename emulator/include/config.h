@@ -7,7 +7,7 @@
 #define ITRACE
 #define DEVICE
 #define DIFFTEST
-#define DUMP_WAVE
+// #define DUMP_WAVE
 #define DEVICE
 
 #define PAGE_SHIFT        12

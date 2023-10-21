@@ -92,7 +92,11 @@ void single_cycle(){
     // m_trace->dump(sim_time++);
     dut->clock = 1;
     dut->eval();
-    m_trace->dump(sim_time++);
+#ifdef DUMP_WAVE
+    sim_time++;
+    if(sim_time > 370000)
+        m_trace->dump(sim_time);
+#endif
 }
 
 void reset(){
@@ -106,7 +110,6 @@ void reset(){
     dut->reset = 0;
     std::cout << "Reset at pc = " << std::hex << dut->io_pc_IF << std::endl;
 }
-
 void cpu_exec(uint64_t n){
     auto stat = new statistic;
 #ifndef CONFIG_REF

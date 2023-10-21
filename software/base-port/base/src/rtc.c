@@ -4,7 +4,7 @@
 void __timer_init() {
 }
 
-void __timer_uptime(DEV_TIMER_UPTIME_T *uptime) {
+void __timer_uptime(DEV_TIMER_UPTIME *uptime) {
   uptime->us = inl(RTC_ADDR);
 }
 
