@@ -3,9 +3,9 @@
 
 #include <common.h>
 
-// #define Log(format, ...) \
-//   printf("\33[1;33m[%9s]\33[0m \33[1;32m" format "\33[0m\n", \
-//       strrchr(__FILE__, '/')+1, ## __VA_ARGS__)
+#define Log(format, ...) \
+  printf("\33[1;33m[%9s]\33[0m \33[1;32m" format "\33[0m\n", \
+      strrchr(__FILE__, '/')+1, ## __VA_ARGS__)
 
 #undef panic
 #define panic(format, ...) \

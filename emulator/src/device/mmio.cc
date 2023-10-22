@@ -32,6 +32,7 @@ void register_io_map(const char* name, paddr_t addr, paddr_t len, void* base, io
 word_t mmio_read(paddr_t addr, uint32_t len){
     uint32_t low = addr;
     uint32_t high = addr + len - 1;
+    if(low > high) return 0;
     auto iter = std::find_if(io_space.begin(), io_space.end(), [low, high](const std::pair<std::pair<paddr_t, paddr_t>, io_map_t>& p){
         return low >= p.first.first && high <= p.first.second;
     });
@@ -42,6 +43,8 @@ word_t mmio_read(paddr_t addr, uint32_t len){
         return 0;
     }
     paddr_t offset = addr - iter->first.first;
+    // std::cout << std::hex << iter->first.first << " " << addr << std::endl;
+    uint8_t * p = (uint8_t*)(iter->second.base) + offset;
     if(iter->second.handler != NULL) iter->second.handler(iter->second.base, offset, len, false);
     return host_read((uint8_t*)iter->second.base + offset, len);
 }

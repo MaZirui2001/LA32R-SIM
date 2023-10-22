@@ -58,7 +58,6 @@ void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
     }
     cpu.pc = pc;
 }
-
 bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd){
     if(commit_en){
         auto inst = paddr_read(cpu.pc, 4);
@@ -75,6 +74,7 @@ bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint
     }
     return false;
 }
+
 void single_cycle(){
     dut->clock = 0;
     dut->io_inst1_IF = paddr_read(dut->io_pc_IF, 4);
@@ -89,13 +89,11 @@ void single_cycle(){
         dut->io_mem_rdata_ex = paddr_read(uint32_t(dut->io_mem_raddr_ex), 1 << ((dut->io_mem_rlen_ex) % 4));
     }
 
-    // m_trace->dump(sim_time++);
     dut->clock = 1;
     dut->eval();
 #ifdef DUMP_WAVE
     sim_time++;
-    if(sim_time > 370000)
-        m_trace->dump(sim_time);
+    m_trace->dump(sim_time);
 #endif
 }
 
@@ -128,11 +126,15 @@ void cpu_exec(uint64_t n){
         commit_num += commit_update(dut->io_commit_en4, dut->io_commit_pc_4, dut->io_commit_rd4, dut->io_commit_rd_valid4, dut->io_commit_rf_wdata4, dut->io_commit_prd4);
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
-        if(commit_num != 0) difftest_step(commit_num);
+        if(dut->io_commit_is_ucread1 || dut->io_commit_is_ucread2 || dut->io_commit_is_ucread3 || dut->io_commit_is_ucread4){
+            difftest_sync();
+        }
+        else if(commit_num != 0) difftest_step(commit_num);
 #endif
         stat->ipc_update(commit_num);
         stat->mul_commit_update(commit_num);
         stat->predict_update(dut->io_commit_predict_fail, commit_num);
+        stat->stall_update((bool)dut->io_commit_stall_by_fetch_queue, (bool)dut->io_commit_stall_by_rename, (bool)dut->io_commit_stall_by_rob, (bool)dut->io_commit_stall_by_iq1, (bool)dut->io_commit_stall_by_iq2, (bool)dut->io_commit_stall_by_iq3, (bool)dut->io_commit_stall_by_iq4);
         single_cycle();
     }
 #ifndef CONFIG_REF

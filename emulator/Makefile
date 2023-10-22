@@ -1,16 +1,16 @@
 # .DEFUALT_GOAL = vcpu
 
-WORK_DIR 			= $(shell pwd)
+WORK_DIR 			= .
 VERILOG_DIR 		= $(WORK_DIR)/../LA32R-pipeline-scala/verilog
 CC_DIR 				= $(WORK_DIR)/src
 BUILD_DIR 			= $(WORK_DIR)/build
 TAR_DIR 			= $(BUILD_DIR)/obj
 
 VERILOG_TOP 		= $(VERILOG_DIR)/CPU.sv
-VFLAGS 				= --trace --cc --exe -O3 -I$(VERILOG_DIR) -Mdir $(BUILD_DIR) -j 0 -Wno-UNOPTFLAT -Wno-WIDTHEXPAND
-CINC_PATH 			= -CFLAGS -I$(WORK_DIR)/include
+VFLAGS 				= --trace --cc --exe -O2 -I$(VERILOG_DIR) -Mdir $(BUILD_DIR) -Wno-UNOPTFLAT -Wno-WIDTHEXPAND -j 8 
+CINC_PATH 			= -CFLAGS -I$(abspath $(WORK_DIR))/include
 
-REWRITE 			= $(WORK_DIR)/script/rewrite.mk
+REWRITE 			= $(abspath $(WORK_DIR))/script/rewrite.mk
 
 
 CSRCS =  $(shell find $(CC_DIR) -name "*.cc")

@@ -6,7 +6,7 @@ SIMUISO = $(SIMU_DIR)/build/simulator-so
 SCALA_DIR = $(abspath $(WORK_DIR)/../LA32R-pipeline-scala)
 
 SCALA_SRCS := $(shell find $(SCALA_DIR)/src/main/scala -name "*.scala")
-CSRCS := $(shell find $(WORK_DIR)/src -name "*.cc")
+CSRCS := $(shell find src/ -name "*.cc")
 
 VERILOG := $(shell find $(SCALA_DIR)/verilog -name "*.sv")
 

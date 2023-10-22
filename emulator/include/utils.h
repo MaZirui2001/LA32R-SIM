@@ -1,5 +1,6 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
+#include <string.h>
 
 #define ANSI_FG_BLACK   "\33[1;30m"
 #define ANSI_FG_RED     "\33[1;31m"
@@ -22,7 +23,6 @@
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 #define INLINE_FMT(str, fmt) fmt str ANSI_NONE ANSI_FG_CYAN
 #define FMT_WORD "0x%08x"
-#define FMT_DWORD "0x%lx"
 
 #define _Log(...) \
     do { \
@@ -30,7 +30,7 @@
     } while (0)
 
 #define Log(format, ...) \
-    _Log(ANSI_FMT("[%s:%d %s] ", ANSI_FG_MAGENTA), __FILE__, __LINE__, __func__); \
+    _Log(ANSI_FMT("[%s:%d %s] ", ANSI_FG_MAGENTA), strchr(__FILE__, '/')+1, __LINE__, __func__); \
     _Log(ANSI_FMT(format, ANSI_FG_CYAN) "\n", ## __VA_ARGS__)
 
 #define Panic(fomat, ...) \

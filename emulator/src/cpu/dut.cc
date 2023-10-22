@@ -1,6 +1,5 @@
 #include <dlfcn.h>
 #include <common.h>
-#include <debug.h>
 #include <paddr.h>
 #include <cpu.h>
 
@@ -57,6 +56,11 @@ void difftest_sync(){
 
 // check the registers with nemu
 bool difftest_checkregs(CPU_State *ref_r) {
+    // check pc
+    if (cpu.pc != ref_r->pc) {
+        printf(ANSI_BG_RED "NPC pc = " FMT_WORD ", is different from NEMU pc = " FMT_WORD ANSI_NONE "\n", cpu.pc, ref_r->pc) ; 
+        return false;
+    }
   // check gpr
     for (int i = 0; i < 32; i++){
         if (cpu.reg[i] != ref_r->reg[i]) {
@@ -67,11 +71,7 @@ bool difftest_checkregs(CPU_State *ref_r) {
         }
     }
 
-  // check pc
-    if (cpu.pc != ref_r->pc) {
-        printf(ANSI_BG_RED "NPC pc = " FMT_WORD ", is different from NEMU pc = " FMT_WORD ANSI_NONE "\n", cpu.pc, ref_r->pc) ; 
-        return false;
-    }
+
 
 //   const char *csr_names[] = {"mepc", "mstatus", "mcause", "mtvec"};
 //   // check csr
