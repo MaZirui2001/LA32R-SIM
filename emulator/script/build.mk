@@ -20,6 +20,7 @@ $(BINARY): $(CSRCS) $(VERILOG)
 	@echo "$(COLOR_DBLUE)[VERILATE]$(COLOR_NONE) $(notdir $(BUILD_DIR))/VCPU"
 	@mkdir -p $(BUILD_DIR)
 	@verilator $(VFLAGS) $(CSRCS) $(CINC_PATH) $(VERILOG_TOP)
+	@echo "$(COLOR_DBLUE)[MAKE]$(COLOR_NONE) $(notdir $(BUILD_DIR))/VCPU"
 	@$(MAKE) -s -C $(BUILD_DIR) -f $(REWRITE) -j8
 
 $(VERILOG): $(SCALA_SRCS)

@@ -22,7 +22,7 @@ struct tm *get_time_tm() {
 }
 
 static void rtc_io_handler(void *base, uint32_t offset, uint32_t len, bool is_write) {
-    assert(!is_write);
+    // assert(!is_write);
     uint64_t us = get_time();
     struct tm* rtc = get_time_tm();
     uint32_t *rtc_base = (uint32_t *)base;

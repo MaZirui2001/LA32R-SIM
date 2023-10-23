@@ -5,7 +5,7 @@
 #include <device.h>
 #include <difftest.h>
 #include <statistic.h>
-
+// #define DUMP_WAVE
 #ifdef ITRACE
 typedef struct{
     uint32_t pc;
@@ -93,7 +93,7 @@ void single_cycle(){
     dut->eval();
 #ifdef DUMP_WAVE
     sim_time++;
-    m_trace->dump(sim_time);
+        m_trace->dump(sim_time);
 #endif
 }
 
@@ -134,7 +134,7 @@ void cpu_exec(uint64_t n){
         stat->ipc_update(commit_num);
         stat->mul_commit_update(commit_num);
         stat->predict_update(dut->io_commit_predict_fail, commit_num);
-        stat->stall_update((bool)dut->io_commit_stall_by_fetch_queue, (bool)dut->io_commit_stall_by_rename, (bool)dut->io_commit_stall_by_rob, (bool)dut->io_commit_stall_by_iq1, (bool)dut->io_commit_stall_by_iq2, (bool)dut->io_commit_stall_by_iq3, (bool)dut->io_commit_stall_by_iq4);
+        stat->stall_update(dut->io_commit_stall_by_fetch_queue, dut->io_commit_stall_by_rename, dut->io_commit_stall_by_rob, dut->io_commit_stall_by_iq1, dut->io_commit_stall_by_iq2, dut->io_commit_stall_by_iq3, dut->io_commit_stall_by_iq4, dut->io_commit_stall_by_sb);
         single_cycle();
     }
 #ifndef CONFIG_REF

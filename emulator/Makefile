@@ -7,7 +7,8 @@ BUILD_DIR 			= $(WORK_DIR)/build
 TAR_DIR 			= $(BUILD_DIR)/obj
 
 VERILOG_TOP 		= $(VERILOG_DIR)/CPU.sv
-VFLAGS 				= --trace --cc --exe -O2 -I$(VERILOG_DIR) -Mdir $(BUILD_DIR) -Wno-UNOPTFLAT -Wno-WIDTHEXPAND -j 8 
+VFLAGS 				= --trace --cc --exe -O3 -I$(VERILOG_DIR) -Mdir $(BUILD_DIR) --no-MMD
+VFLAGS 				+= -Wno-UNOPTFLAT -Wno-WIDTHEXPAND --verilate-jobs 8 
 CINC_PATH 			= -CFLAGS -I$(abspath $(WORK_DIR))/include
 
 REWRITE 			= $(abspath $(WORK_DIR))/script/rewrite.mk

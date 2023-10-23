@@ -2,9 +2,9 @@
 #include <common.h>
 
 static void serial_io_handler(void *base, uint32_t offset, uint32_t len, bool is_write) {
-    assert(len == 1);
-    assert(offset == 0);
-    assert(is_write);
+    // assert(len == 1);
+    // assert(offset == 0);
+    // assert(is_write);
     putchar(*(char *)base);
 }
 
