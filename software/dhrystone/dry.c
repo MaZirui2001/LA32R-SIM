@@ -356,11 +356,11 @@
 #include <tool.h>
 #include <base.h>
 
-static uint32_t uptime_ms() { return io_read(DEV_TIMER_UPTIME).us / 1000; }
-#define Start_Timer() Begin_Time = uptime_ms()
-#define Stop_Timer()  End_Time   = uptime_ms()
+//static uint32_t uptime_ms() { return io_read(DEV_TIMER_UPTIME).us / 1000; }
+// #define Start_Timer() Begin_Time = uptime_ms()
+// #define Stop_Timer()  End_Time   = uptime_ms()
 
-#define NUMBER_OF_RUNS		1 /* Default number of runs */
+#define NUMBER_OF_RUNS		10 /* Default number of runs */
 #define PASS2
 
 #ifdef  NOSTRUCTASSIGN
@@ -754,7 +754,7 @@ int main ()
 {
         One_Fifty       Int_1_Loc;
   REG   One_Fifty       Int_2_Loc;
-        One_Fifty       Int_3_Loc = 0;
+        One_Fifty       Int_3_Loc;
   REG   char            Ch_Index;
         Enumeration     Enum_Loc;
         Str_30          Str_1_Loc;
@@ -796,8 +796,8 @@ int main ()
     /* Start timer */
     /***************/
 
-    Start_Timer();
-
+    // Start_Timer();
+    Int_3_Loc = 0;
     for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
     {
 
@@ -806,6 +806,7 @@ int main ()
 	/* Ch_1_Glob == 'A', Ch_2_Glob == 'B', Bool_Glob == true */
       Int_1_Loc = 2;
       Int_2_Loc = 3;
+
       strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
       Enum_Loc = Ident_2;
       Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
@@ -848,9 +849,9 @@ int main ()
     /* Stop timer */
     /**************/
 
-    Stop_Timer();
+    // Stop_Timer();
 
-    User_Time = End_Time - Begin_Time;
+    User_Time = 1;//End_Time - Begin_Time;
 
     Done = true;
   }
