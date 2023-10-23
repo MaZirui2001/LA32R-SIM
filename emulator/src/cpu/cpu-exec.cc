@@ -5,7 +5,7 @@
 #include <device.h>
 #include <difftest.h>
 #include <statistic.h>
-// #define DUMP_WAVE
+//#define DUMP_WAVE
 #ifdef ITRACE
 typedef struct{
     uint32_t pc;
