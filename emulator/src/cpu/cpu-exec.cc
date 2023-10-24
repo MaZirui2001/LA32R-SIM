@@ -5,7 +5,7 @@
 #include <device.h>
 #include <difftest.h>
 #include <statistic.h>
-//#define DUMP_WAVE
+// #define DUMP_WAVE
 #ifdef ITRACE
 typedef struct{
     uint32_t pc;
@@ -17,6 +17,8 @@ typedef struct{
 }inst_log_t;
 
 uint32_t reg_rename_table[32];
+static statistic stat;
+
 
 #define ILOG_SIZE 16
 static inst_log_t ilog[ILOG_SIZE];
@@ -109,7 +111,6 @@ void reset(){
     std::cout << "Reset at pc = " << std::hex << dut->io_pc_IF << std::endl;
 }
 void cpu_exec(uint64_t n){
-    auto stat = new statistic;
 #ifndef CONFIG_REF
     switch(cpu.state){
         case SIM_ABORT: case SIM_END:
@@ -131,10 +132,10 @@ void cpu_exec(uint64_t n){
         }
         else if(commit_num != 0) difftest_step(commit_num);
 #endif
-        stat->ipc_update(commit_num);
-        stat->mul_commit_update(commit_num);
-        stat->predict_update(dut->io_commit_predict_fail, commit_num);
-        stat->stall_update(dut->io_commit_stall_by_fetch_queue, dut->io_commit_stall_by_rename, dut->io_commit_stall_by_rob, dut->io_commit_stall_by_iq1, dut->io_commit_stall_by_iq2, dut->io_commit_stall_by_iq3, dut->io_commit_stall_by_iq4, dut->io_commit_stall_by_sb);
+        stat.ipc_update(commit_num);
+        stat.mul_commit_update(commit_num);
+        stat.predict_update(dut);
+        stat.stall_update(dut);
         single_cycle();
     }
 #ifndef CONFIG_REF
@@ -151,7 +152,16 @@ void cpu_exec(uint64_t n){
         Log("simulation %s at pc = " FMT_WORD, INLINE_FMT("STOP", ANSI_FG_YELLOW), cpu.halt_pc); break;
         break;
     }
-    stat->print_stat();
+    stat.print_stat();
+    stat.generate_markdown_report();
 #endif
+}
+
+void init_statistic(const char* name){
+    std::string sname(name);
+    auto start = sname.find_last_of('/');
+    auto end = sname.find_first_of('.');
+    auto cname = sname.substr(start + 1, end - start - 1).c_str();
+    stat.set_name(cname);
 }
 

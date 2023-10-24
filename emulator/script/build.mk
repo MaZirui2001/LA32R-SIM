@@ -29,6 +29,7 @@ $(VERILOG): $(SCALA_SRCS)
 
 ARGS = 
 run: $(BINARY) $(SIMUISO)
+	@mkdir -p ./reports
 	@echo "$(COLOR_YELLOW)[RUN]$(COLOR_NONE) build/$(notdir $<)"
 	@$(BINARY) $(IMG) $(SIMUISO) $(ARGS)
 
@@ -38,4 +39,7 @@ gdb: $(BINARY)
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+clean-report:
+	rm -rf reports
 

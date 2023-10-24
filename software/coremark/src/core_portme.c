@@ -36,7 +36,7 @@
 #define SAMPLE_TIME_IMPLEMENTATION 1
 #define EE_TICKS_PER_SEC (NSECS_PER_SEC / TIMER_RES_DIVIDER)
 
-static uint32_t uptime_ms() { return io_read(DEV_TIMER_UPTIME).us / 1000; }
+// static uint32_t uptime_ms() { return io_read(DEV_TIMER_UPTIME).us / 1000; }
 
 /** Define Host specific (POSIX), or target specific global time variables. */
 unsigned long start_time_val, stop_time_val;
@@ -47,18 +47,18 @@ unsigned long start_time_val, stop_time_val;
 	Implementation may be capturing a system timer (as implemented in the example code)
 	or zeroing some system parameters - e.g. setting the cpu clocks cycles to 0.
 */
-void start_time(void) {
-  start_time_val = uptime_ms();
-}
+// void start_time(void) {
+//   start_time_val = uptime_ms();
+// }
 /* Function : stop_time
 	This function will be called right after ending the timed portion of the benchmark.
 
 	Implementation may be capturing a system timer (as implemented in the example code)
 	or other system parameters - e.g. reading the current value of cpu cycles counter.
 */
-void stop_time(void) {
-  stop_time_val = uptime_ms();
-}
+// void stop_time(void) {
+//   stop_time_val = uptime_ms();
+// }
 /* Function : get_time
 	Return an abstract "ticks" number that signifies time on the system.
 
@@ -68,9 +68,9 @@ void stop_time(void) {
 	The sample implementation returns millisecs by default,
 	and the resolution is controlled by <TIMER_RES_DIVIDER>
 */
-CORE_TICKS get_time(void) {
-  return stop_time_val - start_time_val;
-}
+// CORE_TICKS get_time(void) {
+//   return stop_time_val - start_time_val;
+// }
 
 /* Function : time_in_secs
 	Convert the value returned by get_time to seconds.

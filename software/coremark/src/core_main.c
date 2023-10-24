@@ -205,10 +205,10 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 		results[0].iterations=1;
 		while (secs_passed < (secs_ret)1) {
 			results[0].iterations*=10;
-			start_time();
+			// start_time();
 			iterate(&results[0]);
-			stop_time();
-			secs_passed=time_in_secs(get_time());
+			// stop_time();
+			secs_passed=1;//time_in_secs(get_time());
 		}
 		/* now we know it executes for at least 1 sec, set actual run time at about 10 secs */
 		divisor=(ee_u32)secs_passed;
@@ -217,7 +217,7 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 		results[0].iterations*=1+10/divisor;
 	}
 	/* perform actual benchmark */
-	start_time();
+	// start_time();
 #if (MULTITHREAD>1)
 	if (default_num_contexts>MULTITHREAD) {
 		default_num_contexts=MULTITHREAD;
@@ -233,8 +233,8 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 #else
 	iterate(&results[0]);
 #endif
-	stop_time();
-	total_time=get_time();
+	// stop_time();
+	total_time=1;//get_time();
 	/* get a function of the input to report */
 	seedcrc=crc16(results[0].seed1,seedcrc);
 	seedcrc=crc16(results[0].seed2,seedcrc);
