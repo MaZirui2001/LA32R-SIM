@@ -161,7 +161,8 @@ void init_statistic(const char* name){
     std::string sname(name);
     auto start = sname.find_last_of('/');
     auto end = sname.find_first_of('.');
-    auto cname = sname.substr(start + 1, end - start - 1).c_str();
-    stat.set_name(cname);
+    // auto cname = sname.substr(start + 1, end - start - 1).c_str();
+    // std::cout << sname.substr(start + 1, end - start - 1).c_str() << " " << start << " " << end << std::endl;
+    stat.set_name(sname.substr(start + 1, end - start - 1).c_str());
 }
 

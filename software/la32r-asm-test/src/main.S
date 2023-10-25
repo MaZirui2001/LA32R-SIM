@@ -2,4 +2,4 @@
 .text
 .global main
 main:
-    bl addw
+    bl jirl
