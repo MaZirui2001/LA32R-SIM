@@ -2,6 +2,7 @@ build/
 ramdisk.img
 .vscode/
 .result
+.idea/
 .scala-build/
 .metals/
 project/

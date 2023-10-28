@@ -1,10 +1,11 @@
 #include <base.h>
 #include <dev-mmio.h>
+#include <dev.h>
 
 void __timer_init() {
 }
 
-void __timer_uptime(DEV_TIMER_UPTIME *uptime) {
+void __timer_uptime(DEV_TIMER_UPTIME_T *uptime) {
   uptime->us = inl(RTC_ADDR);
 }
 

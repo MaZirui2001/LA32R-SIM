@@ -1,11 +1,12 @@
 #include <base.h>
 #include <tool.h>
+#include <dev.h>
 
 void __timer_init();
 void __gpu_init();
 
 void __timer_rtc    (DEV_TIMER_RTC_T *);
-void __timer_uptime (DEV_TIMER_UPTIME *);
+void __timer_uptime (DEV_TIMER_UPTIME_T *);
 void __input_keybrd (DEV_INPUT_KEYBRD_T *);
 void __timer_rtc    (DEV_TIMER_RTC_T *);
 void __gpu_config   (DEV_GPU_CONFIG_T *);
