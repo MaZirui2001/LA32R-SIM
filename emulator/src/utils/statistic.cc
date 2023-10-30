@@ -60,6 +60,31 @@ void statistic::stall_update(VCPU* dut){
     stall_by_iq4 += dut->io_commit_stall_by_iq4;
     stall_by_sb += dut->io_commit_stall_by_sb;
 }
+
+void statistic::issue_update(VCPU* dut){
+    total_issue += dut->io_commit_iq1_issue || dut->io_commit_iq2_issue || dut->io_commit_iq3_issue || dut->io_commit_iq4_issue;
+    uint64_t issue_num = dut->io_commit_iq1_issue + dut->io_commit_iq2_issue + dut->io_commit_iq3_issue + dut->io_commit_iq4_issue;
+    iq1_issue += dut->io_commit_iq1_issue;
+    iq2_issue += dut->io_commit_iq2_issue;
+    iq3_issue += dut->io_commit_iq3_issue;
+    iq4_issue += dut->io_commit_iq4_issue;
+    switch (issue_num){
+    case 1:
+        issue_1++;
+        break;
+    case 2:
+        issue_2++;
+        break;
+    case 3:
+        issue_3++;
+        break;
+    case 4:
+        issue_4++;
+        break;
+    default:
+        break;
+    }
+}
 void statistic::print_stat(){
     Log("Total instructions = %lu, Total clocks = %lu, IPC = %lf", total_insts, total_clocks, double(total_insts) / total_clocks);
 }
@@ -101,6 +126,24 @@ void statistic::generate_markdown_report(){
     fout << "|**内存读写发射队列满**|" << stall_by_iq3 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq3) / total_clocks * 100) << "%|" << endl;
     fout << "|**乘除法发射队列满**|" << stall_by_iq4 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq4) / total_clocks * 100) << "%|" << endl;
     fout << "|**写缓冲满**|" << stall_by_sb << " | " << (total_clocks == 0 ? 0 : double(stall_by_sb) / total_clocks * 100) << "%|" << endl;
+    fout << endl;
+    
+    fout << "## 发射阶段" << endl;
+    fout << "### 多发射率" << endl;
+    fout << "|总发射数|发射率|1条发射率|2条发射率|3条发射率|4条发射率|" << endl;
+    fout << "|---|---|---|---|---|---|" << endl;
+    fout << "|" << total_issue << "|" << (total_clocks == 0 ? 0 : double(total_issue) / total_clocks * 100) << "%|" << 
+            (total_issue == 0 ? 0 : double(issue_1) / total_issue * 100) << "%|" << (total_issue == 0 ? 0 : double(issue_2) / total_issue * 100) << "%|" << (total_issue == 0 ? 0 : double(issue_3) / total_issue * 100) << "%|" << (total_issue == 0 ? 0 : double(issue_4) / total_issue * 100) << "%|" << endl;
+    fout << endl;
+    fout << "### 各发射队列发射率" << endl;
+    fout << "|发射队列名称|发射率|" << endl;
+    fout << "|---|---|" << endl;
+    fout << "|**算数发射队列**|" << (total_clocks == 0 ? 0 : double(iq1_issue) / total_clocks * 100) << "%|" << endl;
+    fout << "|**算数分支发射队列**|" << (total_clocks == 0 ? 0 : double(iq2_issue) / total_clocks * 100) << "%|" << endl;
+    fout << "|**内存读写发射队列**|" << (total_clocks == 0 ? 0 : double(iq3_issue) / total_clocks * 100) << "%|" << endl;
+    fout << "|**乘除法发射队列**|" << (total_clocks == 0 ? 0 : double(iq4_issue) / total_clocks * 100) << "%|" << endl;
+    fout << endl;
+
 
     fout << "## 提交阶段" << endl;
     fout << "|总提交数|提交率|1条提交率|2条提交率|3条提交率|4条提交率|" << endl;

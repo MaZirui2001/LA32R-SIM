@@ -26,6 +26,16 @@ private:
     uint64_t stall_by_iq4 = 0;
     uint64_t stall_by_sb = 0;
 
+    uint64_t total_issue = 0;
+    uint64_t iq1_issue = 0;
+    uint64_t iq2_issue = 0;
+    uint64_t iq3_issue = 0;
+    uint64_t iq4_issue = 0;
+    uint64_t issue_1 = 0;
+    uint64_t issue_2 = 0;
+    uint64_t issue_3 = 0;
+    uint64_t issue_4 = 0;
+
 public:
     void set_name(const char* name){
         this->name = name;
@@ -37,6 +47,8 @@ public:
     void predict_update(VCPU* dut);
 
     void stall_update(VCPU* dut);
+
+    void issue_update(VCPU* dut);
 
     void print_stat();
 

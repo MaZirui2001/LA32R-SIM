@@ -136,6 +136,7 @@ void cpu_exec(uint64_t n){
         stat.mul_commit_update(commit_num);
         stat.predict_update(dut);
         stat.stall_update(dut);
+        stat.issue_update(dut);
         single_cycle();
     }
 #ifndef CONFIG_REF
