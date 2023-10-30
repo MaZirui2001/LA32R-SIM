@@ -2,6 +2,7 @@
 #include <common.h>
 #include <SDL2/SDL.h>
 #include <mmio.h>
+#include <map>
 
 extern void send_key(uint8_t, bool);
 extern void vga_update_screen();

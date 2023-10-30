@@ -1,6 +1,6 @@
 #include <common.h>
 #include <cpu.h>
-
+#include <cassert>
 
 extern uint8_t pmem[CONFIG_PMEM_SIZE];
 

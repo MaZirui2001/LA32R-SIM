@@ -2,6 +2,7 @@
 #include <difftest.h>
 #include <paddr.h>
 #include <cpu.h>
+#include <cstring>
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
     if (direction == DIFFTEST_TO_REF) {
         memcpy(addr_convert(addr), buf, n);

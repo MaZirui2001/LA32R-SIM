@@ -9,7 +9,10 @@
 #define CONFIG_FB_ADDR              0xa1000000
 #define CONFIG_FFB_ADDR             0xa2000000
 
+#include <cassert>
 #include <common.h>
+#include <map>
+#include <algorithm>
 
 typedef void (*io_handler_t)(void* base, uint32_t offset, uint32_t len, bool is_write);
 

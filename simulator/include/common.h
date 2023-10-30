@@ -1,10 +1,12 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <string>
 #include <arch.h>
 #include <config.h>
 #include <utils.h>
+#include <cstring>
 
 
 #define MAP(c, f) c(f)

@@ -1,5 +1,6 @@
 #include <common.h>
 #include <arch.h>
+#include <bitset>
 
 using namespace std;
 

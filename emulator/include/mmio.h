@@ -9,14 +9,13 @@
 #define CONFIG_FB_ADDR              0xa1000000
 #define CONFIG_FFB_ADDR             0xa2000000
 
+#include <cassert>
 #include <common.h>
 
 typedef void (*io_handler_t)(void* base, uint32_t offset, uint32_t len, bool is_write);
 
 typedef struct {
     const char *name;
-    // paddr_t low;
-    // paddr_t high;
     void *base;
     io_handler_t handler;
 } io_map_t;

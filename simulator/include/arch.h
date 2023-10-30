@@ -1,8 +1,10 @@
 #ifndef __ARCH_H__
 #define __ARCH_H__
 
-#include <bits/stdc++.h>
+
+#include <unordered_map>
 #include <config.h>
+#include <stdint.h>
 
 // loongarch reg name
 extern const char* reg_name[32];

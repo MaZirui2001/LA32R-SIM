@@ -1,7 +1,10 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <cstdint>
 #include <arch.h>
 #include <config.h>
 #include <utils.h>

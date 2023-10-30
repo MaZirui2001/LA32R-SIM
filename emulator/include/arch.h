@@ -1,7 +1,8 @@
 #ifndef __ARCH_H__
 #define __ARCH_H__
 
-#include <bits/stdc++.h>
+#include <stdint.h>
+#include <unordered_map>
 #include <config.h>
 
 // loongarch reg name
