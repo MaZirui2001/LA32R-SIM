@@ -31,7 +31,7 @@ else:
     SPLIT_BOUND = TOTAL_WORD_NUM // 2
 
     # generate i_addr_rom and d_addr_rom
-    i_addr_rom = [(randint(0, SPLIT_BOUND//16-1)) << 4 for i in range(TOTAL_TEST_NUM)]
+    i_addr_rom = [(randint(0, SPLIT_BOUND//4-1)) << 2 for i in range(TOTAL_TEST_NUM)]
     d_addr_rom = [(randint(SPLIT_BOUND//4, TOTAL_WORD_NUM//4-1)) << 2 for i in range(TOTAL_TEST_NUM)]
     wdata_rom  = [randint(0, 2**32-1) for i in range(TOTAL_TEST_NUM)]
     wvalid_rom = [randint(0, 1) for i in range(TOTAL_TEST_NUM)]
