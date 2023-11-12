@@ -34,13 +34,13 @@ else:
     i_addr_rom = [(randint(0, SPLIT_BOUND//4-1)) << 2 for i in range(TOTAL_TEST_NUM)]
     d_addr_rom = [(randint(SPLIT_BOUND//4, TOTAL_WORD_NUM//4-1)) << 2 for i in range(TOTAL_TEST_NUM)]
     wdata_rom  = [randint(0, 2**32-1) for i in range(TOTAL_TEST_NUM)]
-    wvalid_rom = [randint(0, 1) for i in range(TOTAL_TEST_NUM)]
+    wvalid_rom = [(randint(1, 2) << 3) | 2 for i in range(TOTAL_TEST_NUM)]
     
     for i in range(TOTAL_TEST_NUM):
         verilog += "    i_addr_rom[%5d] = 'h%08x; \t" % (i, i_addr_rom[i])
         verilog += "    d_addr_rom[%5d] = 'h%08x; \t" % (i, d_addr_rom[i])
         verilog += "    wdata_rom[%5d] = 'h%08x; \t" % (i, wdata_rom[i])
-        verilog += "    wvalid_rom[%5d] = %d; \n" % (i, wvalid_rom[i])
+        verilog += "    mem_type_rom[%5d] = 'h%02x; \n" % (i, wvalid_rom[i])
     verilog += verilog_tail
     # make coe file
     coe = 'memory_initialization_radix=16;\nmemory_initialization_vector=\n'

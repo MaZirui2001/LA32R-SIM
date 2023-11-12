@@ -5,11 +5,11 @@ localparam TOTAL_WORD_NUM       = %d;
 localparam TOTAL_TEST_NUM       = %d;
 
 // cache test
-reg [31:0]  i_addr_rom  [TOTAL_TEST_NUM];
-reg [31:0]  d_addr_rom  [TOTAL_TEST_NUM];
-reg [31:0]  data_ram    [TOTAL_WORD_NUM];
-reg         wvalid_rom  [TOTAL_TEST_NUM];
-reg [31:0]  wdata_rom   [TOTAL_TEST_NUM];
+reg [31:0]  i_addr_rom   [TOTAL_TEST_NUM];
+reg [31:0]  d_addr_rom   [TOTAL_TEST_NUM];
+reg [31:0]  data_ram     [TOTAL_WORD_NUM];
+reg [4:0]   mem_type_rom [TOTAL_TEST_NUM];
+reg [31:0]  wdata_rom    [TOTAL_TEST_NUM];
 reg [31:0]  i_test_index = 0;
 reg [31:0]  d_test_index = 0;
 
@@ -41,41 +41,20 @@ reg             i_pass_reg;
 wire    [31:0]  i_correct_data;
 
 // // for dcache
-// wire    [31:0]  d_addr_pipe;
-// wire            d_rvalid_pipe;
-// wire            d_rready_pipe;
-// wire    [31:0]  d_rdata_pipe;
-// wire            d_wvalid_pipe;
-// wire            d_wready_pipe;
-// wire    [31:0]  d_wdata_pipe;
-// wire    [3:0]   d_wstrb_pipe;
+wire    [31:0]  d_addr_pipe;
+wire    [4:0]   d_mem_type_pipe;
+wire    [31:0]  d_wdata_pipe;
+wire            dcache_miss_pipe;
+wire    [31:0]  d_rdata_pipe;
 
-// // dcache && arbiter
-// wire            d_rvalid;
-// wire            d_rready;
-// wire    [31:0]  d_raddr;
-// wire    [31:0]  d_rdata;
-// wire            d_rlast;
-// wire    [2:0]   d_rsize;
-// wire    [7:0]   d_rlen;
-// wire            d_wvalid;
-// wire            d_wready;
-// wire    [31:0]  d_waddr;
-// wire    [31:0]  d_wdata;
-// wire    [3:0]   d_wstrb;
-// wire            d_wlast;
-// wire    [2:0]   d_wsize;
-// wire    [7:0]   d_wlen;
-// wire            d_bvalid;
-// wire            d_bready;
-// // dcache_debug
-// reg             d_rvalid_ff;
-// reg             d_wvalid_ff;
-// reg     [31:0]  d_wdata_ff;
-// reg     [31:0]  d_addr_ff;
-// reg             d_error_reg;
-// reg             d_pass_reg;
-// wire    [31:0]  d_correct_data;
+// dcache_debug
+reg     [4:0]   d_mem_type_ff1, d_mem_type_ff2;
+reg     [31:0]  d_wdata_ff1, d_wdata_ff2;
+reg     [31:0]  d_addr_ff1, d_addr_ff2;
+reg             d_error_reg;
+reg             d_pass_reg;
+wire    [31:0]  d_correct_data;
+
 
 // arbiter with main mem
 wire    [31:0]  araddr;
@@ -114,7 +93,7 @@ always @(posedge clk) begin
         i_rvalid_ff <= 0;
         i_raddr_ff <= 0;
     end
-    else if(!(i_rvalid_ff && icache_miss_pipe))begin
+    else if(!icache_miss_pipe)begin
         i_rvalid_ff <= i_rvalid_pipe;
         i_raddr_ff <= i_raddr_pipe;
     end
@@ -146,59 +125,63 @@ always @(posedge clk) begin
     end
 end
 
-// assign d_addr_pipe           = d_addr_rom[d_test_index];
-// assign d_correct_data       = data_ram[d_addr_ff >> 2];
-// assign d_rvalid_pipe         = !wvalid_rom[d_test_index];
-// assign d_wvalid_pipe         = wvalid_rom[d_test_index];
-// assign d_wdata_pipe          = wdata_rom[d_test_index];
-// assign d_wstrb_pipe          = d_wvalid_pipe ? 4'b1111 : 4'b0000;
-// // simulate EX-MEM register
-// always @(posedge clk) begin
-//     if(!rstn) begin
-//         d_rvalid_ff <= 0;
-//         d_addr_ff   <= 0;
-//         d_wvalid_ff <= 0;
-//         d_wdata_ff  <= 0;
-//     end
-//     else if(!(d_rvalid_ff && !d_rready_pipe) && !(d_wvalid_ff && !d_wready_pipe))begin
-//         d_rvalid_ff <= d_rvalid_pipe;
-//         d_addr_ff   <= d_addr_pipe;
-//         d_wvalid_ff <= d_wvalid_pipe;
-//         d_wdata_ff  <= d_wdata_pipe;
-//     end
-// end
-// // update d_test_index
-// always @(posedge clk) begin
-//     if(!rstn) begin
-//         d_test_index    <= TOTAL_TEST_NUM / 2;
-//         d_pass_reg      <= 0;
-//     end
-//     else if (d_test_index >= (TOTAL_TEST_NUM-1)) begin
-//         d_test_index    <= (TOTAL_TEST_NUM-1);
-//         d_pass_reg      <= 1;
-//     end
-//     else if(!(d_rvalid_ff && !d_rready_pipe)  && !(d_wvalid_ff && !d_wready_pipe) && !d_error_reg) begin
-//         d_test_index    <= d_test_index + 1;
-//     end
-// end
-// // update data_ram
-// always @(posedge clk) begin
-//     if(d_wvalid_ff && d_wready_pipe) begin
-//         data_ram[d_addr_ff >> 2] <= d_wdata_ff;
-//     end
-// end
+assign d_addr_pipe           = d_addr_rom[d_test_index];
+assign d_correct_data        = data_ram[d_addr_ff2 >> 2] >> (8 * (d_addr_ff2[1:0]));
+assign d_mem_type_pipe       = mem_type_rom[d_test_index];
+assign d_wdata_pipe          = wdata_rom[d_test_index];
+
+// simulate EX-MEM register
+always @(posedge clk) begin
+    if(!rstn) begin
+        d_addr_ff1      <= 0;
+        d_mem_type_ff1  <= 0;
+        d_wdata_ff1     <= 0;
+        d_addr_ff2      <= 0;
+        d_mem_type_ff2  <= 0;
+        d_wdata_ff2     <= 0;
+
+    end
+    else if(!dcache_miss_pipe)begin
+        d_addr_ff1      <= d_addr_pipe;
+        d_mem_type_ff1  <= d_mem_type_pipe;
+        d_wdata_ff1     <= d_wdata_pipe;
+        d_addr_ff2      <= d_addr_ff1;
+        d_mem_type_ff2  <= d_mem_type_ff1;
+        d_wdata_ff2     <= d_wdata_ff1;
+    end
+end
+// update d_test_index
+always @(posedge clk) begin
+    if(!rstn) begin
+        d_test_index    <= TOTAL_TEST_NUM / 2;
+        d_pass_reg      <= 0;
+    end
+    else if (d_test_index >= (TOTAL_TEST_NUM-1)) begin
+        d_test_index    <= (TOTAL_TEST_NUM-1);
+        d_pass_reg      <= 1;
+    end
+    else if(!(|d_mem_type_ff2[4:3] && dcache_miss_pipe) && !d_error_reg) begin
+        d_test_index    <= d_test_index + 1;
+    end
+end
+// update data_ram
+always @(posedge clk) begin
+    if(d_mem_type_ff2[4] && !dcache_miss_pipe) begin
+        data_ram[d_addr_ff2 >> 2] <= d_wdata_ff2;
+    end
+end
 // // update d_error 
-// always @(posedge clk) begin
-//     if(!rstn) begin
-//         d_error_reg <= 0;
-//     end
-//     else if(d_error_reg) begin
-//         d_error_reg <= 1;
-//     end
-//     else if(d_rvalid_ff && d_rready_pipe) begin
-//         d_error_reg <= !(d_rdata_pipe  == d_correct_data);
-//     end
-// end
+always @(posedge clk) begin
+    if(!rstn) begin
+        d_error_reg <= 0;
+    end
+    else if(d_error_reg) begin
+        d_error_reg <= 1;
+    end
+    else if(d_mem_type_ff2[3] && !dcache_miss_pipe) begin
+        d_error_reg <= !(d_rdata_pipe  == d_correct_data);
+    end
+end
 
 
 // mem unit
@@ -209,6 +192,13 @@ Cache_Top  Cache_Top_inst (
     .io_i_rvalid_pipe       (i_rvalid_pipe),
     .io_cache_miss_RM       (icache_miss_pipe),
     .io_rdata_RM            (i_rdata_pipe),
+
+    .io_d_addr_pipe         (d_addr_pipe),
+    .io_mem_type_pipe       (d_mem_type_pipe),
+    .io_wdata_pipe          (d_wdata_pipe),
+    .io_cache_miss_MEM      (dcache_miss_pipe),
+    .io_rdata_MEM           (d_rdata_pipe),
+    
     .io_araddr              (araddr),
     .io_arburst             (arburst),
     .io_arid                (arid),
