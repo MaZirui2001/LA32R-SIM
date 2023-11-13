@@ -126,8 +126,11 @@ always @(posedge clk) begin
 end
 
 assign d_addr_pipe           = d_addr_rom[d_test_index];
-assign d_correct_data        = data_ram[d_addr_ff2 >> 2] >> (8 * (d_addr_ff2[1:0]));
+wire [31:0] d_rdata_raw      = data_ram[d_addr_ff2 >> 2] >> (8 * (d_addr_ff2[1:0]));
+wire [31:0] rmask            = (1 << (8 * (1 << (d_mem_type_ff2[1:0])))) - 1;
+assign d_correct_data        = d_rdata_raw & rmask | {32{!d_mem_type_ff2[2] & d_rdata_raw[8 * (1 << (d_mem_type_ff2[1:0])) - 1]}} & ~rmask;
 assign d_mem_type_pipe       = mem_type_rom[d_test_index];
+wire [3:0] wmask             = ((1 << (1 << d_mem_type_ff2[1:0])) - 1) << d_addr_ff2[1:0];
 assign d_wdata_pipe          = wdata_rom[d_test_index];
 
 // simulate EX-MEM register
@@ -165,9 +168,14 @@ always @(posedge clk) begin
     end
 end
 // update data_ram
+wire [31:0] wdata_debug = d_wdata_ff2 << (8 * (d_addr_ff2[1:0]));
 always @(posedge clk) begin
     if(d_mem_type_ff2[4] && !dcache_miss_pipe) begin
-        data_ram[d_addr_ff2 >> 2] <= d_wdata_ff2;
+        // data_ram[d_addr_ff2 >> 2] <= d_wdata_ff2;
+        for(integer i = 0; i < 4; i++) begin
+            if(wmask[i])
+                data_ram[d_addr_ff2 >> 2][i * 8 +: 8] <= wdata_debug[i * 8 +: 8];
+        end
     end
 end
 // // update d_error 

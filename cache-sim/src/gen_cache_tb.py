@@ -34,7 +34,7 @@ else:
     i_addr_rom = [(randint(0, SPLIT_BOUND//4-1)) << 2 for i in range(TOTAL_TEST_NUM)]
     d_addr_rom = [(randint(SPLIT_BOUND//4, TOTAL_WORD_NUM//4-1)) << 2 for i in range(TOTAL_TEST_NUM)]
     wdata_rom  = [randint(0, 2**32-1) for i in range(TOTAL_TEST_NUM)]
-    wvalid_rom = [(randint(1, 2) << 3) | 2 for i in range(TOTAL_TEST_NUM)]
+    wvalid_rom = [(randint(1, 2) << 3) | (randint(0, 1) << 2) | (randint(0, 2))  for i in range(TOTAL_TEST_NUM)]
     
     for i in range(TOTAL_TEST_NUM):
         verilog += "    i_addr_rom[%5d] = 'h%08x; \t" % (i, i_addr_rom[i])
