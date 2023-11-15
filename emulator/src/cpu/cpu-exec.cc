@@ -131,6 +131,7 @@ void cpu_exec(uint64_t n){
         stat.predict_update(dut);
         stat.stall_update(dut);
         stat.issue_update(dut);
+        stat.cache_update(dut);
         single_cycle();
     }
 #ifndef CONFIG_REF

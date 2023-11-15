@@ -25,6 +25,12 @@ private:
     uint64_t stall_by_iq3 = 0;
     uint64_t stall_by_iq4 = 0;
     uint64_t stall_by_sb = 0;
+    uint64_t stall_by_icache = 0;
+    uint64_t stall_by_dcache = 0;
+    uint64_t icache_visit = 0;
+    uint64_t icache_miss = 0;
+    uint64_t dcache_visit = 0;
+    uint64_t dcache_miss = 0;
 
     uint64_t total_issue = 0;
     uint64_t iq1_issue = 0;
@@ -49,6 +55,8 @@ public:
     void stall_update(VCPU* dut);
 
     void issue_update(VCPU* dut);
+
+    void cache_update(VCPU* dut);
 
     void print_stat();
 

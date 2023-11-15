@@ -85,6 +85,15 @@ void statistic::issue_update(VCPU* dut){
         break;
     }
 }
+
+void statistic::cache_update(VCPU* dut){
+    icache_visit += dut->io_commit_icache_visit;
+    icache_miss += dut->io_commit_icache_miss;
+    dcache_visit += dut->io_commit_dcache_visit;
+    dcache_miss += dut->io_commit_dcache_miss;
+    stall_by_icache += dut->io_commit_stall_by_icache;
+    stall_by_dcache += dut->io_commit_stall_by_dcache;
+}
 void statistic::print_stat(){
     Log("Total instructions = %lu, Total clocks = %lu, IPC = %lf", total_insts, total_clocks, double(total_insts) / total_clocks);
 }
@@ -115,9 +124,17 @@ void statistic::generate_markdown_report(){
     fout << "|**BL**| " << total_br_type[2] << " | " << total_br_type[2] - failed_br_type[2] << " | " << (total_br_type[2] == 0 ? 100 : double(total_br_type[2] - failed_br_type[2]) / total_br_type[2] * 100) << "%|" << endl;
     fout << endl;
 
+    fout << "### 高速缓存命中" << endl;
+    fout << "|高速缓存|访问次数|命中次数|命中率|" << endl;
+    fout << "|---|---|---|---|" << endl;
+    fout << "|**指令高速缓存**| " << icache_visit << " | " << icache_visit - icache_miss << " | " << (icache_visit == 0 ? 100 : double(icache_visit - icache_miss) / icache_visit * 100) << "%|" << endl;
+    fout << "|**数据高速缓存**| " << dcache_visit << " | " << dcache_visit - dcache_miss << " | " << (dcache_visit == 0 ? 100 : double(dcache_visit - dcache_miss) / dcache_visit * 100) << "%|" << endl;
+
     fout << "## 流水线阻塞" << endl;
     fout << "|阻塞原因|阻塞时钟数|阻塞率|" << endl;
     fout << "|---|---|---|" << endl;
+    fout << "|**指令高速缓存缺失**| " << stall_by_icache << " | " << (total_clocks == 0 ? 0 : double(stall_by_icache) / total_clocks * 100) << "%|" << endl;
+    fout << "|**数据高速缓存缺失**| " << stall_by_dcache << " | " << (total_clocks == 0 ? 0 : double(stall_by_dcache) / total_clocks * 100) << "%|" << endl;
     fout << "|**取指队列满**| " << stall_by_fetch_queue << " | " << (total_clocks == 0 ? 0 : double(stall_by_fetch_queue) / total_clocks * 100) << "%|" << endl;
     fout << "|**重命名空闲列表空**|" << stall_by_rename << " | " << (total_clocks == 0 ? 0 : double(stall_by_rename) / total_clocks * 100) << "%|" << endl;
     fout << "|**重排序缓冲区满**|" << stall_by_rob << " | " << (total_clocks == 0 ? 0 : double(stall_by_rob) / total_clocks * 100) << "%|" << endl;
