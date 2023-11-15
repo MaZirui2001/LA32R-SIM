@@ -63,7 +63,7 @@ void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
 }
 bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd){
     if(commit_en){
-        auto inst = paddr_read(cpu.pc, 4);
+        auto inst = pmem_read(cpu.pc, 4);
         #ifdef ITRACE
             if(cpu.state == SIM_RUNNING) add_ilog(cpu.pc, inst, rf_wdata, prd, BITS(inst, 4, 0), rd_valid, BITS(inst, 9, 5), BITS(inst, 14, 10));
         #endif
@@ -80,22 +80,15 @@ bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint
 
 void single_cycle(){
     dut->clock = 0;
-    dut->io_inst1_IF = paddr_read(dut->io_pc_IF, 4);
-    dut->io_inst2_IF = paddr_read(dut->io_pc_IF + 4, 4);
-    dut->io_inst3_IF = paddr_read(dut->io_pc_IF + 8, 4);
-    dut->io_inst4_IF = paddr_read(dut->io_pc_IF + 12, 4);
     dut->eval();
-    if(dut->io_mem_is_store_cmt){
-        paddr_write(uint32_t(dut->io_mem_waddr_cmt), dut->io_mem_wdata_cmt, 1 << ((dut->io_mem_wlen_cmt) % 4));
-    }
-    if(dut->io_mem_is_load_ex){
-        dut->io_mem_rdata_ex = paddr_read(uint32_t(dut->io_mem_raddr_ex), 1 << ((dut->io_mem_rlen_ex) % 4));
-    }
+    paddr_write(dut);
+    paddr_read(dut);
 
     dut->clock = 1;
     dut->eval();
 #ifdef DUMP_WAVE
     sim_time++;
+    if(sim_time >= 160000)
         m_trace->dump(sim_time);
 #endif
 }
@@ -109,7 +102,7 @@ void reset(){
     dut->clock = 1;
     dut->eval();
     dut->reset = 0;
-    std::cout << "Reset at pc = " << std::hex << dut->io_pc_IF << std::endl;
+    std::cout << "Reset at pc = " << std::hex << 0x1c000000 << std::endl;
 }
 void cpu_exec(uint64_t n){
 #ifndef CONFIG_REF
