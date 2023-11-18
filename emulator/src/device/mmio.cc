@@ -56,8 +56,8 @@ void mmio_write(paddr_t addr, word_t data, uint32_t len){
         return low >= p.first.first && high <= p.first.second;
     });
     if(iter == io_space.end()){
-        std::cout << "Write: Physical address " << std::hex << addr << " is outside of io space!" << std::endl;
-        cpu.state = SIM_ABORT;
+        // std::cout << "Write: Physical address " << std::hex << addr << " is outside of io space!" << std::endl;
+        // cpu.state = SIM_ABORT;
         return;
     }
     paddr_t offset = addr - iter->first.first;
