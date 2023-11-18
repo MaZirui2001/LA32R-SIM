@@ -24,6 +24,7 @@ private:
     uint64_t stall_by_iq2 = 0;
     uint64_t stall_by_iq3 = 0;
     uint64_t stall_by_iq4 = 0;
+    uint64_t stall_by_iq5 = 0;
     uint64_t stall_by_sb = 0;
     uint64_t stall_by_icache = 0;
     uint64_t stall_by_dcache = 0;
@@ -37,10 +38,12 @@ private:
     uint64_t iq2_issue = 0;
     uint64_t iq3_issue = 0;
     uint64_t iq4_issue = 0;
+    uint64_t iq5_issue = 0;
     uint64_t issue_1 = 0;
     uint64_t issue_2 = 0;
     uint64_t issue_3 = 0;
     uint64_t issue_4 = 0;
+    uint64_t issue_5 = 0;
 
 public:
     void set_name(const char* name){
