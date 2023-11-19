@@ -154,10 +154,10 @@ void statistic::generate_markdown_report(){
     fout << "|**重命名空闲列表空**|" << stall_by_rename << " | " << (total_clocks == 0 ? 0 : double(stall_by_rename) / total_clocks * 100) << "%|" << endl;
     fout << "|**重排序缓冲区满**|" << stall_by_rob << " | " << (total_clocks == 0 ? 0 : double(stall_by_rob) / total_clocks * 100) << "%|" << endl;
     fout << "|**第一算数发射队列满**|" << stall_by_iq1 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq1) / total_clocks * 100) << "%|" << endl;
-    fout << "|**算数分支发射队列满**|" << stall_by_iq2 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq2) / total_clocks * 100) << "%|" << endl;
-    fout << "|**内存读写发射队列满**|" << stall_by_iq3 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq3) / total_clocks * 100) << "%|" << endl;
+    fout << "|**第二算数发射队列满**|" << stall_by_iq2 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq2) / total_clocks * 100) << "%|" << endl;
+    fout << "|**算数分支发射队列满**|" << stall_by_iq3 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq3) / total_clocks * 100) << "%|" << endl;
     fout << "|**乘除法发射队列满**|" << stall_by_iq4 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq4) / total_clocks * 100) << "%|" << endl;
-    fout << "|**第二算数发射队列满**|" << stall_by_iq5 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq5) / total_clocks * 100) << "%|" << endl;
+    fout << "|**内存读写发射队列满**|" << stall_by_iq5 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq5) / total_clocks * 100) << "%|" << endl;
     fout << "|**写缓冲满**|" << stall_by_sb << " | " << (total_clocks == 0 ? 0 : double(stall_by_sb) / total_clocks * 100) << "%|" << endl;
     fout << endl;
     
@@ -172,10 +172,10 @@ void statistic::generate_markdown_report(){
     fout << "|发射队列名称|发射率|" << endl;
     fout << "|---|---|" << endl;
     fout << "|**第一算数发射队列**|" << (total_clocks == 0 ? 0 : double(iq1_issue) / total_clocks * 100) << "%|" << endl;
-    fout << "|**算数分支发射队列**|" << (total_clocks == 0 ? 0 : double(iq2_issue) / total_clocks * 100) << "%|" << endl;
-    fout << "|**内存读写发射队列**|" << (total_clocks == 0 ? 0 : double(iq3_issue) / total_clocks * 100) << "%|" << endl;
+    fout << "|**第二算数发射队列**|" << (total_clocks == 0 ? 0 : double(iq2_issue) / total_clocks * 100) << "%|" << endl;
+    fout << "|**算数分支发射队列**|" << (total_clocks == 0 ? 0 : double(iq3_issue) / total_clocks * 100) << "%|" << endl;
     fout << "|**乘除法发射队列**|" << (total_clocks == 0 ? 0 : double(iq4_issue) / total_clocks * 100) << "%|" << endl;
-    fout << "|**第二算数发射队列**|" << (total_clocks == 0 ? 0 : double(iq5_issue) / total_clocks * 100) << "%|" << endl;
+    fout << "|**内存读写发射队列**|" << (total_clocks == 0 ? 0 : double(iq5_issue) / total_clocks * 100) << "%|" << endl;
     fout << endl;
 
 
