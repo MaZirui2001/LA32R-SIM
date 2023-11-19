@@ -63,6 +63,8 @@ public:
 
     void print_stat();
 
+    void show_ipc_now();
+
     void generate_markdown_report();
 };
 

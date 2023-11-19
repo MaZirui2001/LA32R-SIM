@@ -103,6 +103,16 @@ void statistic::print_stat(){
     Log("Total instructions = %lu, Total clocks = %lu, IPC = %lf", total_insts, total_clocks, double(total_insts) / total_clocks);
 }
 
+void statistic::show_ipc_now(){
+    double ipc = double(total_insts) / total_clocks;
+    // 清除掉上一次的输出
+    printf("\r");
+    // 输出当前的IPC
+    printf("IPC = %lf", ipc);
+    // 刷新输出缓冲区，使输出立即生效
+    fflush(stdout);
+}
+
 void statistic::generate_markdown_report(){
     ofstream fout = ofstream("reports/report-" + name + ".md");
     fout << "# 处理器运行报告" << endl;

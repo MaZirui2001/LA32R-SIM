@@ -132,6 +132,7 @@ void cpu_exec(uint64_t n){
         stat.stall_update(dut);
         stat.issue_update(dut);
         stat.cache_update(dut);
+        // stat.show_ipc_now();
         single_cycle();
     }
 #ifndef CONFIG_REF
