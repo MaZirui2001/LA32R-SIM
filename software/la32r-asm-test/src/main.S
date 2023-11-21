@@ -2,4 +2,4 @@
 .text
 .global main
 main:
-    bl jirl
+    bl load_store
