@@ -10,7 +10,7 @@ bool quit = false;
 #define TIMER_HZ 60
 
 void device_update() {
-    vga_update_screen();
+    // vga_update_screen();
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {

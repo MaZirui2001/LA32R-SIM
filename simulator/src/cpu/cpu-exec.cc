@@ -4,6 +4,7 @@
 #include <decode.h>
 #include <disasm.h>
 #include <device.h>
+#include <iomanip>
 
 #ifdef ITRACE
 typedef struct{
@@ -46,10 +47,6 @@ void cpu_exec(uint64_t n){
         ilog[ilog_idx].pc = cpu.pc;
         ilog[ilog_idx].inst = inst;
         ilog_idx = (ilog_idx + 1) % ILOG_SIZE;
-        // std::cout << "pc = " << std::hex << cpu.pc << '\t';
-        // char buf[100];
-        // disasm(buf, inst);
-        // std::cout << buf << std::endl;
 #endif
         decode_exec(inst);
 // #ifdef DEVICE
