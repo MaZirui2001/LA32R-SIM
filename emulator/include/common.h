@@ -17,7 +17,7 @@
 
 #define SBITS(a, m, n) \
     ((((a) >> (n)) & ((1 << ((m) - (n) + 1)) - 1)) | \
-    (((a) >> (m)) & 1 ? (~0 << (m - n + 1)) : 0))
+    (((a) >> (m)) & 1 ? ((unsigned)(~0) << (m - n + 1)) : 0))
 
 enum {SIM_RUNNING, SIM_STOP, SIM_END, SIM_ABORT};
 
