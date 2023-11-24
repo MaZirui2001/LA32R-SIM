@@ -1,6 +1,6 @@
 
 BASE_PORT = $(abspath ../base-port)
-SIM_PATH = $(abspath ../../simulator)
+SIM_PATH = $(abspath ../../emulator)
 # NAMES ?= bubble-sort
 # SRCS = $(addprefix src/, $(addsuffix .c, $(NAMES)))
 
