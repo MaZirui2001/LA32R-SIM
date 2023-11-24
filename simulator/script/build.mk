@@ -10,8 +10,8 @@ SO =
 LIBS += -lSDL2 -ldl -pie
 endif
 
-CC = gcc
-CXX = g++
+CC = clang
+CXX = clang++
 LD = $(CXX)
 
 WORK_DIR = $(shell pwd)
@@ -23,8 +23,8 @@ BINARY = $(BUILD_DIR)/simulator$(SO)
 INC_PATH = $(WORK_DIR)/include
 INCLUDE = $(addprefix -I, $(INC_PATH))
 
-CFLAGS := -O3 -MMD -Wall -Werror $(INCLUDE) $(CFLAGS)
-LDFLAGS := -O3 $(LDFLAGS)
+CFLAGS := -Os -MMD -Wall -Werror $(INCLUDE) $(CFLAGS)
+LDFLAGS := -Os $(LDFLAGS)
 
 OBJS = $(addprefix $(TAR_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
 
