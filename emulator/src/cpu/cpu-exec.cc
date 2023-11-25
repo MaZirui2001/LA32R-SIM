@@ -40,12 +40,13 @@ void add_ilog(uint32_t pc, uint32_t inst, uint32_t rf_wdata, uint32_t prd, uint3
     ilog[ilog_idx].pc = pc;
     ilog[ilog_idx].inst = inst;
     ilog[ilog_idx].rf_wdata = rf_wdata;
-    ilog[ilog_idx].prj = reg_rename_table[rj];
-    ilog[ilog_idx].prk = reg_rename_table[rk];
-    if(rd_valid){
+    if(rd_valid && rd != 0){
         reg_rename_table[rd] = prd;
     }
-    ilog[ilog_idx].prd = prd;
+    ilog[ilog_idx].prj = reg_rename_table[rj];
+    ilog[ilog_idx].prk = reg_rename_table[rk];
+
+    ilog[ilog_idx].prd = rd == 0 ? 0 : prd;
 
     ilog_idx = (ilog_idx + 1) % ILOG_SIZE;
 }
@@ -65,7 +66,10 @@ bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint
     if(commit_en){
         auto inst = pmem_read(cpu.pc, 4);
         #ifdef ITRACE
-            if(cpu.state == SIM_RUNNING) add_ilog(cpu.pc, inst, rf_wdata, prd, BITS(inst, 4, 0), rd_valid, BITS(inst, 9, 5), BITS(inst, 14, 10));
+            if(cpu.state == SIM_RUNNING) {
+                auto rd = BITS(inst, 31, 26) == 0x15 ? 0 : BITS(inst, 4, 0);
+                add_ilog(cpu.pc, inst, rf_wdata, prd, rd, rd_valid, BITS(inst, 9, 5), BITS(inst, 14, 10));
+            }
         #endif
         set_cpu_state(pc, rd, rd_valid, rf_wdata);
 
