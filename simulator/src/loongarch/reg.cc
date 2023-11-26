@@ -15,3 +15,4 @@ std::unordered_map<unsigned int, const char*> csr_name = {
     {0x44, "ticlr"},    {0x60, "llbctl"},   {0x88, "tlbrentry"},    {0x98, "ctag"},
     {0x180, "dmw0"},    {0x181, "dmw1"}
 };
+

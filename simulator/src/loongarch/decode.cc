@@ -3,6 +3,7 @@
 #include <paddr.h>
 
 #define R(i) cpu.reg[i]
+#define CSR(i) cpu.csr[i]
 
 #define INST_MATCH(opcode, mask, type, name, ...) {\
     if(((opcode ^ inst) & mask) == 0){ \
@@ -43,11 +44,16 @@ void decode_oprand(uint32_t inst, int type, uint32_t &rd, uint32_t &src1, uint32
 
 void decode_exec(uint32_t inst){
     uint32_t rd = 0;
+    uint32_t rj = BITS(inst, 9, 5);
     uint32_t src1 = 0;
     uint32_t src2 = 0;
     uint32_t imm = 0;
     uint32_t dst = 0;
+    uint32_t csr_rd = BITS(inst, 18, 10); //reduce
     uint32_t npc = cpu.pc + 4;
+    INST_MATCH(0x00006000, 0xfffffc1f, TYPE_2R,   RDCNTID.W,    R(rj) = CSR(CSR_NAME::TID))
+    INST_MATCH(0x00006000, 0xffffffe0, TYPE_2R,   RDCNTVL.W,    R(rj) = cpu.stable_counter & 0xffffffff)
+    INST_MATCH(0x00006400, 0xffffffe0, TYPE_2R,   RDCNTVH.W,    R(rj) = cpu.stable_counter >> 32)
     INST_MATCH(0x00100000, 0xffff8000, TYPE_3R,   ADD.W,        R(rd) = src1 + src2) 
     INST_MATCH(0x00110000, 0xffff8000, TYPE_3R,   SUB.W,        R(rd) = src1 - src2) 
     INST_MATCH(0x00120000, 0xffff8000, TYPE_3R,   SLT,          R(rd) = (int32_t)src1 < (int32_t)src2)
@@ -77,6 +83,9 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x03400000, 0xffc00000, TYPE_2RI12, ANDI,        R(rd) = src1 & BITS(imm, 11, 0))
     INST_MATCH(0x03800000, 0xffc00000, TYPE_2RI12, ORI,         R(rd) = src1 | BITS(imm, 11, 0))
     INST_MATCH(0x03c00000, 0xffc00000, TYPE_2RI12, XORI,        R(rd) = src1 ^ BITS(imm, 11, 0)) 
+    INST_MATCH(0x04000000, 0xff0003e0, TYPE_2RI12, CSRRD,       R(rd) = CSR(csr_rd))
+    INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,       R(rd) = CSR(csr_rd); CSR(csr_rd) = dst)
+    INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,     R(rd) = CSR(csr_rd); CSR(csr_rd) = dst & src1)
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,     R(rd) = BITS(inst, 24, 5) << 12)
     INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,   R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,        R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))
@@ -107,6 +116,7 @@ void decode_exec(uint32_t inst){
 
 finish:
     R(0) = 0;
+    cpu.stable_counter++;
     cpu.pc = npc;
     return;
 }
