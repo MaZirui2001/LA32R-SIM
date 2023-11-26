@@ -6,7 +6,7 @@
 #include <difftest.h>
 #include <statistic.h>
 #include <iomanip>
-// #define DUMP_WAVE
+#define DUMP_WAVE
 #ifdef ITRACE
 typedef struct{
     uint32_t pc;
@@ -56,13 +56,16 @@ inline bool test_break(uint32_t inst){
     return inst == 0x002a0000;
 }
 
-void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata){
+void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t csr, uint32_t csr_wdata, bool csr_we){
     if(rd_valid){
         cpu.reg[rd] = rf_wdata;
     }
+    if(csr_we){
+        cpu.csr[csr] = csr_wdata;
+    }
     cpu.pc = pc;
 }
-bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd){
+bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd, uint32_t csr, uint32_t csr_wdata, bool csr_we){
     if(commit_en){
         auto inst = pmem_read(cpu.pc, 4);
         #ifdef ITRACE
@@ -71,7 +74,7 @@ bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint
                 add_ilog(cpu.pc, inst, rf_wdata, prd, rd, rd_valid, BITS(inst, 9, 5), BITS(inst, 14, 10));
             }
         #endif
-        set_cpu_state(pc, rd, rd_valid, rf_wdata);
+        set_cpu_state(pc, rd, rd_valid, rf_wdata, csr, csr_wdata, csr_we);
 
         if(test_break(inst)){
             cpu.state = SIM_END;
@@ -119,10 +122,10 @@ void cpu_exec(uint64_t n){
 #endif
     while(n--){
         uint32_t commit_num = 0;
-        commit_num += commit_update(dut->io_commit_en1, dut->io_commit_pc_1, dut->io_commit_rd1, dut->io_commit_rd_valid1, dut->io_commit_rf_wdata1, dut->io_commit_prd1);
-        commit_num += commit_update(dut->io_commit_en2, dut->io_commit_pc_2, dut->io_commit_rd2, dut->io_commit_rd_valid2, dut->io_commit_rf_wdata2, dut->io_commit_prd2);
-        commit_num += commit_update(dut->io_commit_en3, dut->io_commit_pc_3, dut->io_commit_rd3, dut->io_commit_rd_valid3, dut->io_commit_rf_wdata3, dut->io_commit_prd3);
-        commit_num += commit_update(dut->io_commit_en4, dut->io_commit_pc_4, dut->io_commit_rd4, dut->io_commit_rd_valid4, dut->io_commit_rf_wdata4, dut->io_commit_prd4);
+        commit_num += commit_update(dut->io_commit_en1, dut->io_commit_pc_1, dut->io_commit_rd1, dut->io_commit_rd_valid1, dut->io_commit_rf_wdata1, dut->io_commit_prd1, dut->io_commit_csr_waddr1, dut->io_commit_csr_wdata1, dut->io_commit_csr_we1);
+        commit_num += commit_update(dut->io_commit_en2, dut->io_commit_pc_2, dut->io_commit_rd2, dut->io_commit_rd_valid2, dut->io_commit_rf_wdata2, dut->io_commit_prd2, dut->io_commit_csr_waddr2, dut->io_commit_csr_wdata2, dut->io_commit_csr_we2);
+        commit_num += commit_update(dut->io_commit_en3, dut->io_commit_pc_3, dut->io_commit_rd3, dut->io_commit_rd_valid3, dut->io_commit_rf_wdata3, dut->io_commit_prd3, dut->io_commit_csr_waddr3, dut->io_commit_csr_wdata3, dut->io_commit_csr_we3);
+        commit_num += commit_update(dut->io_commit_en4, dut->io_commit_pc_4, dut->io_commit_rd4, dut->io_commit_rd_valid4, dut->io_commit_rf_wdata4, dut->io_commit_prd4, dut->io_commit_csr_waddr4, dut->io_commit_csr_wdata4, dut->io_commit_csr_we4);
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
         if(dut->io_commit_is_ucread1 || dut->io_commit_is_ucread2 || dut->io_commit_is_ucread3 || dut->io_commit_is_ucread4){

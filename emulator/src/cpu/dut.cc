@@ -70,6 +70,15 @@ bool difftest_checkregs(CPU_State *ref_r) {
             return false;
         }
     }
+  // check csr
+    // for(int i = 0; i < 512; i++){
+    //     if(((word_t *)&cpu.csr)[i] != ((word_t *)&ref_r->csr)[i]){
+    //         printf(ANSI_BG_RED "NPC is different before executing instruction at pc = " FMT_WORD ANSI_NONE
+    //         "\n csr [%d] right = " FMT_WORD ", wrong = " FMT_WORD "\n",
+    //         cpu.pc, i, ((word_t *)&ref_r->csr)[i], ((word_t *)&cpu.csr)[i]); 
+    //         return false;
+    //     }
+    // }
 
 
 
