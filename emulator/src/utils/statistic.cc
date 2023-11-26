@@ -29,47 +29,47 @@ void statistic::mul_commit_update(uint32_t commit_num){
 }
 
 void statistic::predict_update(VCPU* dut){
-    if(dut->io_commit_is_br1){
-        total_br_type[dut->io_commit_br_type1]++;
-        failed_br_type[dut->io_commit_br_type1] += dut->io_commit_predict_fail1;
-        predict_fail_time += dut->io_commit_predict_fail1;
+    if(dut->io_commit_is_br_0){
+        total_br_type[dut->io_commit_br_type_0]++;
+        failed_br_type[dut->io_commit_br_type_0] += dut->io_commit_predict_fail_0;
+        predict_fail_time += dut->io_commit_predict_fail_0;
     }
-    if(dut->io_commit_is_br2){
-        total_br_type[dut->io_commit_br_type2]++;
-        failed_br_type[dut->io_commit_br_type2] += dut->io_commit_predict_fail2;
-        predict_fail_time += dut->io_commit_predict_fail2;
+    if(dut->io_commit_is_br_1){
+        total_br_type[dut->io_commit_br_type_1]++;
+        failed_br_type[dut->io_commit_br_type_1] += dut->io_commit_predict_fail_1;
+        predict_fail_time += dut->io_commit_predict_fail_1;
     }
-    if(dut->io_commit_is_br3){
-        total_br_type[dut->io_commit_br_type3]++;
-        failed_br_type[dut->io_commit_br_type3] += dut->io_commit_predict_fail3;
-        predict_fail_time += dut->io_commit_predict_fail3;
+    if(dut->io_commit_is_br_2){
+        total_br_type[dut->io_commit_br_type_2]++;
+        failed_br_type[dut->io_commit_br_type_2] += dut->io_commit_predict_fail_2;
+        predict_fail_time += dut->io_commit_predict_fail_2;
     }
-    if(dut->io_commit_is_br4){
-        total_br_type[dut->io_commit_br_type4]++;
-        failed_br_type[dut->io_commit_br_type4] += dut->io_commit_predict_fail4;
-        predict_fail_time += dut->io_commit_predict_fail4;
+    if(dut->io_commit_is_br_3){
+        total_br_type[dut->io_commit_br_type_3]++;
+        failed_br_type[dut->io_commit_br_type_3] += dut->io_commit_predict_fail_3;
+        predict_fail_time += dut->io_commit_predict_fail_3;
     }
 }
 void statistic::stall_update(VCPU* dut){
     stall_by_fetch_queue += dut->io_commit_stall_by_fetch_queue;
     stall_by_rename += dut->io_commit_stall_by_rename;
     stall_by_rob += dut->io_commit_stall_by_rob;
-    stall_by_iq1 += dut->io_commit_stall_by_iq1;
-    stall_by_iq2 += dut->io_commit_stall_by_iq2;
-    stall_by_iq3 += dut->io_commit_stall_by_iq3;
-    stall_by_iq4 += dut->io_commit_stall_by_iq4;
-    stall_by_iq5 += dut->io_commit_stall_by_iq5;
+    stall_by_iq1 += dut->io_commit_stall_by_iq_0;
+    stall_by_iq2 += dut->io_commit_stall_by_iq_1;
+    stall_by_iq3 += dut->io_commit_stall_by_iq_2;
+    stall_by_iq4 += dut->io_commit_stall_by_iq_3;
+    stall_by_iq5 += dut->io_commit_stall_by_iq_4;
     stall_by_sb += dut->io_commit_stall_by_sb;
 }
 
 void statistic::issue_update(VCPU* dut){
-    total_issue += dut->io_commit_iq1_issue || dut->io_commit_iq2_issue || dut->io_commit_iq3_issue || dut->io_commit_iq4_issue || dut->io_commit_iq5_issue;
-    uint64_t issue_num = dut->io_commit_iq1_issue + dut->io_commit_iq2_issue + dut->io_commit_iq3_issue + dut->io_commit_iq4_issue + dut->io_commit_iq5_issue;
-    iq1_issue += dut->io_commit_iq1_issue;
-    iq2_issue += dut->io_commit_iq2_issue;
-    iq3_issue += dut->io_commit_iq3_issue;
-    iq4_issue += dut->io_commit_iq4_issue;
-    iq5_issue += dut->io_commit_iq5_issue;
+    total_issue += dut->io_commit_iq_issue_0 || dut->io_commit_iq_issue_1 || dut->io_commit_iq_issue_2 || dut->io_commit_iq_issue_3 || dut->io_commit_iq_issue_4;
+    uint64_t issue_num = dut->io_commit_iq_issue_0 + dut->io_commit_iq_issue_1 + dut->io_commit_iq_issue_2 + dut->io_commit_iq_issue_3 + dut->io_commit_iq_issue_4;
+    iq1_issue += dut->io_commit_iq_issue_0;
+    iq2_issue += dut->io_commit_iq_issue_1;
+    iq3_issue += dut->io_commit_iq_issue_2;
+    iq4_issue += dut->io_commit_iq_issue_3;
+    iq5_issue += dut->io_commit_iq_issue_4;
     switch (issue_num){
     case 1:
         issue_1++;

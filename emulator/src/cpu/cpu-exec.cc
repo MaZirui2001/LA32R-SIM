@@ -122,13 +122,14 @@ void cpu_exec(uint64_t n){
 #endif
     while(n--){
         uint32_t commit_num = 0;
-        commit_num += commit_update(dut->io_commit_en1, dut->io_commit_pc_1, dut->io_commit_rd1, dut->io_commit_rd_valid1, dut->io_commit_rf_wdata1, dut->io_commit_prd1, dut->io_commit_csr_waddr1, dut->io_commit_csr_wdata1, dut->io_commit_csr_we1);
-        commit_num += commit_update(dut->io_commit_en2, dut->io_commit_pc_2, dut->io_commit_rd2, dut->io_commit_rd_valid2, dut->io_commit_rf_wdata2, dut->io_commit_prd2, dut->io_commit_csr_waddr2, dut->io_commit_csr_wdata2, dut->io_commit_csr_we2);
-        commit_num += commit_update(dut->io_commit_en3, dut->io_commit_pc_3, dut->io_commit_rd3, dut->io_commit_rd_valid3, dut->io_commit_rf_wdata3, dut->io_commit_prd3, dut->io_commit_csr_waddr3, dut->io_commit_csr_wdata3, dut->io_commit_csr_we3);
-        commit_num += commit_update(dut->io_commit_en4, dut->io_commit_pc_4, dut->io_commit_rd4, dut->io_commit_rd_valid4, dut->io_commit_rf_wdata4, dut->io_commit_prd4, dut->io_commit_csr_waddr4, dut->io_commit_csr_wdata4, dut->io_commit_csr_we4);
+        commit_num += commit_update(dut->io_commit_en_0, dut->io_commit_pc_0, dut->io_commit_rd_0, dut->io_commit_rd_valid_0, dut->io_commit_rf_wdata_0, dut->io_commit_prd_0, dut->io_commit_csr_waddr_0, dut->io_commit_csr_wdata_0, dut->io_commit_csr_we_0);
+        commit_num += commit_update(dut->io_commit_en_1, dut->io_commit_pc_1, dut->io_commit_rd_1, dut->io_commit_rd_valid_1, dut->io_commit_rf_wdata_1, dut->io_commit_prd_1, dut->io_commit_csr_waddr_1, dut->io_commit_csr_wdata_1, dut->io_commit_csr_we_1);
+        commit_num += commit_update(dut->io_commit_en_2, dut->io_commit_pc_2, dut->io_commit_rd_2, dut->io_commit_rd_valid_2, dut->io_commit_rf_wdata_2, dut->io_commit_prd_2, dut->io_commit_csr_waddr_2, dut->io_commit_csr_wdata_2, dut->io_commit_csr_we_2);
+        commit_num += commit_update(dut->io_commit_en_3, dut->io_commit_pc_3, dut->io_commit_rd_3, dut->io_commit_rd_valid_3, dut->io_commit_rf_wdata_3, dut->io_commit_prd_3, dut->io_commit_csr_waddr_3, dut->io_commit_csr_wdata_3, dut->io_commit_csr_we_3);
+
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
-        if(dut->io_commit_is_ucread1 || dut->io_commit_is_ucread2 || dut->io_commit_is_ucread3 || dut->io_commit_is_ucread4){
+        if(dut->io_commit_is_ucread_0 ||dut->io_commit_is_ucread_1 || dut->io_commit_is_ucread_2 || dut->io_commit_is_ucread_3){
             difftest_sync();
         }
         else if(commit_num != 0) difftest_step(commit_num);
