@@ -85,7 +85,7 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x03c00000, 0xffc00000, TYPE_2RI12, XORI,        R(rd) = src1 ^ BITS(imm, 11, 0)) 
     INST_MATCH(0x04000000, 0xff0003e0, TYPE_2RI12, CSRRD,       R(rd) = CSR(csr_rd))
     INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,       R(rd) = CSR(csr_rd); CSR(csr_rd) = dst)
-    INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,     R(rd) = CSR(csr_rd); CSR(csr_rd) = dst & src1)
+    INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,     R(rd) = CSR(csr_rd); CSR(csr_rd) = dst & src1 | CSR(csr_rd) & ~src1)
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,     R(rd) = BITS(inst, 24, 5) << 12)
     INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,   R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,        R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))

@@ -246,6 +246,7 @@ LEAF(n58_rdcnt_test)
 ###detect exception
   bne s2, zero, inst_error
 ###score +++
+  li.w a0, 0
   addi.w  s3, s3, 1
 ###output (s0<<24)|s3 
 inst_error:
