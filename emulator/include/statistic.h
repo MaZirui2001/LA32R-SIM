@@ -28,6 +28,7 @@ private:
     uint64_t stall_by_sb = 0;
     uint64_t stall_by_icache = 0;
     uint64_t stall_by_dcache = 0;
+    uint64_t stall_by_div = 0;
     uint64_t icache_visit = 0;
     uint64_t icache_miss = 0;
     uint64_t dcache_visit = 0;

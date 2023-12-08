@@ -60,6 +60,7 @@ void statistic::stall_update(VCPU* dut){
     stall_by_iq4 += dut->io_commit_stall_by_iq_3;
     stall_by_iq5 += dut->io_commit_stall_by_iq_4;
     stall_by_sb += dut->io_commit_stall_by_sb;
+    stall_by_div += dut->io_commit_stall_by_div;
 }
 
 void statistic::issue_update(VCPU* dut){
@@ -158,6 +159,7 @@ void statistic::generate_markdown_report(){
     fout << "|**算数分支发射队列满**|" << stall_by_iq3 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq3) / total_clocks * 100) << "%|" << endl;
     fout << "|**乘除法发射队列满**|" << stall_by_iq4 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq4) / total_clocks * 100) << "%|" << endl;
     fout << "|**内存读写发射队列满**|" << stall_by_iq5 << " | " << (total_clocks == 0 ? 0 : double(stall_by_iq5) / total_clocks * 100) << "%|" << endl;
+    fout << "|**除法器运算**|" << stall_by_div << " | " << (total_clocks == 0 ? 0 : double(stall_by_div) / total_clocks * 100) << "%|" << endl;
     fout << "|**写缓冲满**|" << stall_by_sb << " | " << (total_clocks == 0 ? 0 : double(stall_by_sb) / total_clocks * 100) << "%|" << endl;
     fout << endl;
     
