@@ -6,7 +6,8 @@
 #include <difftest.h>
 #include <statistic.h>
 #include <iomanip>
-#define DUMP_WAVE
+// #define DUMP_WAVE
+// #define FRONT_END_4
 #ifdef ITRACE
 typedef struct{
     uint32_t pc;
@@ -95,7 +96,7 @@ void single_cycle(){
     dut->eval();
 #ifdef DUMP_WAVE
     sim_time++;
-    // if(sim_time >= 150000 && sim_time <= 151000)
+    if(sim_time >= 2700000 && sim_time <= 2800000)
         m_trace->dump(sim_time);
 #endif
 }
@@ -124,12 +125,16 @@ void cpu_exec(uint64_t n){
         uint32_t commit_num = 0;
         commit_num += commit_update(dut->io_commit_en_0, dut->io_commit_pc_0, dut->io_commit_rd_0, dut->io_commit_rd_valid_0, dut->io_commit_rf_wdata_0, dut->io_commit_prd_0, dut->io_commit_csr_waddr_0, dut->io_commit_csr_wdata_0, dut->io_commit_csr_we_0);
         commit_num += commit_update(dut->io_commit_en_1, dut->io_commit_pc_1, dut->io_commit_rd_1, dut->io_commit_rd_valid_1, dut->io_commit_rf_wdata_1, dut->io_commit_prd_1, dut->io_commit_csr_waddr_1, dut->io_commit_csr_wdata_1, dut->io_commit_csr_we_1);
-        commit_num += commit_update(dut->io_commit_en_2, dut->io_commit_pc_2, dut->io_commit_rd_2, dut->io_commit_rd_valid_2, dut->io_commit_rf_wdata_2, dut->io_commit_prd_2, dut->io_commit_csr_waddr_2, dut->io_commit_csr_wdata_2, dut->io_commit_csr_we_2);
-        commit_num += commit_update(dut->io_commit_en_3, dut->io_commit_pc_3, dut->io_commit_rd_3, dut->io_commit_rd_valid_3, dut->io_commit_rf_wdata_3, dut->io_commit_prd_3, dut->io_commit_csr_waddr_3, dut->io_commit_csr_wdata_3, dut->io_commit_csr_we_3);
+        // commit_num += commit_update(dut->io_commit_en_2, dut->io_commit_pc_2, dut->io_commit_rd_2, dut->io_commit_rd_valid_2, dut->io_commit_rf_wdata_2, dut->io_commit_prd_2, dut->io_commit_csr_waddr_2, dut->io_commit_csr_wdata_2, dut->io_commit_csr_we_2);
+        // commit_num += commit_update(dut->io_commit_en_3, dut->io_commit_pc_3, dut->io_commit_rd_3, dut->io_commit_rd_valid_3, dut->io_commit_rf_wdata_3, dut->io_commit_prd_3, dut->io_commit_csr_waddr_3, dut->io_commit_csr_wdata_3, dut->io_commit_csr_we_3);
 
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
-        if(dut->io_commit_is_ucread_0 ||dut->io_commit_is_ucread_1 || dut->io_commit_is_ucread_2 || dut->io_commit_is_ucread_3){
+        bool uncache = dut->io_commit_is_ucread_0 || dut->io_commit_is_ucread_1;
+    #ifdef FRONT_END_4
+        uncache = uncache || dut->io_commit_is_ucread_2 || dut->io_commit_is_ucread_3;
+    #endif
+        if(uncache){
             difftest_sync();
         }
         else if(commit_num != 0) difftest_step(commit_num);

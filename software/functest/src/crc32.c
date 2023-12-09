@@ -39,9 +39,12 @@ uint32_t rc_crc32(uint32_t crc, const char *buf, size_t len) {
 	}
 	return ~crc;
 }
- 
+#define ITER 100
 int main() {
+for(int i = 0; i < ITER; i++){
   uint32_t res = rc_crc32(0, STR, STRLEN);
   check(res == 0x414FA339);
+}
+
 	return 0;
 }

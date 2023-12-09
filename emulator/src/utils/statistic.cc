@@ -39,6 +39,7 @@ void statistic::predict_update(VCPU* dut){
         failed_br_type[dut->io_commit_br_type_1] += dut->io_commit_predict_fail_1;
         predict_fail_time += dut->io_commit_predict_fail_1;
     }
+#ifdef FRONT_END_4
     if(dut->io_commit_is_br_2){
         total_br_type[dut->io_commit_br_type_2]++;
         failed_br_type[dut->io_commit_br_type_2] += dut->io_commit_predict_fail_2;
@@ -49,6 +50,7 @@ void statistic::predict_update(VCPU* dut){
         failed_br_type[dut->io_commit_br_type_3] += dut->io_commit_predict_fail_3;
         predict_fail_time += dut->io_commit_predict_fail_3;
     }
+#endif
 }
 void statistic::stall_update(VCPU* dut){
     stall_by_fetch_queue += dut->io_commit_stall_by_fetch_queue;
