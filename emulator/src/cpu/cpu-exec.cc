@@ -125,9 +125,10 @@ void cpu_exec(uint64_t n){
         uint32_t commit_num = 0;
         commit_num += commit_update(dut->io_commit_en_0, dut->io_commit_pc_0, dut->io_commit_rd_0, dut->io_commit_rd_valid_0, dut->io_commit_rf_wdata_0, dut->io_commit_prd_0, dut->io_commit_csr_waddr_0, dut->io_commit_csr_wdata_0, dut->io_commit_csr_we_0);
         commit_num += commit_update(dut->io_commit_en_1, dut->io_commit_pc_1, dut->io_commit_rd_1, dut->io_commit_rd_valid_1, dut->io_commit_rf_wdata_1, dut->io_commit_prd_1, dut->io_commit_csr_waddr_1, dut->io_commit_csr_wdata_1, dut->io_commit_csr_we_1);
-        // commit_num += commit_update(dut->io_commit_en_2, dut->io_commit_pc_2, dut->io_commit_rd_2, dut->io_commit_rd_valid_2, dut->io_commit_rf_wdata_2, dut->io_commit_prd_2, dut->io_commit_csr_waddr_2, dut->io_commit_csr_wdata_2, dut->io_commit_csr_we_2);
-        // commit_num += commit_update(dut->io_commit_en_3, dut->io_commit_pc_3, dut->io_commit_rd_3, dut->io_commit_rd_valid_3, dut->io_commit_rf_wdata_3, dut->io_commit_prd_3, dut->io_commit_csr_waddr_3, dut->io_commit_csr_wdata_3, dut->io_commit_csr_we_3);
-
+    #ifdef FRONT_END_4
+        commit_num += commit_update(dut->io_commit_en_2, dut->io_commit_pc_2, dut->io_commit_rd_2, dut->io_commit_rd_valid_2, dut->io_commit_rf_wdata_2, dut->io_commit_prd_2, dut->io_commit_csr_waddr_2, dut->io_commit_csr_wdata_2, dut->io_commit_csr_we_2);
+        commit_num += commit_update(dut->io_commit_en_3, dut->io_commit_pc_3, dut->io_commit_rd_3, dut->io_commit_rd_valid_3, dut->io_commit_rf_wdata_3, dut->io_commit_prd_3, dut->io_commit_csr_waddr_3, dut->io_commit_csr_wdata_3, dut->io_commit_csr_we_3);
+    #endif
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
         bool uncache = dut->io_commit_is_ucread_0 || dut->io_commit_is_ucread_1;
