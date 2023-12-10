@@ -36,13 +36,13 @@ main:
     bl n28_sra_w_test
     bl n29_srl_w_test
 
-    // bl n30_div_w_test
-    // bl n31_div_wu_test
-    // bl n32_mul_w_test
-    // bl n33_mulh_w_test
-    // bl n34_mulh_wu_test
-    // bl n35_mod_w_test
-    // bl n36_mod_wu_test
+    bl n30_div_w_test
+    bl n31_div_wu_test
+    bl n32_mul_w_test
+    bl n33_mulh_w_test
+    bl n34_mulh_wu_test
+    bl n35_mod_w_test
+    bl n36_mod_wu_test
 
     bl n37_blt_test
     bl n38_bge_test
@@ -56,7 +56,7 @@ main:
     bl n45_st_b_test
     bl n46_st_h_test
 
-    // bl n58_rdcnt_test
+    bl n58_rdcnt_test
 
     // li.w a0, 13
     // bne a0, s3, failed

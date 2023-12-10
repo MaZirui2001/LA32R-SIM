@@ -96,7 +96,7 @@ void single_cycle(){
     dut->eval();
 #ifdef DUMP_WAVE
     sim_time++;
-    if(sim_time >= 2700000 && sim_time <= 2800000)
+    //if(sim_time >= 2700000 && sim_time <= 2800000)
         m_trace->dump(sim_time);
 #endif
 }

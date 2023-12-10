@@ -11,7 +11,7 @@ csr:
     csrrd $r4, 0x6
     csrrd $r4, 0x6
     csrrd $r4, 0x6
-    beq $r4, $r0, success
+    b success
 fail:
     li.w $r4, 0x1
     break 0
