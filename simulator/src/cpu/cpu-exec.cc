@@ -42,7 +42,11 @@ void cpu_exec(uint64_t n){
 #endif
     while(n--){
         uint32_t inst = inst_fetch(cpu.pc);
-        
+        if(inst == 0x80000000){
+            cpu.state = SIM_END;
+            cpu.halt_pc = cpu.pc;
+            break;
+        }
 #ifdef ITRACE
         ilog[ilog_idx].pc = cpu.pc;
         ilog[ilog_idx].inst = inst;

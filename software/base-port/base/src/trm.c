@@ -19,7 +19,7 @@ void putch(char ch) {
     outb(SERIAL_PORT, ch);
 }
 void halt(int code) {
-  asm volatile("move $r4, %0; break 0" : :"r"(code));
+  asm volatile("move $r4, %0; .word 0x80000000" : :"r"(code));
   while(1);
 }
 

@@ -41,7 +41,29 @@ void decode_oprand(uint32_t inst, int type, uint32_t &rd, uint32_t &src1, uint32
     }
 
 }
+inline uint32_t do_exception(uint32_t ecode){
+    // set PLV and IE in PRMD to those in CRMD
+    CSR(CSR_NAME::PRMD) = CSR(CSR_NAME::CRMD) & 0x7;
+    // set PLV to 0 and set IE to 0
+    CSR(CSR_NAME::CRMD) &= 0xfffffff8;
 
+    // set ecode to ESTAT
+    CSR(CSR_NAME::ESTAT) = (0x7fff0000 & (ecode << 16)) | (~0x7fff0000 & CSR(CSR_NAME::ESTAT));
+    // set era to pc
+    CSR(CSR_NAME::ERA) = cpu.pc;
+    // set pc to EENTRY
+    return CSR(CSR_NAME::EENTRY);
+    // TODO: set VADDR to TLBEHI
+
+}
+inline uint32_t do_ertn(){
+    // recover CRMD
+    CSR(CSR_NAME::CRMD) = (CSR(CSR_NAME::CRMD) & 0xfffffff8) | (CSR(CSR_NAME::PRMD) & 0x7);
+    if(BITS(CSR(CSR_NAME::ESTAT), 21, 16) == 0x1f){
+        CSR(CSR_NAME::CRMD) = (CSR(CSR_NAME::CRMD) & 0xffffffe7) | (0x10 << 3);
+    }
+    return CSR(CSR_NAME::ERA);
+}
 void decode_exec(uint32_t inst){
     uint32_t rd = 0;
     uint32_t rj = BITS(inst, 9, 5);
@@ -51,6 +73,8 @@ void decode_exec(uint32_t inst){
     uint32_t dst = 0;
     uint32_t csr_rd = BITS(inst, 18, 10); //reduce
     uint32_t npc = cpu.pc + 4;
+
+    //INST_MATCH(0x80000000, 0xffffffff, TYPE_2R,   TRAP,         cpu.state = SIM_END; cpu.halt_pc = cpu.pc; printf("ok\n"))
     INST_MATCH(0x00006000, 0xfffffc1f, TYPE_2R,   RDCNTID.W,    R(rj) = CSR(CSR_NAME::TID))
     INST_MATCH(0x00006000, 0xffffffe0, TYPE_2R,   RDCNTVL.W,    R(rj) = cpu.stable_counter & 0xffffffff)
     INST_MATCH(0x00006400, 0xffffffe0, TYPE_2R,   RDCNTVH.W,    R(rj) = cpu.stable_counter >> 32)
@@ -72,8 +96,8 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x00208000, 0xffff8000, TYPE_3R,   MOD.W,        R(rd) = (int32_t)src1 % (int32_t)src2)
     INST_MATCH(0x00210000, 0xffff8000, TYPE_3R,   DIV.WU,       R(rd) = src1 / src2)
     INST_MATCH(0x00218000, 0xffff8000, TYPE_3R,   MOD.WU,       R(rd) = src1 % src2)
-    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R,   BREAK,        cpu.state = SIM_END; cpu.halt_pc = cpu.pc)
-    // INST_MATCH(0x002b0000, 0xffff8000, SYSCALL, TYPE_3R, )
+    // INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R,   BREAK,        cpu.state = SIM_END; cpu.halt_pc = cpu.pc)
+    INST_MATCH(0x002b0000, 0xffff8000, TYPE_3R,   SYSCALL,      npc = do_exception(0xb))
     INST_MATCH(0x00408000, 0xffff8000, TYPE_2RI8,  SLLI.W,      R(rd) = src1 << BITS(imm, 4, 0))
     INST_MATCH(0x00448000, 0xffff8000, TYPE_2RI8,  SRLI.W,      R(rd) = src1 >> BITS(imm, 4, 0))
     INST_MATCH(0x00488000, 0xffff8000, TYPE_2RI8,  SRAI.W,      R(rd) = (int32_t)src1 >> BITS(imm, 4, 0))
@@ -86,6 +110,7 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x04000000, 0xff0003e0, TYPE_2RI12, CSRRD,       R(rd) = CSR(csr_rd))
     INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,       R(rd) = CSR(csr_rd); CSR(csr_rd) = dst)
     INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,     R(rd) = CSR(csr_rd); CSR(csr_rd) = dst & src1 | CSR(csr_rd) & ~src1)
+    INST_MATCH(0x06483800, 0xffffffff, TYPE_3R,    ERTN,        npc = do_ertn())
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,     R(rd) = BITS(inst, 24, 5) << 12)
     INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,   R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,        R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))

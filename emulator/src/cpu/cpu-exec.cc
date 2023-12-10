@@ -54,7 +54,7 @@ void add_ilog(uint32_t pc, uint32_t inst, uint32_t rf_wdata, uint32_t prd, uint3
 #endif
 
 inline bool test_break(uint32_t inst){
-    return inst == 0x002a0000;
+    return inst == 0x80000000;
 }
 
 void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t csr, uint32_t csr_wdata, bool csr_we){

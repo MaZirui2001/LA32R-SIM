@@ -6,7 +6,7 @@ CC = $(CROSS_COMPILE)gcc
 AS = $(CROSS_COMPILE)gcc
 
 
-CFLAGS = -MMD -O3 $(INC_PATH)
+CFLAGS = -MMD -Og $(INC_PATH)
 CFLAGS += -fno-asynchronous-unwind-tables -fno-builtin -fno-stack-protector
 AFLAGS = 
 ARFLAGS = rcs

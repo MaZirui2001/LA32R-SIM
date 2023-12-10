@@ -9,7 +9,6 @@ bitset<32> inst_bit;
 
 void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _prk) {
     inst_bit = bitset<32> (inst);
-
     // register file
     const char *rd = reg_name[BITS(inst, 4, 0)];
     const char *rj = reg_name[BITS(inst, 9, 5)];
@@ -63,6 +62,7 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
             if(!inst_bit[27]){
                 // automatic
                 sprintf(buf, "%-12s %-4s(%-4s), %-4s(%-4s), %d", inst_bit[24] ? "sc.w" : "ll.w", rd, prd, rj, prj, SBITS(inst, 23, 10));
+                return;
             }
             else{
                 switch(BITS(inst, 26, 22)){
@@ -99,21 +99,22 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
             default: sprintf(buf, "%-16s", "unimp"); return;
         }
     }
+
     if(inst_bit[27]){
         // float TODO
         sprintf(buf, "%-16s", "unimp");
         return;
     }
     if(inst_bit[26]){
-        const char *csr;
-        if(csr_name.find(BITS(inst, 19, 10)) != csr_name.end()){
-            csr = csr_name[BITS(inst, 19, 10)];
-        }
-        else{
-            sprintf(buf, "%-16s", "unimp");
-            return;
-        }
         if(BITS(inst, 25, 24) == 0){
+            const char *csr;
+            if(csr_name.find(BITS(inst, 19, 10)) != csr_name.end()){
+                csr = csr_name[BITS(inst, 19, 10)];
+            }
+            else{
+                sprintf(buf, "%-16s", "unimp");
+                return;
+            }
             switch(BITS(inst, 9, 5)){
                 // csrrd rd, csr
                 case 0: sprintf(buf, "%-12s %-4s(%-4s), %s", "csrrd", rd, prd, csr); return;
@@ -124,22 +125,28 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
             }
         }
         else if(BITS(inst, 25, 24) == 2){
+            
             if(BITS(inst, 23, 22) == 0) {
                 // cacop code, rj, si12
                 sprintf(buf, "%-12s %d, %-4s(%-4s), %d", "cacop", BITS(inst, 4, 0), rj, prj, BITS(inst, 21, 10));
+                return;
             }
             else if(BITS(inst, 23, 22) == 1){
                 if(BITS(inst, 21, 17) != 0x04){
                     sprintf(buf, "%-16s", "unimp");
+                    return;
                 }
                 else{
+                    
                     if(BITS(inst, 16, 15) == 3){
                         // invtlb op, rj, rk
                         sprintf(buf, "%-12s %d, %-4s(%-4s), %-4s(%-4s)", "invtlb", BITS(inst, 4, 0), rj, prj, rk, prk);
+                        return;
                     }
                     else if(BITS(inst, 16, 15) == 1){
                         // idle level
                         sprintf(buf, "%-12s %d", "idle", BITS(inst, 14, 0));
+                        return;
                     }
                     else if(BITS(inst, 16, 15) == 0){
                         switch(BITS(inst, 14, 10)){
@@ -147,41 +154,49 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
                                 if(BITS(inst, 9, 0) != 0) sprintf(buf, "%-16s", "unimp");
                                 // tlbsearch
                                 else sprintf(buf, "%-12s", "tlbsearch");
+                                return;
                             }
                             case 0xb: {
                                 if(BITS(inst, 9, 0) != 0) sprintf(buf, "%-16s", "unimp");
                                 // tlbrd
                                 else sprintf(buf, "%-12s", "tlbrd");
+                                return;
                             }
                             case 0xc: {
                                 if(BITS(inst, 9, 0) != 0) sprintf(buf, "%-16s", "unimp");
                                 // tlbwr
                                 else sprintf(buf, "%-12s", "tlbwr");
+                                return;
                             }
                             case 0xd: {
                                 if(BITS(inst, 9, 0) != 0) sprintf(buf, "%-16s", "unimp");
                                 // tlbfill
                                 else sprintf(buf, "%-12s", "tlbfill");
+                                return;
                             }
                             case 0xe: {
                                 if(BITS(inst, 9, 0) != 0) sprintf(buf, "%-16s", "unimp");
                                 // ertn
                                 else sprintf(buf, "%-12s", "ertn");
+                                return;
                             }
-                            default: sprintf(buf, "%-16s", "unimp");
+                            default: sprintf(buf, "%-16s", "unimp"); return;
                         }
                     }
                     else {
                         sprintf(buf, "%-16s", "unimp");
+                        return;
                     }
                 }
             }
             else {
                 sprintf(buf, "%-16s", "unimp");
+                return;
             }
         }
         else {
             sprintf(buf, "%-16s", "unimp");
+            return;
         }
     }
     if(inst_bit[25]){
@@ -205,10 +220,12 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
     if(inst_bit[24]){
         // float
         sprintf(buf, "%-16s", "unimp");
+        return;
     }
     if(inst_bit[23]){
         // no legal
         sprintf(buf, "%-16s", "unimp");
+        return;
     }
     if(inst_bit[22]){
         switch(BITS(inst, 21, 15)){
@@ -235,7 +252,7 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
             // break code
             case 0x14: sprintf(buf, "%-12s %d", "break", BITS(inst, 14, 0)); return;
             // syscall code
-            case 0x15: sprintf(buf, "%-12s %d", "syscall", BITS(inst, 14, 0)); return;
+            case 0x16: sprintf(buf, "%-12s %d", "syscall", BITS(inst, 14, 0)); return;
 
             default: sprintf(buf, "%-16s", "unimp"); return;
         }
