@@ -119,7 +119,7 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
                 // csrrd rd, csr
                 case 0: sprintf(buf, "%-12s %-4s(%-4s), %s", "csrrd", rd, prd, csr); return;
                 // csrrw rd, csr
-                case 1: sprintf(buf, "%-12s %-4s(%-4s), %s", "csrrw", rd, prd, csr); return;
+                case 1: sprintf(buf, "%-12s %-4s(%-4s), %s", "csrwr", rd, prd, csr); return;
                 // csrxchg rd, rj, csr
                 default: sprintf(buf, "%-12s %-4s(%-4s), %-4s(%-4s), %s", "csrxchg", rd, prd, rj, prj, csr); return;
             }

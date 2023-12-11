@@ -73,11 +73,10 @@ void decode_exec(uint32_t inst){
     uint32_t dst = 0;
     uint32_t csr_rd = BITS(inst, 18, 10); //reduce
     uint32_t npc = cpu.pc + 4;
-
     //INST_MATCH(0x80000000, 0xffffffff, TYPE_2R,   TRAP,         cpu.state = SIM_END; cpu.halt_pc = cpu.pc; printf("ok\n"))
     INST_MATCH(0x00006000, 0xfffffc1f, TYPE_2R,   RDCNTID.W,    R(rj) = CSR(CSR_NAME::TID))
-    INST_MATCH(0x00006000, 0xffffffe0, TYPE_2R,   RDCNTVL.W,    R(rj) = cpu.stable_counter & 0xffffffff)
-    INST_MATCH(0x00006400, 0xffffffe0, TYPE_2R,   RDCNTVH.W,    R(rj) = cpu.stable_counter >> 32)
+    INST_MATCH(0x00006000, 0xffffffe0, TYPE_2R,   RDCNTVL.W,    R(rd) = cpu.stable_counter & 0xffffffff)
+    INST_MATCH(0x00006400, 0xffffffe0, TYPE_2R,   RDCNTVH.W,    R(rd) = cpu.stable_counter >> 32)
     INST_MATCH(0x00100000, 0xffff8000, TYPE_3R,   ADD.W,        R(rd) = src1 + src2) 
     INST_MATCH(0x00110000, 0xffff8000, TYPE_3R,   SUB.W,        R(rd) = src1 - src2) 
     INST_MATCH(0x00120000, 0xffff8000, TYPE_3R,   SLT,          R(rd) = (int32_t)src1 < (int32_t)src2)
@@ -115,7 +114,7 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,   R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,        R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))
     INST_MATCH(0x28400000, 0xffc00000, TYPE_2RI12, LD.H,        R(rd) = SBITS(paddr_read(src1 + imm, 2), 15, 0))
-    INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, LD.W,        R(rd) = paddr_read(src1 + imm, 4);)
+    INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, LD.W,        R(rd) = paddr_read(src1 + imm, 4))
     INST_MATCH(0x29000000, 0xffc00000, TYPE_2RI12, ST.B,        paddr_write(src1 + imm, BITS(dst, 7, 0), 1))
     INST_MATCH(0x29400000, 0xffc00000, TYPE_2RI12, ST.H,        paddr_write(src1 + imm, BITS(dst, 15, 0), 2))
     INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, ST.W,        paddr_write(src1 + imm, dst, 4)) 
@@ -137,7 +136,7 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x68000000, 0xfc000000, TYPE_2RI16, BLTU,        if(src1 < dst) npc = cpu.pc + (imm << 2))
     INST_MATCH(0x6c000000, 0xfc000000, TYPE_2RI16, BGEU,        if(src1 >= dst) npc = cpu.pc + (imm << 2))
 
-    
+    std::cout << "Unimplemented instruction: " << std::hex << inst << std::endl;
 
 finish:
     R(0) = 0;

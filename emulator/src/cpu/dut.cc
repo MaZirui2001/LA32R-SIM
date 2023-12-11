@@ -50,7 +50,8 @@ void init_difftest(char *ref_so_file, long img_size) {
 }
 
 // copy our registers to nemu
-void difftest_sync(){
+void difftest_sync(uint64_t n){
+    difftest_exec(n);
     difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 

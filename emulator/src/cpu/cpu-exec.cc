@@ -136,7 +136,7 @@ void cpu_exec(uint64_t n){
         uncache = uncache || dut->io_commit_is_ucread_2 || dut->io_commit_is_ucread_3;
     #endif
         if(uncache){
-            difftest_sync();
+            difftest_sync(commit_num);
         }
         else if(commit_num != 0) difftest_step(commit_num);
 #endif

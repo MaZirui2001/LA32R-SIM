@@ -24,6 +24,5 @@ void halt(int code) {
 }
 
 void call_main() {
-  int ret = main(argv);
-  halt(ret);
+  halt(main(argv));
 }

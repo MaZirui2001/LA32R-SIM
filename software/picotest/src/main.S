@@ -58,9 +58,10 @@ main:
     // bl n44_ld_hu_test
     // bl n45_st_b_test
     // bl n46_st_h_test
-    // bl n47_syscall_ex_test
-
+    
+    bl n47_syscall_ex_test
     bl n58_rdcnt_test
+    
 
     // li.w a0, 13
     // bne a0, s3, failed

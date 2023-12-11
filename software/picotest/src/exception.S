@@ -8,6 +8,7 @@
  *  exception handle
  */
 .global exception_handler
+.align 6
 exception_handler:
 1:  
     GET_EXIMM(t1)
