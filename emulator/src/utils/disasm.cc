@@ -20,7 +20,7 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
     const char *prk = preg_name[_prk];
 
     if(inst_bit[31]){
-        sprintf(buf, "%-16s", "unimp");
+        sprintf(buf, "%-16s", "halt");
         return;
     }
     if(inst_bit[30]){
@@ -137,7 +137,6 @@ void disasm(char* buf, uint32_t inst, uint32_t _prd, uint32_t _prj, uint32_t _pr
                     return;
                 }
                 else{
-                    
                     if(BITS(inst, 16, 15) == 3){
                         // invtlb op, rj, rk
                         sprintf(buf, "%-12s %d, %-4s(%-4s), %-4s(%-4s)", "invtlb", BITS(inst, 4, 0), rj, prj, rk, prk);
