@@ -60,12 +60,15 @@ main:
     // bl n46_st_h_test
     
     bl n47_syscall_ex_test
-    bl n58_rdcnt_test
-    
-
-    // li.w a0, 13
-    // bne a0, s3, failed
+    bl n48_brk_ex_test
+    bl n49_ti_ex_test
+    bl n50_ine_ex_test
+    li.w a0, 50
+    bne a0, s3, failed
     li.w a0, 0
+    .word 0x80000000
+failed:
+    // bl n58_rdcnt_test
     .word 0x80000000
 
 // failed:

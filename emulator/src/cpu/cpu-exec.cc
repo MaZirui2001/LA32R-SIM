@@ -22,7 +22,7 @@ uint32_t reg_rename_table[32];
 static statistic stat;
 
 
-#define ILOG_SIZE 16
+#define ILOG_SIZE 32
 static inst_log_t ilog[ILOG_SIZE];
 static int ilog_idx = 0;
 void print_ilog(){
@@ -131,14 +131,18 @@ void cpu_exec(uint64_t n){
     #endif
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
-        bool uncache = dut->io_commit_is_ucread_0 || dut->io_commit_is_ucread_1;
-    #ifdef FRONT_END_4
-        uncache = uncache || dut->io_commit_is_ucread_2 || dut->io_commit_is_ucread_3;
-    #endif
-        if(uncache){
-            difftest_sync(commit_num);
+        if(dut->io_commit_interrupt) difftest_intr(dut->io_commit_interrupt_type);
+        else{
+            bool uncache = dut->io_commit_is_ucread_0 || dut->io_commit_is_ucread_1;
+            #ifdef FRONT_END_4
+                uncache = uncache || dut->io_commit_is_ucread_2 || dut->io_commit_is_ucread_3;
+            #endif
+            if(uncache){
+                difftest_sync(commit_num);
+            }
+            else if(commit_num != 0) difftest_step(commit_num);
         }
-        else if(commit_num != 0) difftest_step(commit_num);
+
 #endif
         stat.ipc_update(commit_num);
         stat.mul_commit_update(commit_num);

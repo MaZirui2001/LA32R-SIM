@@ -11,7 +11,7 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 void (*difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
 void (*difftest_exec)(uint64_t n) = NULL;
-// void (*difftest_raise_intr)(uint64_t NO) = NULL;
+void (*difftest_raise_intr)(int irq) = NULL;
 
 // // should skip difftest 
 // static bool is_skip_ref = false;
@@ -41,6 +41,9 @@ void init_difftest(char *ref_so_file, long img_size) {
     difftest_exec = (void (*)(uint64_t))dlsym(handle, "difftest_exec");
     assert(difftest_exec);
 
+    difftest_raise_intr = (void (*)(int))dlsym(handle, "difftest_raise_intr");
+    assert(difftest_raise_intr);
+
     Log("Differential testing: %s", ANSI_FMT("ON", ANSI_FG_GREEN));
 
     // copy the memory, the registers, the pc to nemu, so our cpu and nemu can run with the same initial state
@@ -48,7 +51,9 @@ void init_difftest(char *ref_so_file, long img_size) {
     cpu.pc = CONFIG_PMEM_BASE;
     difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
-
+void difftest_intr(int irq) {
+    difftest_raise_intr(irq);
+}
 // copy our registers to nemu
 void difftest_sync(uint64_t n){
     difftest_exec(n);

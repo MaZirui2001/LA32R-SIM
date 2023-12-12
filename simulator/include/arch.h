@@ -10,8 +10,10 @@
 extern const char* reg_name[32];
 // loongarch csr name 
 extern std::unordered_map<unsigned int, const char*> csr_name;
+extern std::unordered_map<uint32_t, uint32_t> csr_mask;
 #define RESET_VECTOR CONFIG_PMEM_BASE
 #define REG_SIZE  (32 + 1)
+#define CSR_SIZE  (512)
 
 typedef struct {
     uint32_t reg[32];
@@ -33,4 +35,5 @@ enum CSR_NAME{
     TICLR = 0x44, LLBCTL = 0x60, TLBRENTRY = 0x88, CTAG = 0x98,
     DMW0 = 0x180, DMW1 = 0x181
 };
+
 #endif // __ARCH_H__
