@@ -168,7 +168,7 @@ void statistic::generate_markdown_report(){
     fout << "## 发射阶段" << endl;
     fout << "### 多发射率" << endl;
     fout << "|总发射数|发射率|单发射率|双发射率|三发射率|四发射率|五发射率|" << endl;
-    fout << "|---|---|---|---|---|---|" << endl;
+    fout << "|---|---|---|---|---|---|---|---|" << endl;
     fout << "|" << total_issue << "|" << (total_clocks == 0 ? 0 : double(total_issue) / total_clocks * 100) << "%|" << 
             (total_issue == 0 ? 0 : double(issue_1) / total_issue * 100) << "%|" << (total_issue == 0 ? 0 : double(issue_2) / total_issue * 100) << "%|" << (total_issue == 0 ? 0 : double(issue_3) / total_issue * 100) << "%|" << (total_issue == 0 ? 0 : double(issue_4) / total_issue * 100) << "%|" << (total_issue == 0 ? 0 : double(issue_5) / total_issue * 100) << "%|" << endl;
     fout << endl;
