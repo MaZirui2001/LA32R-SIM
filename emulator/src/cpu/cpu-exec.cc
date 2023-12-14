@@ -110,6 +110,7 @@ void reset(){
     dut->clock = 1;
     dut->eval();
     dut->reset = 0;
+    cpu.csr[0x0] = 0x8;
     std::cout << "Reset at pc = " << std::hex << 0x1c000000 << std::endl;
 }
 void cpu_exec(uint64_t n){

@@ -13,13 +13,12 @@ VerilatedVcdC *m_trace = new VerilatedVcdC;
 size_t sim_time = 0;
 
 int main(int argc, char* argv[]){
+    reset();
     init_monitor(argc, argv);
 
     Verilated::traceEverOn(true);
     dut->trace(m_trace, 5);
     m_trace->open("waveform.vcd");
-    
-    reset();
     command_mainloop();
     free_device();
 

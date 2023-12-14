@@ -51,9 +51,14 @@ uint32_t do_exception(uint32_t ecode){
     CSR(CSR_NAME::ESTAT) = (0x7fff0000 & (ecode << 16)) | (~0x7fff0000 & CSR(CSR_NAME::ESTAT));
     // set era to pc
     CSR(CSR_NAME::ERA) = cpu.pc;
+    // set badv
+    if(ecode == 0x8){
+        CSR(CSR_NAME::BADV) = cpu.pc;
+    }
     // set pc to EENTRY
     return CSR(CSR_NAME::EENTRY);
     // TODO: set VADDR to TLBEHI
+
 
 }
 inline uint32_t do_ertn(){
@@ -73,6 +78,10 @@ void decode_exec(uint32_t inst){
     uint32_t dst = 0;
     uint32_t csr_rd = BITS(inst, 18, 10); //reduce
     uint32_t npc = cpu.pc + 4;
+    if(cpu.pc & 0x3){
+        npc = do_exception(0x8);
+        goto finish;
+    }
     //INST_MATCH(0x80000000, 0xffffffff, TYPE_2R,   TRAP,         cpu.state = SIM_END; cpu.halt_pc = cpu.pc; printf("ok\n"))
     INST_MATCH(0x00006000, 0xfffffc1f, TYPE_2R,    RDCNTID.W,    R(rj) = CSR(CSR_NAME::TID))
     INST_MATCH(0x00006000, 0xffffffe0, TYPE_2R,    RDCNTVL.W,    R(rd) = cpu.stable_counter & 0xffffffff)

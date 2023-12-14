@@ -13,9 +13,9 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 }
 __EXPORT void difftest_regcpy(uint64_t *dut, bool direction) {
     if (direction == DIFFTEST_TO_REF) {
-        memcpy(&cpu, dut, (REG_SIZE) * sizeof(uint32_t));
+        memcpy(&cpu, dut, (REG_SIZE+CSR_SIZE) * sizeof(uint32_t));
     } else {
-        memcpy(dut, &cpu, (REG_SIZE) * sizeof(uint32_t));
+        memcpy(dut, &cpu, (REG_SIZE+CSR_SIZE) * sizeof(uint32_t));
     }
 }
 

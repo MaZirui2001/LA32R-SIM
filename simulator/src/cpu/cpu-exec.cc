@@ -29,8 +29,8 @@ void print_ilog(){
 void reset(){
     cpu.state = SIM_STOP;
     cpu.pc = RESET_VECTOR;
+    cpu.csr[CSR_NAME::CRMD] = 0x8;
 }
-
 void cpu_exec(uint64_t n){
 #ifndef CONFIG_REF
     switch(cpu.state){
@@ -41,7 +41,10 @@ void cpu_exec(uint64_t n){
     }
 #endif
     while(n--){
-        uint32_t inst = inst_fetch(cpu.pc);
+        uint32_t inst = 0x80000001;
+        if(in_pmem(cpu.pc)){
+            inst = inst_fetch(cpu.pc);
+        }
         if(inst == 0x80000000){
             cpu.state = SIM_END;
             cpu.halt_pc = cpu.pc;
