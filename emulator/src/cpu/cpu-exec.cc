@@ -151,8 +151,8 @@ void cpu_exec(uint64_t n){
         stat.stall_update(dut);
         stat.issue_update(dut);
         stat.cache_update(dut);
-        // if((n & (16384-1)) == 0)
-        //     stat.show_ipc_now();
+        if((n & (16384-1)) == 0)
+            stat.show_ipc_now();
         single_cycle();
         
     }
