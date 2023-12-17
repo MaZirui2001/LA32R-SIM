@@ -32,21 +32,21 @@ void __gpu_fbdraw(DEV_GPU_FBDRAW_T *ctl) {
   uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
   
 
-  *(uint32_t *)(uintptr_t)(FFB_ADDR) = x;
-  *(uint32_t *)(uintptr_t)(FFB_ADDR + 4) = y;
-  *(uint32_t *)(uintptr_t)(FFB_ADDR + 8) = w;
-  *(uint32_t *)(uintptr_t)(FFB_ADDR + 12) = h;
-  *(uint32_t *)(uintptr_t)(FFB_ADDR + 16) = W;
-  *(uint32_t *)(uintptr_t)(FFB_ADDR + 20) = H;
-  *(uint32_t *)(uintptr_t)(FFB_ADDR + 24) = (uint32_t)pixels;
-  asm volatile("ibar 0");
-  *(uint32_t *)(uintptr_t)(FFB_ADDR + 28) = 1;
-  // for(int i = 0; i < h; i++){
-  //   for(int j = 0; j < w; j++){
-  //     if(y + i >= H || x + j >= W) continue;
-  //     fb[(y + i) * W + x + j] = pixels[i * w + j];
-  //   }
-  // }
+  // *(uint32_t *)(uintptr_t)(FFB_ADDR) = x;
+  // *(uint32_t *)(uintptr_t)(FFB_ADDR + 4) = y;
+  // *(uint32_t *)(uintptr_t)(FFB_ADDR + 8) = w;
+  // *(uint32_t *)(uintptr_t)(FFB_ADDR + 12) = h;
+  // *(uint32_t *)(uintptr_t)(FFB_ADDR + 16) = W;
+  // *(uint32_t *)(uintptr_t)(FFB_ADDR + 20) = H;
+  // *(uint32_t *)(uintptr_t)(FFB_ADDR + 24) = (uint32_t)pixels;
+  // asm volatile("ibar 0");
+  // *(uint32_t *)(uintptr_t)(FFB_ADDR + 28) = 1;
+  for(int i = 0; i < h; i++){
+    for(int j = 0; j < w; j++){
+      if(y + i >= H || x + j >= W) continue;
+      fb[(y + i) * W + x + j] = pixels[i * w + j];
+    }
+  }
   if(sync){
     outl(SYNC_ADDR, 1);
     return;

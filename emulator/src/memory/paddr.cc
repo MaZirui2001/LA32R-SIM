@@ -42,6 +42,7 @@ static uint32_t rcnt = 0;
 void paddr_read(VCPU *dut){
     if(rstate == 0){
         dut->io_rvalid = 0;
+        dut->io_rlast = 0;
         rcnt = 0;
         dut->io_arready = 1;
         if(dut->io_arvalid){
@@ -56,7 +57,10 @@ void paddr_read(VCPU *dut){
         dut->io_rvalid = 1;
         dut->io_rlast = (rcnt == arlen - 1);
         if(in_pmem(araddr + rcnt * arsize)) dut->io_rdata = pmem_read(araddr + rcnt * arsize, arsize);
-        else mmio_read(araddr + rcnt * arsize, arsize);
+        else {
+            dut->io_rdata = mmio_read(araddr + rcnt * arsize, arsize);
+            //std::cout << "mmio read: " << std::hex << araddr + rcnt * arsize << std::endl;
+        }
         rcnt += dut->io_rready;
         if(dut->io_rlast && dut->io_rready){
             rstate = 0;
