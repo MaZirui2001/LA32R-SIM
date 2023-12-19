@@ -14,7 +14,7 @@ csr:
     b success
 fail:
     li.w $r4, 0x1
-    break 0
+    .word 0x80000000
 success:
     li.w $r4, 0x0
-    break 0
+    .word 0x80000000
