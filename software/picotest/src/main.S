@@ -63,7 +63,9 @@ main:
     bl n48_brk_ex_test
     bl n49_ti_ex_test
     bl n50_ine_ex_test
-    li.w a0, 50
+    bl n51_soft_int_ex_test
+    //bl n52_adef_ex_test
+    li.w a0, 51
     bne a0, s3, failed
     li.w a0, 0
     .word 0x80000000

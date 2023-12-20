@@ -122,7 +122,7 @@ LEAF(n52_adef_ex_test)
   li.w      t0, 0x3
   csrxchg t0, t0, csr_crmd  //usr mode
 
-  li.w      t0, 0xd0010
+  li.w      t0, 0x1c0d0010
   li.w      t1, 0x4c000020
   st.w    t1, t0, 0 
   andi    $r0, $r0, 0
@@ -137,7 +137,7 @@ LEAF(n52_adef_ex_test)
   jirl    ra, t0, 0
 
 ## 9
-  li.w      t0, 0xa0000000
+  li.w      t0, 0x1c0a0000
   li.w      t1, 0x4c000020  //write in "jirl zero, ra, 0" inst
   st.w    t1, t0, 0 
   andi    $r0, $r0, 0
