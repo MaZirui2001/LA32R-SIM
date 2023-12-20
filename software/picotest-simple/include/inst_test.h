@@ -58,7 +58,7 @@
     tlbsrch; \
     csrrd t2, csr_tlbidx; \
     li.w    t1, ref; \
-    bne   t2, t1, inst_correct
+    bne   t2, t1, inst_fail
 
 
 #define FILL_TLB_4MB(ppn1, ppn2) \
@@ -85,7 +85,7 @@
     tlbsrch; \
     csrrd t2, csr_tlbidx; \
     li.w    t1, ref; \
-    bne   t2, t1, inst_correct
+    bne   t2, t1, inst_fail
 
 
 #define TEST_TLBSRCH_NOMATCHING(in_asid, in_vpn) \
@@ -100,7 +100,7 @@
     csrrd t2, csr_tlbidx; \
 	srli.w t2, t2, 31; \
     li.w    t1, 0x1; \
-    bne   t2, t1, inst_correct
+    bne   t2, t1, inst_fail
 
 #define TEST_TLBSRCH_NOMATCHING_4MB(in_asid, in_vpn) \
     csrwr zero, csr_tlbidx; \
@@ -114,7 +114,7 @@
     csrrd t2, csr_tlbidx; \
 	srli.w t2, t2, 31; \
     li.w    t1, 0x1; \
-    bne   t2, t1, inst_correct
+    bne   t2, t1, inst_fail
 
 #define TEST_LU12I_W(in_a, ref_base) \
     lu12i.w   a0, ref_base&0x80000?ref_base-0x100000:ref_base; \
@@ -123,7 +123,7 @@
     add.w  a0, a0, t1; \
     add.w  t1, t1, t2; \
     NOP4; \
-    bne   t0, a0, inst_correct
+    bne   t0, a0, inst_fail
 
 /* 2 */
 #define TEST_ADD_W(in_a, in_b, ref) \
@@ -133,7 +133,7 @@
     NOP4; \
     add.w v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct
+    bne v0, v1, inst_fail
 
 /* 3 */
 #define TEST_ADDI_W(in_a, in_b, ref) \
@@ -142,7 +142,7 @@
     NOP4; \
     addi.w v0, t0, in_b&0x800?in_b-0x1000:in_b; \
     NOP4; \
-    bne   v0, v1, inst_correct
+    bne   v0, v1, inst_fail
 
 /* 4 */
 #define TEST_BEQ(in_a, in_b, back_flag, front_flag, b_flag_ref, f_flag_ref) \
@@ -174,9 +174,9 @@
     LI (s5, b_flag_ref); \
     LI (s6, f_flag_ref); \
     NOP4 ; \
-    bne v0, s5, inst_correct; \
+    bne v0, s5, inst_fail; \
     nop; \
-    bne v1, s6, inst_correct; \
+    bne v1, s6, inst_fail; \
     nop
 
 /* 5 */
@@ -209,9 +209,9 @@
     LI (s5, b_flag_ref); \
     LI (s6, f_flag_ref); \
     NOP4 ; \
-    bne v0, s5, inst_correct; \
+    bne v0, s5, inst_fail; \
     nop; \
-    bne v1, s6, inst_correct; \
+    bne v1, s6, inst_fail; \
     nop
 
 /* 6 */
@@ -230,7 +230,7 @@
     ld.w a0, a1, offset_align; \
     ld.w a2, a1, offset_align; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 7 */
@@ -241,7 +241,7 @@
     NOP4; \
     or v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 8 */
@@ -252,7 +252,7 @@
     NOP4; \
     slt v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 11 */
@@ -262,7 +262,7 @@
     NOP4; \
     slli.w v0, t0, in_b; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 12 */
@@ -281,7 +281,7 @@
     ld.w a0, a1, offset; \
     ld.w a2, a1, offset; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 14 */
@@ -328,13 +328,13 @@
     add.w $r1, zero, s7; \
     LI (t5, b_flag_ref); \
     LI (t4, f_flag_ref); \
-    bne v0, t5, inst_correct; \
+    bne v0, t5, inst_fail; \
     nop; \
     addi.w a2, a2, BL_INST_NUM; \
-    bne v1, t4, inst_correct; \
+    bne v1, t4, inst_fail; \
     nop; \
     NOP4; \
-    bne a2, a1, inst_correct; \
+    bne a2, a1, inst_fail; \
     nop
 
 /* --------------------- */
@@ -371,10 +371,10 @@
     NOP4; \
     LI (t5, b_flag_ref); \
     LI (t4, f_flag_ref); \
-    bne v0, t5, inst_correct; \
+    bne v0, t5, inst_fail; \
     nop; \
     nop; \
-    bne v1, t4, inst_correct; \
+    bne v1, t4, inst_fail; \
     nop
   
 
@@ -421,9 +421,9 @@
     LI (s5, b_flag_ref); \
     LI (s6, f_flag_ref); \
     add.w $r1, zero, s7; \
-    bne v0, s5, inst_correct; \
+    bne v0, s5, inst_fail; \
     nop; \
-    bne v1, s6, inst_correct; \
+    bne v1, s6, inst_fail; \
     nop
 
 /* 16 */
@@ -434,16 +434,16 @@
     op  dest , ##__VA_ARGS__; \
     op  s6 , ##__VA_ARGS__; \
     NOP4; \
-    bne dest, s6, inst_correct; \
+    bne dest, s6, inst_fail; \
     nop; \
     beq s5, s5, 2000f; \
     op  s7 , ##__VA_ARGS__; \
 1000: ; \
-    b   inst_correct; \
+    b   inst_fail; \
     nop;            \
 2000: ; \
     NOP4; \
-    bne s7, s6, inst_correct; \
+    bne s7, s6, inst_fail; \
     nop
 
 /* 17 */
@@ -454,16 +454,16 @@
     op  dest, ##__VA_ARGS__; \
     op  s6, ##__VA_ARGS__; \
     NOP4; \
-    bne dest, s6, inst_correct; \
+    bne dest, s6, inst_fail; \
     nop; \
     bne s5, zero, 2000f; \
     op  s7, ##__VA_ARGS__; \
 1000: ; \
-    b   inst_correct; \
+    b   inst_fail; \
     nop;            \
 2000: ; \
     NOP4; \
-    bne s7, s6, inst_correct; \
+    bne s7, s6, inst_fail; \
     nop
 
 /* 19 */
@@ -473,12 +473,12 @@
     jal 2000f; \
     op  dest, ##__VA_ARGS__; \
 1000: ; \
-    b   inst_correct; \
+    b   inst_fail; \
     nop;            \
 2000: ; \
     NOP4; \
     addu $31, zero, s7; \
-    bne dest, s6, inst_correct; \
+    bne dest, s6, inst_fail; \
     NOP4
 
 /* 20 */
@@ -496,12 +496,12 @@
     jr  s5; \
     op  dest, ##__VA_ARGS__; \
 1000: ; \
-    b   inst_correct; \
+    b   inst_fail; \
     nop;            \
 2000: ; \
     NOP4; \
     addu $31, zero, s7; \
-    bne dest, s6, inst_correct; \
+    bne dest, s6, inst_fail; \
     NOP4
 
 /* 24 */
@@ -512,7 +512,7 @@
     NOP4; \
     sub.w v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 25 */
@@ -523,7 +523,7 @@
     NOP4; \
     sltu v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 26 */
@@ -534,7 +534,7 @@
     NOP4; \
     and v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 28 */
@@ -545,7 +545,7 @@
     NOP4; \
     nor v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 30 */
@@ -556,7 +556,7 @@
     NOP4; \
     xor v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 33 */
@@ -566,7 +566,7 @@
     NOP4; \
     srai.w v0, t0, in_b; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 /* 35 */
@@ -576,7 +576,7 @@
     NOP4; \
     srli.w v0, t0, in_b; \
     NOP4; \
-    bne v0, v1, inst_correct; \
+    bne v0, v1, inst_fail; \
     nop
 
 #define TEST_PCADDI(data) \
@@ -591,7 +591,7 @@
     jirl zero, ra, 0;   \
   2:;  \
     add.w   ra, zero, t3;\
-    bne  t1, t0, inst_correct 
+    bne  t1, t0, inst_fail 
 
 #define TEST_PCADDU12I(data) \
     add.w   t3, zero, ra;\
@@ -604,7 +604,7 @@
     jirl    zero, ra, 0;   \
   2:;  \
     add.w   ra, zero, t3;\
-    bne  t1, t0, inst_correct 
+    bne  t1, t0, inst_fail 
 
 
 #define TEST_ANDN(in_a, in_b, ref) \
@@ -614,7 +614,7 @@
     NOP4; \
     andn v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct
+    bne v0, v1, inst_fail
 
 #define TEST_ORN(in_a, in_b, ref) \
     LI (t0, in_a); \
@@ -623,108 +623,108 @@
     NOP4; \
     orn v0, t0, t1; \
     NOP4; \
-    bne v0, v1, inst_correct 
+    bne v0, v1, inst_fail 
 
 #define TEST_SLTI(in_a, in_b, ref) \
     LI (t0, in_a); \
     LI (v1, ref); \
     slti v0, t0, in_b&0x800?in_b-0x1000:in_b; \
-    bne v0, v1, inst_correct
+    bne v0, v1, inst_fail
 
 
 #define TEST_SLTUI(in_a, in_b, ref) \
     LI (t0, in_a); \
     LI (v1, ref); \
     sltui v0, t0, in_b&0x800?in_b-0x1000:in_b; \
-    bne v0, v1, inst_correct
+    bne v0, v1, inst_fail
 
 #define TEST_ANDI(in_a, in_b, ref) \
     LI (t0, in_a); \
     LI (v1, ref); \
     andi v0, t0, in_b; \
-    bne v0, v1, inst_correct
+    bne v0, v1, inst_fail
 
 #define TEST_ORI(in_a, in_b, ref) \
     LI (t0, in_a); \
     LI (v1, ref); \
     ori v0, t0, in_b; \
-    bne v0, v1, inst_correct 
+    bne v0, v1, inst_fail 
 
 #define TEST_XORI(in_a, in_b, ref) \
     LI (t0, in_a); \
     LI (v1, ref); \
     xori v0, t0, in_b; \
-    bne v0, v1, inst_correct 
+    bne v0, v1, inst_fail 
 
 #define TEST_SLL_W(in_a, in_b, ref) \
     LI (t0, in_a); \
     LI (t1, in_b); \
     LI (v1, ref); \
     sll.w v0, t0, t1; \
-    bne v0, v1, inst_correct
+    bne v0, v1, inst_fail
 
 #define TEST_SRA_W(in_a, in_b, ref) \
     LI (t0, in_a); \
     LI (t1, in_b); \
     LI (v1, ref); \
     sra.w v0, t0, t1; \
-    bne v0, v1, inst_correct
+    bne v0, v1, inst_fail
 
 #define TEST_SRL_W(in_a, in_b, ref) \
     LI (t0, in_a); \
     LI (t1, in_b); \
     LI (v1, ref); \
     srl.w v0, t0, t1; \
-    bne v0, v1, inst_correct
+    bne v0, v1, inst_fail
 
 #define TEST_DIV_W(in_a, in_b, ref) \
     li.w t0, in_a; \
     li.w t1, in_b; \
     div.w t3, t0, t1; \
     li.w t4, ref; \
-    bne t4, t3, inst_correct 
+    bne t4, t3, inst_fail 
 
 #define TEST_DIV_WU(in_a, in_b, ref) \
     li.w t0, in_a; \
     li.w t1, in_b; \
     div.wu t3, t0, t1; \
     li.w t4, ref; \
-    bne t4, t3, inst_correct  
+    bne t4, t3, inst_fail  
 
 #define TEST_MUL_W(in_a, in_b, ref) \
     li.w t0, in_a; \
     li.w t1, in_b; \
     mul.w t3, t0, t1; \
     li.w t4, ref; \
-    bne t3, t4, inst_correct 
+    bne t3, t4, inst_fail 
 
 #define TEST_MULH_W(in_a, in_b, ref) \
     li.w t0, in_a; \
     li.w t1, in_b; \
     mulh.w t3, t0, t1; \
     li.w t4, ref; \
-    bne t3, t4, inst_correct  
+    bne t3, t4, inst_fail  
 
 #define TEST_MULH_WU(in_a, in_b, ref) \
     li.w t0, in_a; \
     li.w t1, in_b; \
     mulh.wu t3, t0, t1; \
     li.w t4, ref; \
-    bne t3, t4, inst_correct  
+    bne t3, t4, inst_fail  
 
 #define TEST_MOD_W(in_a, in_b, ref) \
     li.w t0, in_a; \
     li.w t1, in_b; \
     mod.w t3, t0, t1; \
     li.w t4, ref; \
-    bne t4, t3, inst_correct 
+    bne t4, t3, inst_fail 
 
 #define TEST_MOD_WU(in_a, in_b, ref) \
     li.w t0, in_a; \
     li.w t1, in_b; \
     mod.wu t3, t0, t1; \
     li.w t4, ref; \
-    bne t4, t3, inst_correct 
+    bne t4, t3, inst_fail 
 
 #define TEST_BLT(in_a, in_b, back_flag, front_flag, b_flag_ref, f_flag_ref) \
     li.w t3, 0x0; \
@@ -744,8 +744,8 @@
 4000:; \
     li.w s5, b_flag_ref; \
     li.w s6, f_flag_ref; \
-    bne t3, s5, inst_correct; \
-    bne t4, s6, inst_correct
+    bne t3, s5, inst_fail; \
+    bne t4, s6, inst_fail
 
 #define TEST_BGE(in_a, in_b, back_flag, front_flag, b_flag_ref, f_flag_ref) \
     li.w t3, 0x0; \
@@ -765,8 +765,8 @@
 4000:; \
     li.w s5, b_flag_ref; \
     li.w s6, f_flag_ref; \
-    bne t3, s5, inst_correct; \
-    bne t4, s6, inst_correct 
+    bne t3, s5, inst_fail; \
+    bne t4, s6, inst_fail 
 
 #define TEST_BLTU(in_a, in_b, back_flag, front_flag, b_flag_ref, f_flag_ref) \
     li.w t3, 0x0; \
@@ -786,8 +786,8 @@
 4000:; \
     li.w s5, b_flag_ref; \
     li.w s6, f_flag_ref; \
-    bne t3, s5, inst_correct; \
-    bne t4, s6, inst_correct 
+    bne t3, s5, inst_fail; \
+    bne t4, s6, inst_fail 
 
 #define TEST_BGEU(in_a, in_b, back_flag, front_flag, b_flag_ref, f_flag_ref) \
     li.w t3, 0x0; \
@@ -807,8 +807,8 @@
 4000:; \
     li.w s5, b_flag_ref; \
     li.w s6, f_flag_ref; \
-    bne t3, s5, inst_correct; \
-    bne t4, s6, inst_correct 
+    bne t3, s5, inst_fail; \
+    bne t4, s6, inst_fail 
 
 #define TEST_LD_B(data, base_addr, offset, offset_align, ref) \
     LI (t1, data); \
@@ -823,7 +823,7 @@
     ld.w a1, a0, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a0, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a2, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
-    bne t3, t4, inst_correct  
+    bne t3, t4, inst_fail  
 
 #define TEST_LD_BU(data, base_addr, offset, offset_align, ref) \
     LI (t1, data); \
@@ -838,7 +838,7 @@
     ld.w a1, a0, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a0, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a2, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
-    bne t3, t4, inst_correct 
+    bne t3, t4, inst_fail 
 
 #define TEST_LD_H(data, base_addr, offset, offset_align, ref) \
     LI (t1, data); \
@@ -853,7 +853,7 @@
     ld.w a1, a0, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a0, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a2, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
-    bne t3, t4, inst_correct 
+    bne t3, t4, inst_fail 
 
 #define TEST_LD_HU(data, base_addr, offset, offset_align, ref) \
     LI (t1, data); \
@@ -868,7 +868,7 @@
     ld.w a1, a0, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a0, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a2, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
-    bne t3, t4, inst_correct  
+    bne t3, t4, inst_fail  
 
 #define TEST_ST_B(init_data, data, base_addr, offset, offset_align, ref) \
     LI (t2, init_data); \
@@ -885,7 +885,7 @@
     ld.w a0, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a1, a0, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a2, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
-    bne t3, t4, inst_correct  
+    bne t3, t4, inst_fail  
 
 #define TEST_ST_H(init_data, data, base_addr, offset, offset_align, ref) \
     LI (t2, init_data); \
@@ -902,7 +902,7 @@
     ld.w a0, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a1, a0, offset_align&0x800?offset_align-0x1000:offset_align; \
     ld.w a2, a1, offset_align&0x800?offset_align-0x1000:offset_align; \
-    bne t3, t4, inst_correct  
+    bne t3, t4, inst_fail  
 
 #define TEST_INE_EX(inst) \
     .word inst

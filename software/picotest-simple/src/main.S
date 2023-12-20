@@ -50,7 +50,7 @@ main:
     bl n46_st_h_test
     
     addi.w a0, zero, 0x0
-    break 0
+    .word 0x80000000
 
 
 .global inst_correct
