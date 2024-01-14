@@ -64,13 +64,19 @@ main:
     bl n49_ti_ex_test
     bl n50_ine_ex_test
     bl n51_soft_int_ex_test
-    //bl n52_adef_ex_test
-    li.w a0, 51
+    bl n52_adef_ex_test
+    bl n53_ale_ld_w_ex_test
+    bl n54_ale_ld_h_ex_test
+    bl n55_ale_ld_hu_ex_test
+    bl n56_ale_st_h_ex_test
+    bl n57_ale_st_w_ex_test
+    bl n58_rdcnt_test
+    li.w a0, 58
     bne a0, s3, failed
     li.w a0, 0
     .word 0x80000000
 failed:
-    // bl n58_rdcnt_test
+    
     .word 0x80000000
 
 // failed:

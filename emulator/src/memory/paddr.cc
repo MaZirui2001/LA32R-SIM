@@ -11,6 +11,8 @@ uint8_t* addr_convert(uint32_t addr){
     return pmem + addr - CONFIG_PMEM_BASE;
 }
 uint32_t host_read(uint8_t* p, uint32_t len){
+    // std::cout << "host_read: " << std::hex << (uint32_t)(p-pmem+CONFIG_PMEM_BASE) << std::endl;
+    // std::cout << "pc: " << std::hex << cpu.pc << std::endl;
     switch(len){
         case 1: return *p;
         case 2: return *(uint16_t*)p;

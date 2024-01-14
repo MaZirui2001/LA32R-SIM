@@ -63,13 +63,16 @@ void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, u
         cpu.reg[rd] = rf_wdata;
     }
     if(csr_we){
-        cpu.csr[csr] = csr_wdata;
+        cpu.csr[csr] = csr_wdata & csr_mask[csr] | cpu.csr[csr] & ~csr_mask[csr];
     }
     cpu.pc = pc;
 }
 bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd, uint32_t csr, uint32_t csr_wdata, bool csr_we){
     if(commit_en){
-        auto inst = pmem_read(cpu.pc, 4);
+        uint32_t inst = 0x03400000;
+        if(in_pmem(cpu.pc)){
+            inst = pmem_read(cpu.pc, 4);
+        }
         #ifdef ITRACE
             if(cpu.state == SIM_RUNNING) {
                 auto rd = BITS(inst, 31, 26) == 0x15 ? 0 : BITS(inst, 4, 0);
@@ -133,7 +136,10 @@ void cpu_exec(uint64_t n){
     #endif
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
-        if(dut->io_commit_interrupt) difftest_intr(dut->io_commit_interrupt_type);
+        if(dut->io_commit_interrupt) {
+            difftest_intr(dut->io_commit_interrupt_type);
+            //std::cout << "Interrupt at pc = " << std::hex << dut->io_commit_pc_0 << std::endl;
+        }
         else{
             bool uncache = dut->io_commit_is_ucread_0 || dut->io_commit_is_ucread_1;
             #ifdef FRONT_END_4

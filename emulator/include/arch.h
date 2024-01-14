@@ -8,6 +8,7 @@
 // loongarch reg name
 extern const char* reg_name[32];
 extern const char* preg_name[128];
+extern std::unordered_map<uint32_t, uint32_t> csr_mask;
 
 
 // loongarch csr name 
