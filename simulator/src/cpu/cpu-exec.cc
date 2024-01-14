@@ -12,7 +12,7 @@ typedef struct{
     uint32_t inst;
 }inst_log_t;
 
-#define ILOG_SIZE 16
+#define ILOG_SIZE 32
 static inst_log_t ilog[ILOG_SIZE];
 static int ilog_idx = 0;
 void print_ilog(){

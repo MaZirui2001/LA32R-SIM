@@ -21,7 +21,7 @@ __EXPORT void difftest_regcpy(uint64_t *dut, bool direction) {
 
 __EXPORT void difftest_raise_intr(int irq) {
     cpu.csr[0x5] = (cpu.csr[0x5] & 0xffffe000) | irq;
-    cpu.pc = do_exception(0x0);
+    cpu.pc = do_exception(0x0, 0x0);
 }
 
 __EXPORT void difftest_exec(uint64_t n) {

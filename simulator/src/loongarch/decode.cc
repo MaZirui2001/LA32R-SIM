@@ -41,7 +41,7 @@ void decode_oprand(uint32_t inst, int type, uint32_t &rd, uint32_t &src1, uint32
     }
 
 }
-uint32_t do_exception(uint32_t ecode){
+uint32_t do_exception(uint32_t ecode, uint32_t vaddr){
     // set PLV and IE in PRMD to those in CRMD
     CSR(CSR_NAME::PRMD) = CSR(CSR_NAME::CRMD) & 0x7;
     // set PLV to 0 and set IE to 0
@@ -55,11 +55,44 @@ uint32_t do_exception(uint32_t ecode){
     if(ecode == 0x8){
         CSR(CSR_NAME::BADV) = cpu.pc;
     }
+    else if(ecode == 0x9){
+        CSR(CSR_NAME::BADV) = vaddr;
+    }
     // set pc to EENTRY
     return CSR(CSR_NAME::EENTRY);
     // TODO: set VADDR to TLBEHI
 
 
+}
+uint32_t vaddr_check(uint32_t vaddr, uint32_t align_mask){
+    if(vaddr & align_mask){
+        // ALE
+        return 0x9;
+    }
+    return 0;
+}
+uint32_t addr_translate(uint32_t vaddr){
+    // check da or pg
+    auto mode = BITS(CSR(CSR_NAME::CRMD), 3, 3);
+    if(mode == 1){
+        // direct access
+        return vaddr;
+    }
+    else{
+        // page access
+        // check csr dmw
+        auto dmw0_vseg = BITS(CSR(CSR_NAME::DMW0), 31, 29);
+        auto dmw1_vseg = BITS(CSR(CSR_NAME::DMW1), 31, 29);
+        if(dmw0_vseg == BITS(vaddr, 31, 29)){
+            return BITS(CSR(CSR_NAME::DMW0), 27, 25) << 29 | BITS(vaddr, 28, 0);
+        }
+        if(dmw1_vseg == BITS(vaddr, 31, 29)){
+            return BITS(CSR(CSR_NAME::DMW1), 27, 25) << 29 | BITS(vaddr, 28, 0);
+        }
+        // TODO: check TLB
+        return 0;
+
+    }
 }
 inline uint32_t do_ertn(){
     // recover CRMD
@@ -78,8 +111,9 @@ void decode_exec(uint32_t inst){
     uint32_t dst = 0;
     uint32_t csr_rd = BITS(inst, 18, 10); //reduce
     uint32_t npc = cpu.pc + 4;
+    
     if(cpu.pc & 0x3){
-        npc = do_exception(0x8);
+        npc = do_exception(0x8, 0x0);
         goto finish;
     }
     //INST_MATCH(0x80000000, 0xffffffff, TYPE_2R,   TRAP,         cpu.state = SIM_END; cpu.halt_pc = cpu.pc; printf("ok\n"))
@@ -104,8 +138,8 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x00208000, 0xffff8000, TYPE_3R,    MOD.W,        R(rd) = (int32_t)src1 % (int32_t)src2)
     INST_MATCH(0x00210000, 0xffff8000, TYPE_3R,    DIV.WU,       R(rd) = src1 / src2)
     INST_MATCH(0x00218000, 0xffff8000, TYPE_3R,    MOD.WU,       R(rd) = src1 % src2)
-    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R,    BREAK,        npc = do_exception(0xc))
-    INST_MATCH(0x002b0000, 0xffff8000, TYPE_3R,    SYSCALL,      npc = do_exception(0xb))
+    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R,    BREAK,        npc = do_exception(0xc, 0x0))
+    INST_MATCH(0x002b0000, 0xffff8000, TYPE_3R,    SYSCALL,      npc = do_exception(0xb, 0x0))
     INST_MATCH(0x00408000, 0xffff8000, TYPE_2RI8,  SLLI.W,       R(rd) = src1 << BITS(imm, 4, 0))
     INST_MATCH(0x00448000, 0xffff8000, TYPE_2RI8,  SRLI.W,       R(rd) = src1 >> BITS(imm, 4, 0))
     INST_MATCH(0x00488000, 0xffff8000, TYPE_2RI8,  SRAI.W,       R(rd) = (int32_t)src1 >> BITS(imm, 4, 0))
@@ -121,14 +155,14 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x06483800, 0xffffffff, TYPE_3R,    ERTN,         npc = do_ertn())
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,      R(rd) = BITS(inst, 24, 5) << 12)
     INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,    R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
-    INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,         R(rd) = SBITS(paddr_read(src1 + imm, 1), 7, 0))
-    INST_MATCH(0x28400000, 0xffc00000, TYPE_2RI12, LD.H,         R(rd) = SBITS(paddr_read(src1 + imm, 2), 15, 0))
-    INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, LD.W,         R(rd) = paddr_read(src1 + imm, 4))
-    INST_MATCH(0x29000000, 0xffc00000, TYPE_2RI12, ST.B,         paddr_write(src1 + imm, BITS(dst, 7, 0), 1))
-    INST_MATCH(0x29400000, 0xffc00000, TYPE_2RI12, ST.H,         paddr_write(src1 + imm, BITS(dst, 15, 0), 2))
-    INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, ST.W,         paddr_write(src1 + imm, dst, 4)) 
-    INST_MATCH(0x2a000000, 0xffc00000, TYPE_2RI12, LD.BU,        R(rd) = BITS(paddr_read(src1 + imm, 1), 7, 0))
-    INST_MATCH(0x2a400000, 0xffc00000, TYPE_2RI12, LD.HU,        R(rd) = BITS(paddr_read(src1 + imm, 2), 15, 0))
+    INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,         uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x0); if(exp != 0) npc = do_exception(exp, vaddr); else R(rd) = SBITS(paddr_read(addr_translate(vaddr), 1), 7, 0))
+    INST_MATCH(0x28400000, 0xffc00000, TYPE_2RI12, LD.H,         uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x1); if(exp != 0) npc = do_exception(exp, vaddr); else R(rd) = SBITS(paddr_read(addr_translate(vaddr), 2), 15, 0))
+    INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, LD.W,         uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x3); if(exp != 0) npc = do_exception(exp, vaddr); else R(rd) = paddr_read(addr_translate(vaddr), 4))
+    INST_MATCH(0x29000000, 0xffc00000, TYPE_2RI12, ST.B,         uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x0); if(exp != 0) npc = do_exception(exp, vaddr); else paddr_write(addr_translate(vaddr), BITS(dst, 7, 0), 1))
+    INST_MATCH(0x29400000, 0xffc00000, TYPE_2RI12, ST.H,         uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x1); if(exp != 0) npc = do_exception(exp, vaddr); else paddr_write(addr_translate(vaddr), BITS(dst, 15, 0), 2))
+    INST_MATCH(0x29800000, 0xffc00000, TYPE_2RI12, ST.W,         uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x3); if(exp != 0) npc = do_exception(exp, vaddr); else paddr_write(addr_translate(vaddr), dst, 4)) 
+    INST_MATCH(0x2a000000, 0xffc00000, TYPE_2RI12, LD.BU,        uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x0); if(exp != 0) npc = do_exception(exp, vaddr); else R(rd) = BITS(paddr_read(addr_translate(vaddr), 1), 7, 0))
+    INST_MATCH(0x2a400000, 0xffc00000, TYPE_2RI12, LD.HU,        uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x1); if(exp != 0) npc = do_exception(exp, vaddr); else R(rd) = BITS(paddr_read(addr_translate(vaddr), 2), 15, 0))
     // PRELD
     // INST_MATCH(0x2a800000, 0xffc00000, PRELD, TYPE_2RI12, )
     // DBAR
@@ -145,7 +179,7 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x68000000, 0xfc000000, TYPE_2RI16, BLTU,         if(src1 < dst) npc = cpu.pc + (imm << 2))
     INST_MATCH(0x6c000000, 0xfc000000, TYPE_2RI16, BGEU,         if(src1 >= dst) npc = cpu.pc + (imm << 2))
 
-    npc = do_exception(0xd);
+    npc = do_exception(0xd, 0x0);
 
 finish:
     R(0) = 0;
@@ -155,5 +189,5 @@ finish:
 }
 
 uint32_t inst_fetch(uint32_t pc){
-    return paddr_read(pc, 4);
+    return paddr_read(addr_translate(pc), 4);
 }

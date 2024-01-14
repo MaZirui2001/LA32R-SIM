@@ -19,7 +19,7 @@ LEAF(n57_ale_st_w_ex_test)
 
 ##inst test
 ###1 
-  TEST_ST_W_ALE(0xb189c470, 0xd7bd1, 0x0000774, 0x0000773, 0xb189c470)
+  TEST_ST_W_ALE(0xb189c470, 0x1c0d7bd1, 0x0000774, 0x0000773, 0xb189c470)
   la.local  s4, 1f 
 1: 
   st.w    a1, a0, 0x774
@@ -42,7 +42,7 @@ LEAF(n57_ale_st_w_ex_test)
 ###2
   li.w      t7, (DATABASE+0xd0000)
   li.w      s2, 0x06 
-  TEST_ST_W_ALE(0xc052b3f0, 0xd23d4, 0x00006a2, 0x00006a0, 0xc052b3f0)
+  TEST_ST_W_ALE(0xc052b3f0, 0x1c0d23d4, 0x00006a2, 0x00006a0, 0xc052b3f0)
   la.local  s4, 1f
   st.w    t7, t7, 4
   st.w    s4, t7, 4 
@@ -66,7 +66,7 @@ LEAF(n57_ale_st_w_ex_test)
 
 ###3
   li.w      s2, 0x06 
-  TEST_ST_W_ALE(0x994c0280, 0xd8850, 0x000048b, 0x0000488, 0xa10febaf)
+  TEST_ST_W_ALE(0x994c0280, 0x1c0d8850, 0x000048b, 0x0000488, 0xa10febaf)
   la.local  s4, 1f 
   li.w      t7, 0xf 
   li.w      t8, 0xf
@@ -82,7 +82,7 @@ LEAF(n57_ale_st_w_ex_test)
 
 ###4
   li.w      s2, 0x06 
-  TEST_ST_W_ALE(0xeb54b87c, 0xda256, 0x000000c3, 0x000000c2, 0xeb54b87c)
+  TEST_ST_W_ALE(0xeb54b87c, 0x1c0da256, 0x000000c3, 0x000000c2, 0xeb54b87c)
   la.local  s4, 1f 
 1: 
   st.w    a1, a0, 0xc3 
@@ -95,7 +95,7 @@ LEAF(n57_ale_st_w_ex_test)
 
 ###5
   li.w      s2, 0x06 
-  TEST_ST_W_ALE(0xebdc8860, 0xd206c, -0x33e, -0x340, 0x80032066)
+  TEST_ST_W_ALE(0xebdc8860, 0x1c0d206c, -0x33e, -0x340, 0x80032066)
   la.local  s4, 1f 
   li.w      t7, 0xf 
   li.w      t8, 0xf
@@ -111,7 +111,7 @@ LEAF(n57_ale_st_w_ex_test)
 
 ###6
   li.w      s2, 0x06 
-  TEST_ST_W_ALE(0x0c41f5e8, 0xd82d8, -0x777, -0x778, 0x634858c8)
+  TEST_ST_W_ALE(0x0c41f5e8, 0x1c0d82d8, -0x777, -0x778, 0x634858c8)
   la.local  s4, 1f 
 1: 
   st.w    a1, a0, -0x777 
@@ -124,7 +124,7 @@ LEAF(n57_ale_st_w_ex_test)
 
 ###7
   li.w      s2, 0x06 
-  TEST_ST_W_ALE(0xcb09da60, 0xd1750, -0x6d9, -0x6dc, 0x80031751)
+  TEST_ST_W_ALE(0xcb09da60, 0x1c0d1750, -0x6d9, -0x6dc, 0x80031751)
   la.local  s4, 1f 
   csrwr   s2, csr_era
 1: 
