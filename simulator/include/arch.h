@@ -14,16 +14,39 @@ extern std::unordered_map<uint32_t, uint32_t> csr_mask;
 #define RESET_VECTOR CONFIG_PMEM_BASE
 #define REG_SIZE  (32 + 1)
 #define CSR_SIZE  (512)
+#define TLB_SIZE  (16)
+
+typedef struct {
+    uint32_t vppn;
+    uint32_t ps;
+    bool g;
+    uint32_t asid;
+    bool e;
+    uint32_t ppn0;
+    uint32_t plv0;
+    uint32_t mat0;
+    bool d0;
+    bool v0;
+    uint32_t ppn1;
+    uint32_t plv1;
+    uint32_t mat1;
+    bool d1;
+    bool v1;
+}TLB_Entry;
 
 typedef struct {
     uint32_t reg[32];
     uint32_t pc;
     uint32_t csr[512];
+    TLB_Entry tlb[TLB_SIZE];
     uint64_t stable_counter;
     int state;
     uint32_t halt_pc;
     uint32_t inst;
+
 } CPU_State;
+
+
 
 enum CSR_NAME{
     CRMD = 0x0, PRMD = 0x1, EUEN = 0x2, ECFG = 0x4, 

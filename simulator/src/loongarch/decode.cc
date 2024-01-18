@@ -1,6 +1,7 @@
 #include <cpu.h>
 #include <common.h>
 #include <paddr.h>
+#include <random>
 #define R(i) cpu.reg[i]
 #define CSR(i) cpu.csr[i]
 #define CSR_WRITE(i, data) (cpu.csr[i] = (data & csr_mask[i]) | (cpu.csr[i] & ~csr_mask[i]))
@@ -59,10 +60,9 @@ uint32_t do_exception(uint32_t ecode, uint32_t vaddr){
         CSR(CSR_NAME::BADV) = vaddr;
     }
     // set pc to EENTRY
+    //std::cout << std::hex << "exception: " << ecode << " at pc = " << cpu.pc << std::endl;
     return CSR(CSR_NAME::EENTRY);
     // TODO: set VADDR to TLBEHI
-
-
 }
 uint32_t vaddr_check(uint32_t vaddr, uint32_t align_mask){
     if(vaddr & align_mask){
@@ -152,7 +152,12 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x04000000, 0xff0003e0, TYPE_2RI12, CSRRD,        R(rd) = CSR(csr_rd);)
     INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,        R(rd) = CSR(csr_rd); CSR_WRITE(csr_rd, dst); if(csr_rd == CSR_NAME::TICLR) {CSR(CSR_NAME::ESTAT) = CSR(CSR_NAME::ESTAT) & 0xfffff7ff;})
     INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,      R(rd) = CSR(csr_rd); CSR_WRITE(csr_rd, dst & src1 | CSR(csr_rd) & ~src1))
+    INST_MATCH(0x06482800, 0xffffffff, TYPE_3R,    TLBSRCH,      tlb_srch())
+    INST_MATCH(0x06482c00, 0xffffffff, TYPE_3R,    TLBRD,        tlb_read(BITS(CSR(CSR_NAME::TLBIDX), 3, 0)))
+    INST_MATCH(0x06483000, 0xffffffff, TYPE_3R,    TLBWR,        tlb_write(BITS(CSR(CSR_NAME::TLBIDX), 3, 0)))
+    INST_MATCH(0x06483400, 0xffffffff, TYPE_3R,    TLBFILL,      tlb_write(rand() % 16))
     INST_MATCH(0x06483800, 0xffffffff, TYPE_3R,    ERTN,         npc = do_ertn())
+    INST_MATCH(0x06498000, 0xffff8000, TYPE_3R,    INVTLB,       if(!tlb_invalid(BITS(inst, 4, 0), src1, src2)){npc = do_exception(0xd, 0x0);})
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,      R(rd) = BITS(inst, 24, 5) << 12)
     INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,    R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,         uint32_t vaddr = src1 + imm; uint32_t exp = vaddr_check(vaddr, 0x0); if(exp != 0) {npc = do_exception(exp, vaddr);} else {R(rd) = SBITS(paddr_read(addr_translate(vaddr), 1), 7, 0);})

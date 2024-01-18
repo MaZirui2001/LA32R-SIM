@@ -3,7 +3,7 @@
 #include "inst_test.h"
 
 LEAF(n69_invtlb_inv_op_test) 
-    li.w     t0, 0x1c008000 
+    la.local     t0, exception_handler
     csrwr  t0, csr_eentry
 
     LI_EXIMM(t0,t1,IMM_INE)
