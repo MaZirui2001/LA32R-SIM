@@ -114,8 +114,8 @@ void disasm(char* buf, uint32_t inst) {
             switch(BITS(inst, 9, 5)){
                 // csrrd rd, csr
                 case 0: sprintf(buf, "%-12s %-4s, %s\t", "csrrd", rd, csr); return;
-                // csrrw rd, csr
-                case 1: sprintf(buf, "%-12s %-4s, %s\t", "csrrw", rd, csr); return;
+                // csrwr rd, csr
+                case 1: sprintf(buf, "%-12s %-4s, %s\t", "csrwr", rd, csr); return;
                 // csrxchg rd, rj, csr
                 default: sprintf(buf, "%-12s %-4s, %-4s, %s\t", "csrxchg", rd, rj, csr); return;
             }
@@ -150,8 +150,8 @@ void disasm(char* buf, uint32_t inst) {
                         switch(BITS(inst, 14, 10)){
                             case 0xa: {
                                 if(BITS(inst, 9, 0) != 0) sprintf(buf, "%-16s", "unimp\t");
-                                // tlbsearch
-                                else sprintf(buf, "%-12s\t", "tlbsearch");
+                                // tlbsrch
+                                else sprintf(buf, "%-12s\t", "tlbsrch");
                                 return;
                             }
                             case 0xb: {
