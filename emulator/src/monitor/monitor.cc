@@ -45,6 +45,7 @@ void init_monitor(int argc, char *argv[]) {
 #ifdef DIFFTEST
     // uint64_t size = load_img(argc >= 3 ? argv[1] : NULL);
     init_difftest(argc >= 3 ? argv[2] : argv[1], (long)size);
+    difftest_ref_init();
 #endif
 #ifdef DEVICE
     init_device();

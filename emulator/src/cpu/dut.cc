@@ -12,6 +12,7 @@ void (*difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
 void (*difftest_exec)(uint64_t n) = NULL;
 void (*difftest_raise_intr)(int irq) = NULL;
+void (*difftest_init)(void *dut) = NULL;
 
 // // should skip difftest 
 // static bool is_skip_ref = false;
@@ -43,6 +44,9 @@ void init_difftest(char *ref_so_file, long img_size) {
 
     difftest_raise_intr = (void (*)(int))dlsym(handle, "difftest_raise_intr");
     assert(difftest_raise_intr);
+
+    difftest_init = (void (*)(void*))dlsym(handle, "difftest_init");
+    assert(difftest_init);
 
     Log("Differential testing: %s", ANSI_FMT("ON", ANSI_FG_GREEN));
 
@@ -136,4 +140,7 @@ void difftest_step(uint64_t n) {
   // difftest_memcpy(CONFIG_MBASE, ref_pmem, CONFIG_MSIZE, DIFFTEST_TO_DUT);
     checkregs(&ref_r, cpu.pc);
   // checkmem(ref_pmem, sim_cpu.pc);
+}
+void difftest_ref_init(){
+    difftest_init(&cpu);
 }

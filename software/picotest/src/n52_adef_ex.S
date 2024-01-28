@@ -39,7 +39,7 @@ LEAF(n52_adef_ex_test)
 ###2
   li.w      t7, (DATABASE+0xd0000)
   li.w      s2, 0x05 
-  TEST_ADEF(0x3101bbed)
+  TEST_ADEF(0x1d00bbed)
   csrwr   s6, csr_era
   la.local  s5, 1f
   st.w    t7, t7, 4
@@ -56,7 +56,7 @@ LEAF(n52_adef_ex_test)
 
 ###3
   li.w      s2, 0x05
-  TEST_ADEF(0x44790977)
+  TEST_ADEF(0x1d000977)
   csrwr   s6, csr_era 
   la.local  s5, 1f
   li.w      t7, 0xf 
@@ -70,7 +70,7 @@ LEAF(n52_adef_ex_test)
 
 ###4
   li.w      s2, 0x05
-  TEST_ADEF(0x92b0a2c3)
+  TEST_ADEF(0x1d00a2c3)
   jirl    s5, s4, 0 
   add.w   zero, zero, zero
   div.w   t0, t0, t4 
@@ -80,7 +80,7 @@ LEAF(n52_adef_ex_test)
 
 ###5
   li.w      s2, 0x05
-  TEST_ADEF(0xaf9edafa)
+  TEST_ADEF(0x1d00dafa)
   csrwr   s6, csr_era 
   la.local  s5, 1f
   li.w      t7, 0xf 
@@ -94,7 +94,7 @@ LEAF(n52_adef_ex_test)
 
 ###6 
   li.w      s2, 0x05
-  TEST_ADEF(0xb088f329)
+  TEST_ADEF(0x1d00f329)
   jirl    s5, s4, 0 
   add.w   zero, zero, zero
   mul.w   t0, t0, t4 
@@ -104,7 +104,7 @@ LEAF(n52_adef_ex_test)
 
 ###7
   li.w      s2, 0x05
-  TEST_ADEF(0x827f97ab)
+  TEST_ADEF(0x1d0097ab)
   csrwr   s6, csr_era 
   la.local  s5, 1f
 1:  ertn
