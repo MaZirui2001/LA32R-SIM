@@ -15,6 +15,17 @@ std::unordered_map<unsigned int, const char*> csr_name = {
     {0x44, "ticlr"},    {0x60, "llbctl"},   {0x88, "tlbrentry"},    {0x98, "ctag"},
     {0x180, "dmw0"},    {0x181, "dmw1"}
 };
+std::unordered_map<unsigned int, unsigned int> csr_map = {
+    {CSR_NAME::CRMD, CSR_IDX::CRMD}, {CSR_NAME::PRMD, CSR_IDX::PRMD}, {CSR_NAME::EUEN, CSR_IDX::EUEN}, {CSR_NAME::ECFG, CSR_IDX::ECFG},
+    {CSR_NAME::ESTAT, CSR_IDX::ESTAT}, {CSR_NAME::ERA, CSR_IDX::ERA}, {CSR_NAME::BADV, CSR_IDX::BADV}, {CSR_NAME::EENTRY, CSR_IDX::EENTRY},
+    {CSR_NAME::TLBIDX, CSR_IDX::TLBIDX}, {CSR_NAME::TLBEHI, CSR_IDX::TLBEHI}, {CSR_NAME::TLBLO0, CSR_IDX::TLBLO0}, {CSR_NAME::TLBLO1, CSR_IDX::TLBLO1},
+    {CSR_NAME::ASID, CSR_IDX::ASID}, {CSR_NAME::PGDL, CSR_IDX::PGDL}, {CSR_NAME::PGDH, CSR_IDX::PGDH}, {CSR_NAME::PGD, CSR_IDX::PGD},
+    {CSR_NAME::CPUID, CSR_IDX::CPUID}, {CSR_NAME::SAVE0, CSR_IDX::SAVE0}, {CSR_NAME::SAVE1, CSR_IDX::SAVE1}, {CSR_NAME::SAVE2, CSR_IDX::SAVE2},
+    {CSR_NAME::SAVE3, CSR_IDX::SAVE3}, {CSR_NAME::TID, CSR_IDX::TID}, {CSR_NAME::TCFG, CSR_IDX::TCFG}, {CSR_NAME::TVAL, CSR_IDX::TVAL},
+    {CSR_NAME::TICLR, CSR_IDX::TICLR}, {CSR_NAME::LLBCTL, CSR_IDX::LLBCTL}, {CSR_NAME::TLBRENTRY, CSR_IDX::TLBRENTRY}, {CSR_NAME::CTAG, CSR_IDX::CTAG},
+    {CSR_NAME::DMW0, CSR_IDX::DMW0}, {CSR_NAME::DMW1, CSR_IDX::DMW1}
+};
+
 std::unordered_map<uint32_t, uint32_t> csr_mask {
     {0x0, 0x1ff},       {0x1, 0x7},         {0x2, 0x1},             {0x4, 0x1bff},
     {0x5, 0x3},         {0x6, 0xffffffff},  {0x7, 0xffffffff},      {0xc, 0xffffffc0},

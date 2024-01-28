@@ -12,6 +12,7 @@ void (*difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
 void (*difftest_exec)(uint64_t n) = NULL;
 void (*difftest_raise_intr)(int irq) = NULL;
+void (*difftest_tlbfill_sync)(uint32_t idx) = NULL;
 void (*difftest_init)(void *dut) = NULL;
 
 // // should skip difftest 
@@ -42,6 +43,9 @@ void init_difftest(char *ref_so_file, long img_size) {
     difftest_exec = (void (*)(uint64_t))dlsym(handle, "difftest_exec");
     assert(difftest_exec);
 
+    difftest_tlbfill_sync = (void (*)(uint32_t))dlsym(handle, "difftest_tlbfill_sync");
+    assert(difftest_tlbfill_sync);
+
     difftest_raise_intr = (void (*)(int))dlsym(handle, "difftest_raise_intr");
     assert(difftest_raise_intr);
 
@@ -64,6 +68,9 @@ void difftest_sync(uint64_t n){
     difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
+void difftest_tlbfill(uint32_t idx){
+    difftest_tlbfill_sync(idx);
+}
 // check the registers with nemu
 bool difftest_checkregs(CPU_State *ref_r) {
     // check pc

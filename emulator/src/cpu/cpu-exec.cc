@@ -62,8 +62,8 @@ void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, u
     if(rd_valid){
         cpu.reg[rd] = rf_wdata;
     }
-    if(csr_we){
-        cpu.csr[csr] = csr_wdata & csr_mask[csr] | cpu.csr[csr] & ~csr_mask[csr];
+    if(csr_we){ 
+        cpu.csr_write(csr, csr_wdata);
     }
     cpu.pc = pc;
 }
@@ -114,7 +114,7 @@ void reset(){
     dut->clock = 1;
     dut->eval();
     dut->reset = 0;
-    cpu.csr[0x0] = 0x8;
+    cpu.csr_write(0x0, 0x8);
     std::cout << "Reset at pc = " << std::hex << 0x1c000000 << std::endl;
 }
 void cpu_exec(uint64_t n){
@@ -145,6 +145,9 @@ void cpu_exec(uint64_t n){
             #ifdef FRONT_END_4
                 uncache = uncache || dut->io_commit_is_ucread_2 || dut->io_commit_is_ucread_3;
             #endif
+            if(dut->io_commit_tlbfill_en){
+                difftest_tlbfill(dut->io_commit_tlbfill_idx);
+            }
             if(uncache){
                 difftest_sync(commit_num);
             }

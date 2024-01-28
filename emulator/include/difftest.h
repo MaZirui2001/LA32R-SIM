@@ -6,5 +6,6 @@ void difftest_sync(uint64_t n);
 void difftest_step(uint64_t n);
 void difftest_intr(int irq);
 void difftest_ref_init();
+void difftest_tlbfill(uint32_t idx);
 
 #endif

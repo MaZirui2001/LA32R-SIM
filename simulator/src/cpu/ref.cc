@@ -20,12 +20,15 @@ __EXPORT void difftest_regcpy(uint64_t *dut, bool direction) {
 }
 
 __EXPORT void difftest_raise_intr(int irq) {
-    cpu.csr[0x5] = (cpu.csr[0x5] & 0xffffe000) | irq;
+    cpu.csr[0x4] = (cpu.csr[0x4] & 0xffffe000) | irq;
     cpu.pc = do_exception(0x0, 0x0);
 }
 
 __EXPORT void difftest_exec(uint64_t n) {
     cpu_exec(n);
+}
+__EXPORT void difftest_tlbfill_sync(uint32_t idx){
+    tlb_write(idx);
 }
 
 __EXPORT void difftest_init(uint64_t *dut){

@@ -44,24 +44,24 @@ void decode_oprand(uint32_t inst, int type, uint32_t &rd, uint32_t &src1, uint32
 }
 uint32_t do_exception(uint32_t ecode, uint32_t vaddr){
     // set PLV and IE in PRMD to those in CRMD
-    CSR(CSR_NAME::PRMD) = CSR(CSR_NAME::CRMD) & 0x7;
+    CSR(CSR_IDX::PRMD) = CSR(CSR_IDX::CRMD) & 0x7;
     // set PLV to 0 and set IE to 0
-    CSR(CSR_NAME::CRMD) &= 0xfffffff8;
+    CSR(CSR_IDX::CRMD) &= 0xfffffff8;
 
     // set ecode to ESTAT
-    CSR(CSR_NAME::ESTAT) = (0x7fff0000 & (ecode << 16)) | (~0x7fff0000 & CSR(CSR_NAME::ESTAT));
+    CSR(CSR_IDX::ESTAT) = (0x7fff0000 & (ecode << 16)) | (~0x7fff0000 & CSR(CSR_IDX::ESTAT));
     // set era to pc
-    CSR(CSR_NAME::ERA) = cpu.pc;
+    CSR(CSR_IDX::ERA) = cpu.pc;
     // set badv
     if(ecode == 0x8){
-        CSR(CSR_NAME::BADV) = cpu.pc;
+        CSR(CSR_IDX::BADV) = cpu.pc;
     }
     else if(ecode == 0x9){
-        CSR(CSR_NAME::BADV) = vaddr;
+        CSR(CSR_IDX::BADV) = vaddr;
     }
     // set pc to EENTRY
     //std::cout << std::hex << "exception: " << ecode << " at pc = " << cpu.pc << std::endl;
-    return CSR(CSR_NAME::EENTRY);
+    return CSR(CSR_IDX::EENTRY);
     // TODO: set VADDR to TLBEHI
 }
 uint32_t vaddr_check(uint32_t vaddr, uint32_t align_mask){
@@ -73,7 +73,7 @@ uint32_t vaddr_check(uint32_t vaddr, uint32_t align_mask){
 }
 uint32_t addr_translate(uint32_t vaddr){
     // check da or pg
-    auto mode = BITS(CSR(CSR_NAME::CRMD), 3, 3);
+    auto mode = BITS(CSR(CSR_IDX::CRMD), 3, 3);
     if(mode == 1){
         // direct access
         return vaddr;
@@ -81,13 +81,13 @@ uint32_t addr_translate(uint32_t vaddr){
     else{
         // page access
         // check csr dmw
-        auto dmw0_vseg = BITS(CSR(CSR_NAME::DMW0), 31, 29);
-        auto dmw1_vseg = BITS(CSR(CSR_NAME::DMW1), 31, 29);
+        auto dmw0_vseg = BITS(CSR(CSR_IDX::DMW0), 31, 29);
+        auto dmw1_vseg = BITS(CSR(CSR_IDX::DMW1), 31, 29);
         if(dmw0_vseg == BITS(vaddr, 31, 29)){
-            return BITS(CSR(CSR_NAME::DMW0), 27, 25) << 29 | BITS(vaddr, 28, 0);
+            return BITS(CSR(CSR_IDX::DMW0), 27, 25) << 29 | BITS(vaddr, 28, 0);
         }
         if(dmw1_vseg == BITS(vaddr, 31, 29)){
-            return BITS(CSR(CSR_NAME::DMW1), 27, 25) << 29 | BITS(vaddr, 28, 0);
+            return BITS(CSR(CSR_IDX::DMW1), 27, 25) << 29 | BITS(vaddr, 28, 0);
         }
         // TODO: check TLB
         return 0;
@@ -96,11 +96,11 @@ uint32_t addr_translate(uint32_t vaddr){
 }
 inline uint32_t do_ertn(){
     // recover CRMD
-    CSR(CSR_NAME::CRMD) = (CSR(CSR_NAME::CRMD) & 0xfffffff8) | (CSR(CSR_NAME::PRMD) & 0x7);
-    if(BITS(CSR(CSR_NAME::ESTAT), 21, 16) == 0x1f){
-        CSR(CSR_NAME::CRMD) = (CSR(CSR_NAME::CRMD) & 0xffffffe7) | (0x10 << 3);
+    CSR(CSR_IDX::CRMD) = (CSR(CSR_IDX::CRMD) & 0xfffffff8) | (CSR(CSR_IDX::PRMD) & 0x7);
+    if(BITS(CSR(CSR_IDX::ESTAT), 21, 16) == 0x1f){
+        CSR(CSR_IDX::CRMD) = (CSR(CSR_IDX::CRMD) & 0xffffffe7) | (0x10 << 3);
     }
-    return CSR(CSR_NAME::ERA);
+    return CSR(CSR_IDX::ERA);
 }
 void decode_exec(uint32_t inst){
     uint32_t rd = 0;
@@ -117,7 +117,7 @@ void decode_exec(uint32_t inst){
         goto finish;
     }
     //INST_MATCH(0x80000000, 0xffffffff, TYPE_2R,   TRAP,         cpu.state = SIM_END; cpu.halt_pc = cpu.pc; printf("ok\n"))
-    INST_MATCH(0x00006000, 0xfffffc1f, TYPE_2R,    RDCNTID.W,    R(rj) = CSR(CSR_NAME::TID))
+    INST_MATCH(0x00006000, 0xfffffc1f, TYPE_2R,    RDCNTID.W,    R(rj) = CSR(CSR_IDX::TID))
     INST_MATCH(0x00006000, 0xffffffe0, TYPE_2R,    RDCNTVL.W,    R(rd) = cpu.stable_counter & 0xffffffff)
     INST_MATCH(0x00006400, 0xffffffe0, TYPE_2R,    RDCNTVH.W,    R(rd) = cpu.stable_counter >> 32)
     INST_MATCH(0x00100000, 0xffff8000, TYPE_3R,    ADD.W,        R(rd) = src1 + src2) 
@@ -149,13 +149,17 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x03400000, 0xffc00000, TYPE_2RI12, ANDI,         R(rd) = src1 & BITS(imm, 11, 0))
     INST_MATCH(0x03800000, 0xffc00000, TYPE_2RI12, ORI,          R(rd) = src1 | BITS(imm, 11, 0))
     INST_MATCH(0x03c00000, 0xffc00000, TYPE_2RI12, XORI,         R(rd) = src1 ^ BITS(imm, 11, 0)) 
-    INST_MATCH(0x04000000, 0xff0003e0, TYPE_2RI12, CSRRD,        R(rd) = CSR(csr_rd);)
-    INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,        R(rd) = CSR(csr_rd); CSR_WRITE(csr_rd, dst); if(csr_rd == CSR_NAME::TICLR) {CSR(CSR_NAME::ESTAT) = CSR(CSR_NAME::ESTAT) & 0xfffff7ff;})
-    INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,      R(rd) = CSR(csr_rd); CSR_WRITE(csr_rd, dst & src1 | CSR(csr_rd) & ~src1))
+    INST_MATCH(0x04000000, 0xff0003e0, TYPE_2RI12, CSRRD,        R(rd) = cpu.csr_read(csr_rd))
+    INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,        R(rd) = cpu.csr_read(csr_rd); cpu.csr_write(csr_rd, dst); if(csr_rd == CSR_NAME::TICLR) {CSR(CSR_IDX::ESTAT) = CSR(CSR_IDX::ESTAT) & 0xfffff7ff;})
+    INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,      R(rd) = cpu.csr_read(csr_rd); cpu.csr_write(csr_rd, dst & src1 | CSR(csr_rd) & ~src1))
     INST_MATCH(0x06482800, 0xffffffff, TYPE_3R,    TLBSRCH,      tlb_srch())
-    INST_MATCH(0x06482c00, 0xffffffff, TYPE_3R,    TLBRD,        tlb_read(BITS(CSR(CSR_NAME::TLBIDX), 3, 0)))
-    INST_MATCH(0x06483000, 0xffffffff, TYPE_3R,    TLBWR,        tlb_write(BITS(CSR(CSR_NAME::TLBIDX), 3, 0)))
+    INST_MATCH(0x06482c00, 0xffffffff, TYPE_3R,    TLBRD,        tlb_read(BITS(CSR(CSR_IDX::TLBIDX), 3, 0)))
+    INST_MATCH(0x06483000, 0xffffffff, TYPE_3R,    TLBWR,        tlb_write(BITS(CSR(CSR_IDX::TLBIDX), 3, 0)))
+#ifndef CONFIG_REF
     INST_MATCH(0x06483400, 0xffffffff, TYPE_3R,    TLBFILL,      tlb_write(rand() % 16))
+#else
+    INST_MATCH(0x06483400, 0xffffffff, TYPE_3R,    TLBFILL,      )
+#endif
     INST_MATCH(0x06483800, 0xffffffff, TYPE_3R,    ERTN,         npc = do_ertn())
     INST_MATCH(0x06498000, 0xffff8000, TYPE_3R,    INVTLB,       if(!tlb_invalid(BITS(inst, 4, 0), src1, src2)){npc = do_exception(0xd, 0x0);})
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,      R(rd) = BITS(inst, 24, 5) << 12)
