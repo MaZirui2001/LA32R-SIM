@@ -116,6 +116,13 @@ void decode_exec(uint32_t inst){
         npc = do_exception(0x8, 0x0);
         goto finish;
     }
+#ifndef CONFIG_REF
+    if((cpu.csr[CSR_IDX::ESTAT] & cpu.csr[CSR_IDX::ECFG] & 0x1fff) && (cpu.csr[CSR_IDX::CRMD] & 0x4)){
+        //std::cout << "exception: " << std::hex << BITS(cpu.csr[CSR_IDX::ESTAT], 12, 0) << " at pc = " << cpu.pc << std::endl;
+        npc = do_exception(0x0, 0x0);
+        goto finish;
+    }
+#endif
     //INST_MATCH(0x80000000, 0xffffffff, TYPE_2R,   TRAP,         cpu.state = SIM_END; cpu.halt_pc = cpu.pc; printf("ok\n"))
     INST_MATCH(0x00006000, 0xfffffc1f, TYPE_2R,    RDCNTID.W,    R(rj) = CSR(CSR_IDX::TID))
     INST_MATCH(0x00006000, 0xffffffe0, TYPE_2R,    RDCNTVL.W,    R(rd) = cpu.stable_counter & 0xffffffff)
@@ -150,8 +157,8 @@ void decode_exec(uint32_t inst){
     INST_MATCH(0x03800000, 0xffc00000, TYPE_2RI12, ORI,          R(rd) = src1 | BITS(imm, 11, 0))
     INST_MATCH(0x03c00000, 0xffc00000, TYPE_2RI12, XORI,         R(rd) = src1 ^ BITS(imm, 11, 0)) 
     INST_MATCH(0x04000000, 0xff0003e0, TYPE_2RI12, CSRRD,        R(rd) = cpu.csr_read(csr_rd))
-    INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,        R(rd) = cpu.csr_read(csr_rd); cpu.csr_write(csr_rd, dst); if(csr_rd == CSR_NAME::TICLR) {CSR(CSR_IDX::ESTAT) = CSR(CSR_IDX::ESTAT) & 0xfffff7ff;})
-    INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,      R(rd) = cpu.csr_read(csr_rd); cpu.csr_write(csr_rd, dst & src1 | CSR(csr_rd) & ~src1))
+    INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,        R(rd) = cpu.csr_read(csr_rd); cpu.csr_write(csr_rd, dst))
+    INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,      R(rd) = cpu.csr_read(csr_rd); cpu.csr_write(csr_rd, (dst & src1) | (cpu.csr_read(csr_rd) & ~src1)); )
     INST_MATCH(0x06482800, 0xffffffff, TYPE_3R,    TLBSRCH,      tlb_srch())
     INST_MATCH(0x06482c00, 0xffffffff, TYPE_3R,    TLBRD,        tlb_read(BITS(CSR(CSR_IDX::TLBIDX), 3, 0)))
     INST_MATCH(0x06483000, 0xffffffff, TYPE_3R,    TLBWR,        tlb_write(BITS(CSR(CSR_IDX::TLBIDX), 3, 0)))
@@ -192,7 +199,7 @@ void decode_exec(uint32_t inst){
 
 finish:
     R(0) = 0;
-    cpu.stable_counter++;
+    cpu.update_state();
     cpu.pc = npc;
     return;
 }
