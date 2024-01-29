@@ -108,7 +108,7 @@ bool tlb_invalid(uint32_t op, uint32_t asid, uint32_t va){
             return true;
         }
         case(0x5):{
-            // clear TLB entry whose asid = asid and h = 0 and va[31:13] = va[31:13]
+            // clear TLB entry whose asid = asid and g = 0 and va[31:13] = va[31:13]
             for(uint32_t i = 0; i < TLB_SIZE; i++){
                 if(cpu.tlb[i].asid == asid && !cpu.tlb[i].g && cpu.tlb[i].vppn == BITS(va, 31, 13)){
                     cpu.tlb[i].e = false;
