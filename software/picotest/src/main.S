@@ -61,48 +61,47 @@ main:
     // bl n45_st_b_test
     // bl n46_st_h_test
     
-    // bl n47_syscall_ex_test
-    // bl n48_brk_ex_test
-    // bl n49_ti_ex_test
-    // bl n50_ine_ex_test
-    // bl n51_soft_int_ex_test
-    // bl n52_adef_ex_test
-    // bl n53_ale_ld_w_ex_test
-    // bl n54_ale_ld_h_ex_test
-    // bl n55_ale_ld_hu_ex_test
-    // bl n56_ale_st_h_ex_test
-    // bl n57_ale_st_w_ex_test
-    // bl n58_rdcnt_test
+    bl n47_syscall_ex_test
+    bl n48_brk_ex_test
+    bl n49_ti_ex_test
+    bl n50_ine_ex_test
+    bl n51_soft_int_ex_test
+    bl n52_adef_ex_test
+    bl n53_ale_ld_w_ex_test
+    bl n54_ale_ld_h_ex_test
+    bl n55_ale_ld_hu_ex_test
+    bl n56_ale_st_h_ex_test
+    bl n57_ale_st_w_ex_test
+    bl n58_rdcnt_test
 
-    // bl tlb_initialization
-    // bl n59_tlbrd_tlbwr_test
-    // bl tlb_initialization
-    // bl n60_tlbfill_test
-    // bl tlb_initialization
-    // bl n61_tlbsrch_test
-    // bl tlb_initialization
-    // bl n62_invtlb_0x0_test
-    // bl tlb_initialization
-    // bl n63_invtlb_0x1_test
-    // bl tlb_initialization
-    // bl n64_invtlb_0x2_test
-    // bl tlb_initialization
-    // bl n65_invtlb_0x3_test
-    // bl tlb_initialization
-    // bl n66_invtlb_0x4_test
-    // bl tlb_initialization
-    // bl n67_invtlb_0x5_test
-    // bl tlb_initialization
-    // bl n68_invtlb_0x6_test
-    // bl tlb_initialization
-    // bl n69_invtlb_inv_op_test
-    // bl tlb_initialization
-    // bl n70_tlb_4MB
-
+    bl tlb_initialization
+    bl n59_tlbrd_tlbwr_test
+    bl tlb_initialization
+    bl n60_tlbfill_test
+    bl tlb_initialization
+    bl n61_tlbsrch_test
+    bl tlb_initialization
+    bl n62_invtlb_0x0_test
+    bl tlb_initialization
+    bl n63_invtlb_0x1_test
+    bl tlb_initialization
+    bl n64_invtlb_0x2_test
+    bl tlb_initialization
+    bl n65_invtlb_0x3_test
+    bl tlb_initialization
+    bl n66_invtlb_0x4_test
+    bl tlb_initialization
+    bl n67_invtlb_0x5_test
+    bl tlb_initialization
+    bl n68_invtlb_0x6_test
+    bl tlb_initialization
+    bl n69_invtlb_inv_op_test
+    bl tlb_initialization
+    bl n70_tlb_4MB
     bl tlb_initialization
     bl n71_tlb_ex_test
 
-    li.w a0, 1
+    li.w a0, 25
     bne a0, s3, failed
     li.w a0, 0
     .word 0x80000000

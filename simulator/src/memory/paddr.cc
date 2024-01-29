@@ -1,15 +1,34 @@
 #include <common.h>
 #include <cpu.h>
 #include <mmio.h>
+#include <mmu.h>
 
 uint8_t pmem[CONFIG_PMEM_SIZE];
 
 bool in_pmem(uint32_t addr) {
     return addr >= CONFIG_PMEM_BASE && addr < CONFIG_PMEM_BASE + CONFIG_PMEM_SIZE;
 }
+
+
+
 uint8_t* addr_convert(uint32_t addr){
     return pmem + addr - CONFIG_PMEM_BASE;
 }
+
+std::pair<uint32_t, uint32_t> vaddr_check(uint32_t vaddr, uint32_t align_mask, uint32_t mem_type){
+    if(BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x3 && (vaddr & 0x80000000)){
+        std::cout << vaddr << std::endl;
+        return std::make_pair(vaddr, ADEM);
+    }
+    if(vaddr & align_mask){
+        // ALE
+        return std::make_pair(vaddr, ALE);
+    }
+    // tlb
+    auto paddr = addr_translate(vaddr, mem_type);
+    return std::make_pair((uint32_t)(paddr), (uint32_t)(paddr >> 32));
+}
+
 uint32_t host_read(uint8_t* p, uint32_t len){
     switch(len){
         case 1: return *p;

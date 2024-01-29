@@ -41,6 +41,13 @@ enum class CSRIDX{
     DMW0, DMW1
 };
 
+enum EXP{
+    INT = 0x0, PIL = 0x1, PIS = 0x2, PIF = 0x3, 
+    PME = 0x4, PPI = 0x7, ADEF = 0x8, ADEM = 0x48,
+    ALE = 0x9, SYS = 0xb, BRK = 0xc, INE = 0xd,
+    IPE = 0xe, FPD = 0xf, FPE = 0x12, TLBR = 0x3f
+};
+
 #define CSR_IDX (int)CSRIDX
 
 typedef struct {
@@ -83,7 +90,6 @@ struct CPU_State{
         if(csr[CSR_IDX::TCFG] & 0x1){
             // check if timer int
             if(timer_past == 1 && csr[CSR_IDX::TVAL] == 0){
-                // std::cout << "timer interrupt" << std::endl;
                 timer_int = true;
             }
             // update timer
@@ -97,7 +103,6 @@ struct CPU_State{
                 csr[CSR_IDX::TVAL]--;
             }
         }
-        
 #endif
     }
     // csr read
@@ -120,9 +125,5 @@ struct CPU_State{
             timer_int = false;   
         }
     }
-
 };
-
-
-
 #endif // __ARCH_H__

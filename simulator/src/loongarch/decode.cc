@@ -1,10 +1,11 @@
 #include <cpu.h>
 #include <common.h>
 #include <paddr.h>
+#include <mmu.h>
 #include <random>
+#include <priv.h>
 #define R(i) cpu.reg[i]
 #define CSR(i) cpu.csr[i]
-#define CSR_WRITE(i, data) (cpu.csr[i] = (data & csr_mask[i]) | (cpu.csr[i] & ~csr_mask[i]))
 
 #define INST_MATCH(opcode, mask, type, name, ...) {\
     if(((opcode ^ inst) & mask) == 0){ \
@@ -42,74 +43,7 @@ void decode_oprand(uint32_t inst, int type, uint32_t &rd, uint32_t &src1, uint32
     }
 
 }
-uint32_t do_exception(uint32_t ecode, uint32_t vaddr){
-    // set PLV and IE in PRMD to those in CRMD
-    CSR(CSR_IDX::PRMD) = CSR(CSR_IDX::CRMD) & 0x7;
-    // set PLV to 0 and set IE to 0
-    CSR(CSR_IDX::CRMD) &= 0xfffffff8;
 
-    // set ecode to ESTAT
-    CSR(CSR_IDX::ESTAT) = (0x7fff0000 & (ecode << 16)) | (~0x7fff0000 & CSR(CSR_IDX::ESTAT));
-    // set era to pc
-    CSR(CSR_IDX::ERA) = cpu.pc;
-    // set badv
-    if(ecode == 0x8){
-        CSR(CSR_IDX::BADV) = cpu.pc;
-    }
-    else if(ecode == 0x9 || ecode == 0x3f || (ecode >= 0x1 && ecode <= 0x4) || ecode == 0x7){
-        CSR(CSR_IDX::BADV) = vaddr;
-    }
-    // set vppn to TLBEHI
-    if(ecode == 0x3f || (ecode >= 0x1 && ecode <= 0x4) || ecode == 0x7){
-        cpu.csr_write(CSR_NAME::TLBEHI, vaddr);
-    }
-    return ecode == 0x3f ? CSR(CSR_IDX::TLBRENTRY) : CSR(CSR_IDX::EENTRY);
-    // TODO: set VADDR to TLBEHI
-}
-uint64_t addr_translate(uint32_t vaddr, uint32_t mem_type){
-    // check da or pg
-    auto mode = BITS(CSR(CSR_IDX::CRMD), 3, 3);
-    if(mode == 1){
-        // direct access
-        return vaddr;
-    }
-    else{
-        // page access
-        // check csr dmw
-        auto dmw0_vseg = BITS(CSR(CSR_IDX::DMW0), 31, 29);
-        auto dmw1_vseg = BITS(CSR(CSR_IDX::DMW1), 31, 29);
-        if(dmw0_vseg == BITS(vaddr, 31, 29)){
-            return BITS(CSR(CSR_IDX::DMW0), 27, 25) << 29 | BITS(vaddr, 28, 0);
-        }
-        if(dmw1_vseg == BITS(vaddr, 31, 29)){
-            return BITS(CSR(CSR_IDX::DMW1), 27, 25) << 29 | BITS(vaddr, 28, 0);
-        }
-        // TODO: check TLB
-        return tlb_convert(vaddr, mem_type);
-
-    }
-}
-std::pair<uint32_t, uint32_t> vaddr_check(uint32_t vaddr, uint32_t align_mask, uint32_t mem_type){
-    if(BITS(CSR(CSR_IDX::CRMD), 1, 0) == 0x3 && (vaddr & 0x80000000)){
-        return std::make_pair(vaddr, 0x48);
-    }
-    if(vaddr & align_mask){
-        // ALE
-        return std::make_pair(vaddr, 0x9);
-    }
-    // tlb
-    auto paddr = addr_translate(vaddr, mem_type);
-    return std::make_pair((uint32_t)(paddr), (uint32_t)(paddr >> 32));
-}
-
-inline uint32_t do_ertn(){
-    // recover CRMD
-    CSR(CSR_IDX::CRMD) = (CSR(CSR_IDX::CRMD) & 0xfffffff8) | (CSR(CSR_IDX::PRMD) & 0x7);
-    if(BITS(CSR(CSR_IDX::ESTAT), 21, 16) == 0x1f){
-        CSR(CSR_IDX::CRMD) = (CSR(CSR_IDX::CRMD) & 0xffffffe7) | (0x10 << 3);
-    }
-    return CSR(CSR_IDX::ERA);
-}
 void decode_exec(uint32_t inst, uint32_t exception_fetch){
     uint32_t rd = 0;
     uint32_t rj = BITS(inst, 9, 5);
@@ -126,8 +60,7 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
     }
 #ifndef CONFIG_REF
     if((cpu.csr[CSR_IDX::ESTAT] & cpu.csr[CSR_IDX::ECFG] & 0x1fff) && (cpu.csr[CSR_IDX::CRMD] & 0x4)){
-        //std::cout << "exception: " << std::hex << BITS(cpu.csr[CSR_IDX::ESTAT], 12, 0) << " at pc = " << cpu.pc << std::endl;
-        npc = do_exception(0x0, 0x0);
+        npc = do_exception(INT, 0x0);
         goto finish;
     }
 #endif
@@ -153,8 +86,8 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
     INST_MATCH(0x00208000, 0xffff8000, TYPE_3R,    MOD.W,        R(rd) = (int32_t)src1 % (int32_t)src2)
     INST_MATCH(0x00210000, 0xffff8000, TYPE_3R,    DIV.WU,       R(rd) = src1 / src2)
     INST_MATCH(0x00218000, 0xffff8000, TYPE_3R,    MOD.WU,       R(rd) = src1 % src2)
-    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R,    BREAK,        npc = do_exception(0xc, 0x0))
-    INST_MATCH(0x002b0000, 0xffff8000, TYPE_3R,    SYSCALL,      npc = do_exception(0xb, 0x0))
+    INST_MATCH(0x002a0000, 0xffff8000, TYPE_3R,    BREAK,        npc = do_exception(BRK, 0x0))
+    INST_MATCH(0x002b0000, 0xffff8000, TYPE_3R,    SYSCALL,      npc = do_exception(SYS, 0x0))
     INST_MATCH(0x00408000, 0xffff8000, TYPE_2RI8,  SLLI.W,       R(rd) = src1 << BITS(imm, 4, 0))
     INST_MATCH(0x00448000, 0xffff8000, TYPE_2RI8,  SRLI.W,       R(rd) = src1 >> BITS(imm, 4, 0))
     INST_MATCH(0x00488000, 0xffff8000, TYPE_2RI8,  SRAI.W,       R(rd) = (int32_t)src1 >> BITS(imm, 4, 0))
@@ -176,7 +109,7 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
     INST_MATCH(0x06483400, 0xffffffff, TYPE_3R,    TLBFILL,      )
 #endif
     INST_MATCH(0x06483800, 0xffffffff, TYPE_3R,    ERTN,         npc = do_ertn())
-    INST_MATCH(0x06498000, 0xffff8000, TYPE_3R,    INVTLB,       if(!tlb_invalid(BITS(inst, 4, 0), src1, src2)){npc = do_exception(0xd, 0x0);})
+    INST_MATCH(0x06498000, 0xffff8000, TYPE_3R,    INVTLB,       if(!tlb_invalid(BITS(inst, 4, 0), src1, src2)){npc = do_exception(INE, 0x0);})
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,      R(rd) = BITS(inst, 24, 5) << 12)
     INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,    R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,         uint32_t vaddr = src1 + imm; auto addr_pair = vaddr_check(vaddr, 0x0, 0x2); if(addr_pair.second != 0){npc = do_exception(addr_pair.second, vaddr);} else {R(rd) = SBITS(paddr_read(addr_pair.first, 1), 7, 0);})
@@ -203,7 +136,7 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
     INST_MATCH(0x68000000, 0xfc000000, TYPE_2RI16, BLTU,         if(src1 < dst) npc = cpu.pc + (imm << 2))
     INST_MATCH(0x6c000000, 0xfc000000, TYPE_2RI16, BGEU,         if(src1 >= dst) npc = cpu.pc + (imm << 2))
 
-    npc = do_exception(0xd, 0x0);
+    npc = do_exception(INE, 0x0);
 
 finish:
     R(0) = 0;
@@ -213,6 +146,9 @@ finish:
 }
 
 uint64_t inst_fetch(uint32_t pc){
+    if(pc & 0x3){
+        return (uint64_t)ADEF << 32 | 0x80000001;
+    }
     auto paddr = addr_translate(pc, 0x1);
     if(paddr >> 32){
         return ((paddr >> 32) << 32) | 0x80000001;

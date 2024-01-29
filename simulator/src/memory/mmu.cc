@@ -20,7 +20,7 @@ uint64_t tlb_convert(uint32_t vaddr, uint32_t mem_type){
         }
     }
     if(hit_idx == -1){
-        return ((uint64_t)0x3f << 32) | vaddr;
+        return ((uint64_t)TLBR << 32) | vaddr;
     }else{
         auto tlb_entry = cpu.tlb[hit_idx];
         found_ps = tlb_entry.ps;
@@ -38,20 +38,44 @@ uint64_t tlb_convert(uint32_t vaddr, uint32_t mem_type){
     }
     if(found_v == 0){
         switch(mem_type){
-            case(0x1): return ((uint64_t)0x3 << 32) | vaddr; // PIF
-            case(0x2): return ((uint64_t)0x1 << 32) | vaddr; // PIL
-            case(0x4): return ((uint64_t)0x2 << 32) | vaddr; // PIS
+            case(0x1): return ((uint64_t)PIF << 32) | vaddr; 
+            case(0x2): return ((uint64_t)PIL << 32) | vaddr; 
+            case(0x4): return ((uint64_t)PIS << 32) | vaddr; 
             default: return (uint64_t)vaddr;
         }
     }
     if(BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) > found_plv){
-        return (uint64_t)0x7 << 32 | vaddr; // PPI
+        return (uint64_t)PPI << 32 | vaddr; // PPI
     }
     if(mem_type == 0x4 && !found_d){
-        return (uint64_t)0x4 << 32 | vaddr; // PME
+        return (uint64_t)PME << 32 | vaddr; // PME
     }
     return (BITS(found_ppn, 19, found_ps-12) << (found_ps-12)) | BITS(vaddr, found_ps-1, 0);
 
+}
+
+uint64_t addr_translate(uint32_t vaddr, uint32_t mem_type){
+    // check da or pg
+    auto mode = BITS(cpu.csr[CSR_IDX::CRMD], 3, 3);
+    if(mode == 1){
+        // direct access
+        return vaddr;
+    }
+    else{
+        // page access
+        // check csr dmw
+        auto dmw0_vseg = BITS(cpu.csr[CSR_IDX::DMW0], 31, 29);
+        auto dmw1_vseg = BITS(cpu.csr[CSR_IDX::DMW1], 31, 29);
+        if(dmw0_vseg == BITS(vaddr, 31, 29)){
+            return BITS(cpu.csr[CSR_IDX::DMW0], 27, 25) << 29 | BITS(vaddr, 28, 0);
+        }
+        if(dmw1_vseg == BITS(vaddr, 31, 29)){
+            return BITS(cpu.csr[CSR_IDX::DMW1], 27, 25) << 29 | BITS(vaddr, 28, 0);
+        }
+        // check tlb
+        return tlb_convert(vaddr, mem_type);
+
+    }
 }
 
 void tlb_read(uint32_t idx){
@@ -167,7 +191,7 @@ bool tlb_invalid(uint32_t op, uint32_t asid, uint32_t va){
             return true;
         }
         case(0x6):{
-            // clear TLB entry whose asid = asid or g = 1,  and va[31:22] = va[31:22]
+            // clear TLB entry whose asid = asid or g = 1,  and va[31:13] = va[31:13]
             for(uint32_t i = 0; i < TLB_SIZE; i++){
                 if((cpu.tlb[i].asid == asid || cpu.tlb[i].g) && cpu.tlb[i].vppn == BITS(va, 31, 13)){
                     cpu.tlb[i].e = false;
@@ -176,7 +200,7 @@ bool tlb_invalid(uint32_t op, uint32_t asid, uint32_t va){
             return true;
         }
         default: {
-            std::cout << "tlb_invalid: invalid op" << std::endl;
+            // std::cout << "tlb_invalid: invalid op" << std::endl;
             return false;
         }
     }
