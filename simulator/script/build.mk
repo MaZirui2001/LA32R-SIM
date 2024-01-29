@@ -1,6 +1,6 @@
 .DEFUALT_GOAL := app
 
-SHARE = 0
+SHARE = 1
 ifeq ($(SHARE),1)
 SO = -so
 CFLAGS  += -fPIC -fvisibility=hidden -DCONFIG_REF
