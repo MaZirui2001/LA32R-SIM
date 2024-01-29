@@ -11,10 +11,9 @@ LEAF(n71_tlb_ex_test)
     li.w      t0, 0x1 
     csrwr   t0, csr_ticlr 
       
-    li.w    t0, 0x1c008000
-    csrwr t0, csr_eentry
-    li.w    t1, 0x1c000000 + TLBREBASE
-    csrwr t1, csr_tlbrentry
+    // li.w    t0, 0x1c008000
+    // csrwr t0, csr_eentry
+
 
     li.w        t3, 0x0c000001
     li.w        t0, 0x1c008000
@@ -149,12 +148,12 @@ LEAF(n71_tlb_ex_test)
 
     LI_EXIMM(t0,s2,IMM_PME)
     
-    li.w      t0, 0xd0010 
+    li.w      t0, 0x1c0d0010 
     li.w      s2, 0xff 
     st.w    s2, t0, 0
 
     ###fill in a present but not dirty TLB item 
-    FILL_TLB_ITEM(0x0c000000, 0x200ab<<13, 0x000d04d, 0x000d14d)
+    FILL_TLB_ITEM(0x0c000000, 0x200ab<<13, 0x1c0d04d, 0x1c0d14d)
     
     //let DA=0 and PG=1 and prl=0 
     li.w       t0, 0x10 
@@ -173,7 +172,7 @@ LEAF(n71_tlb_ex_test)
     li.w       t0, 0x08 
     li.w       t1, 0x1f 
     csrxchg  t0, t1, csr_crmd  
-    li.w       t0, 0xd0010 
+    li.w       t0, 0x1c0d0010 
     ld.w     t1, t0, 0 
     li.w       t2, 0xff 
     bne      t2, t1, inst_error

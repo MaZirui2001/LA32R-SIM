@@ -41,10 +41,7 @@ void cpu_exec(uint64_t n){
     }
 #endif
     while(n--){
-        uint32_t inst = 0x80000001;
-        if(in_pmem(cpu.pc)){
-            inst = inst_fetch(cpu.pc);
-        }
+        auto inst = inst_fetch(cpu.pc);
         if(inst == 0x80000000){
             cpu.state = SIM_END;
             cpu.halt_pc = cpu.pc;
@@ -55,7 +52,7 @@ void cpu_exec(uint64_t n){
         ilog[ilog_idx].inst = inst;
         ilog_idx = (ilog_idx + 1) % ILOG_SIZE;
 #endif
-        decode_exec(inst);
+        decode_exec(inst, (uint32_t)(inst >> 32));
 // #ifdef DEVICE
 //         if(cpu.state == SIM_RUNNING) device_update();
 // #endif

@@ -2,8 +2,8 @@
 #define __DECODE_H__
 
 #include <stdint.h>
-uint32_t inst_fetch(uint32_t pc);
-void decode_exec(uint32_t inst);
+uint64_t inst_fetch(uint32_t pc);
+void decode_exec(uint32_t inst, uint32_t exception_fetch);
 void cpu_exec(uint64_t n);
 uint32_t do_exception(uint32_t ecode, uint32_t vaddr);
 #endif

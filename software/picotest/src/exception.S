@@ -394,7 +394,10 @@ syscall_bak_kernel_mode:
     csrwr    t1, csr_era 
     ertn
 
-.org TLBREBASE   //TLBREBASE
+// .org TLBREBASE   //TLBREBASE
+.global tlbrebase
+.align 6
+tlbrebase:
     add.w    s2, zero, zero
     csrrd    t0, csr_era 
     bne      s4, t0, ex_finish 

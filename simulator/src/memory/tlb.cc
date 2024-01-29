@@ -4,6 +4,56 @@
 
 uint32_t tlb_idx_width = (uint32_t)log2(TLB_SIZE);
 
+uint64_t tlb_convert(uint32_t vaddr, uint32_t mem_type){
+    uint32_t hit_idx = -1;
+    uint32_t asid = BITS(cpu.csr[CSR_IDX::ASID], 9, 0);
+    bool found_v = false;
+    bool found_d = false;
+    uint32_t found_plv = 0;
+    uint32_t found_ps = 0;
+    uint32_t found_ppn = 0;
+    for(int i = 0; i < TLB_SIZE; i++){
+        auto ps = cpu.tlb[i].ps;
+        if(cpu.tlb[i].e && (cpu.tlb[i].g || cpu.tlb[i].asid == asid) && (cpu.tlb[i].vppn >> (ps - 12)) == BITS(vaddr, 31, ps+1)){
+            hit_idx = i;
+            break;
+        }
+    }
+    if(hit_idx == -1){
+        return ((uint64_t)0x3f << 32) | vaddr;
+    }else{
+        auto tlb_entry = cpu.tlb[hit_idx];
+        found_ps = tlb_entry.ps;
+        if(BITS(vaddr, found_ps, found_ps)== 0){
+            found_v = tlb_entry.v0;
+            found_d = tlb_entry.d0;
+            found_plv = tlb_entry.plv0;
+            found_ppn = tlb_entry.ppn0;
+        }else{
+            found_v = tlb_entry.v1;
+            found_d = tlb_entry.d1;
+            found_plv = tlb_entry.plv1;
+            found_ppn = tlb_entry.ppn1;
+        }
+    }
+    if(found_v == 0){
+        switch(mem_type){
+            case(0x1): return ((uint64_t)0x3 << 32) | vaddr; // PIF
+            case(0x2): return ((uint64_t)0x1 << 32) | vaddr; // PIL
+            case(0x4): return ((uint64_t)0x2 << 32) | vaddr; // PIS
+            default: return (uint64_t)vaddr;
+        }
+    }
+    if(BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) > found_plv){
+        return (uint64_t)0x7 << 32 | vaddr; // PPI
+    }
+    if(mem_type == 0x4 && !found_d){
+        return (uint64_t)0x4 << 32 | vaddr; // PME
+    }
+    return (BITS(found_ppn, 19, found_ps-12) << (found_ps-12)) | BITS(vaddr, found_ps-1, 0);
+
+}
+
 void tlb_read(uint32_t idx){
     auto tlb_entry = cpu.tlb[idx];
     bool e = tlb_entry.e;

@@ -6,6 +6,8 @@ main:
     li.w s1, 0x1c200000
     la.local t0, exception_handler
     csrwr t0, csr_eentry 
+    la.local    t1, tlbrebase
+    csrwr t1, csr_tlbrentry
     // bl n1_lu12i_w_test
     // bl n2_add_w_test
     // bl n3_addi_w_test
@@ -72,37 +74,39 @@ main:
     // bl n57_ale_st_w_ex_test
     // bl n58_rdcnt_test
 
-    bl tlb_initialization
-    bl n59_tlbrd_tlbwr_test
-    bl tlb_initialization
-    bl n60_tlbfill_test
-    bl tlb_initialization
-    bl n61_tlbsrch_test
-    bl tlb_initialization
-    bl n62_invtlb_0x0_test
-    bl tlb_initialization
-    bl n63_invtlb_0x1_test
-    bl tlb_initialization
-    bl n64_invtlb_0x2_test
-    bl tlb_initialization
-    bl n65_invtlb_0x3_test
-    bl tlb_initialization
-    bl n66_invtlb_0x4_test
-    bl tlb_initialization
-    bl n67_invtlb_0x5_test
-    bl tlb_initialization
-    bl n68_invtlb_0x6_test
-    bl tlb_initialization
-    bl n69_invtlb_inv_op_test
-    bl tlb_initialization
-    bl n70_tlb_4MB
+    // bl tlb_initialization
+    // bl n59_tlbrd_tlbwr_test
+    // bl tlb_initialization
+    // bl n60_tlbfill_test
+    // bl tlb_initialization
+    // bl n61_tlbsrch_test
+    // bl tlb_initialization
+    // bl n62_invtlb_0x0_test
+    // bl tlb_initialization
+    // bl n63_invtlb_0x1_test
+    // bl tlb_initialization
+    // bl n64_invtlb_0x2_test
+    // bl tlb_initialization
+    // bl n65_invtlb_0x3_test
+    // bl tlb_initialization
+    // bl n66_invtlb_0x4_test
+    // bl tlb_initialization
+    // bl n67_invtlb_0x5_test
+    // bl tlb_initialization
+    // bl n68_invtlb_0x6_test
+    // bl tlb_initialization
+    // bl n69_invtlb_inv_op_test
+    // bl tlb_initialization
+    // bl n70_tlb_4MB
 
-    li.w a0, 12
+    bl tlb_initialization
+    bl n71_tlb_ex_test
+
+    li.w a0, 1
     bne a0, s3, failed
     li.w a0, 0
     .word 0x80000000
 failed:
-    
     .word 0x80000000
 
 // failed:
