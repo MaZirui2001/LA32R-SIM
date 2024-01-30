@@ -68,13 +68,8 @@ void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, u
     }
     cpu.pc = pc;
 }
-bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd, uint32_t csr, uint32_t csr_wdata, bool csr_we){
+bool commit_update(bool commit_en, uint32_t pc, uint32_t inst, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd, uint32_t csr, uint32_t csr_wdata, bool csr_we){
     if(commit_en){
-        uint32_t inst = 0x001c0000;
-
-        if(in_pmem(cpu.pc)){
-            inst = pmem_read(cpu.pc, 4);
-        }
         #ifdef ITRACE
             if(cpu.state == SIM_RUNNING) {
                 auto rd = BITS(inst, 31, 26) == 0x15 ? 0 : BITS(inst, 4, 0);
@@ -129,13 +124,12 @@ void cpu_exec(uint64_t n){
     }
 #endif
     while(n--){
-        // std::cout << std::hex << cpu.pc << std::endl;
         uint32_t commit_num = 0;
-        commit_num += commit_update(dut->io_commit_en_0, dut->io_commit_pc_0, dut->io_commit_rd_0, dut->io_commit_rd_valid_0, dut->io_commit_rf_wdata_0, dut->io_commit_prd_0, dut->io_commit_csr_waddr_0, dut->io_commit_csr_wdata_0, dut->io_commit_csr_we_0);
-        commit_num += commit_update(dut->io_commit_en_1, dut->io_commit_pc_1, dut->io_commit_rd_1, dut->io_commit_rd_valid_1, dut->io_commit_rf_wdata_1, dut->io_commit_prd_1, dut->io_commit_csr_waddr_1, dut->io_commit_csr_wdata_1, dut->io_commit_csr_we_1);
+        commit_num += commit_update(dut->io_commit_en_0, dut->io_commit_pc_0, dut->io_commit_inst_0, dut->io_commit_rd_0, dut->io_commit_rd_valid_0, dut->io_commit_rf_wdata_0, dut->io_commit_prd_0, dut->io_commit_csr_waddr_0, dut->io_commit_csr_wdata_0, dut->io_commit_csr_we_0);
+        commit_num += commit_update(dut->io_commit_en_1, dut->io_commit_pc_1, dut->io_commit_inst_1, dut->io_commit_rd_1, dut->io_commit_rd_valid_1, dut->io_commit_rf_wdata_1, dut->io_commit_prd_1, dut->io_commit_csr_waddr_1, dut->io_commit_csr_wdata_1, dut->io_commit_csr_we_1);
     #ifdef FRONT_END_4
-        commit_num += commit_update(dut->io_commit_en_2, dut->io_commit_pc_2, dut->io_commit_rd_2, dut->io_commit_rd_valid_2, dut->io_commit_rf_wdata_2, dut->io_commit_prd_2, dut->io_commit_csr_waddr_2, dut->io_commit_csr_wdata_2, dut->io_commit_csr_we_2);
-        commit_num += commit_update(dut->io_commit_en_3, dut->io_commit_pc_3, dut->io_commit_rd_3, dut->io_commit_rd_valid_3, dut->io_commit_rf_wdata_3, dut->io_commit_prd_3, dut->io_commit_csr_waddr_3, dut->io_commit_csr_wdata_3, dut->io_commit_csr_we_3);
+        commit_num += commit_update(dut->io_commit_en_2, dut->io_commit_pc_2, dut->io_commit_inst_2, dut->io_commit_rd_2, dut->io_commit_rd_valid_2, dut->io_commit_rf_wdata_2, dut->io_commit_prd_2, dut->io_commit_csr_waddr_2, dut->io_commit_csr_wdata_2, dut->io_commit_csr_we_2);
+        commit_num += commit_update(dut->io_commit_en_3, dut->io_commit_pc_3, dut->io_commit_inst_3, dut->io_commit_rd_3, dut->io_commit_rd_valid_3, dut->io_commit_rf_wdata_3, dut->io_commit_prd_3, dut->io_commit_csr_waddr_3, dut->io_commit_csr_wdata_3, dut->io_commit_csr_we_3);
     #endif
         if(cpu.state != SIM_RUNNING) break;
 #ifdef DIFFTEST
