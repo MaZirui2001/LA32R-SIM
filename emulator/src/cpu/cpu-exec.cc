@@ -69,7 +69,8 @@ void set_cpu_state(uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, u
 }
 bool commit_update(bool commit_en, uint32_t pc, uint32_t rd, bool rd_valid, uint32_t rf_wdata, uint32_t prd, uint32_t csr, uint32_t csr_wdata, bool csr_we){
     if(commit_en){
-        uint32_t inst = 0x03400000;
+        uint32_t inst = 0x001c0000;
+
         if(in_pmem(cpu.pc)){
             inst = pmem_read(cpu.pc, 4);
         }

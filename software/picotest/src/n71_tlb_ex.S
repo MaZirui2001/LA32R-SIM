@@ -15,7 +15,7 @@ LEAF(n71_tlb_ex_test)
     // csrwr t0, csr_eentry
 
 
-    li.w        t3, 0x0c000001
+    li.w        t3, 0x0c000000
     li.w        t0, 0x1c008000
     li.w        t1, 0xffffe000
     and       t4, t0, t1
@@ -35,13 +35,13 @@ LEAF(n71_tlb_ex_test)
     FILL_TLB_ITEM_r
     FILL_TLB_ITEM_r
  
-    li.w        t0, 0xd0000
+    li.w        t0, 0x1c1d0000
     li.w        t1, 0xffffe000
     and       t4, t0, t1
     srli.w    t4, t4, 0x4 
-    li.w        t1, 0x4d
+    li.w        t1, 0x4f
     or        t1, t4, t1
-    li.w        t2, 0x14d
+    li.w        t2, 0x14f
     or        t2, t4, t2
     FILL_TLB_ITEM_r
     FILL_TLB_ITEM_r
@@ -59,7 +59,7 @@ LEAF(n71_tlb_ex_test)
     FILL_TLB_ITEM_r
     FILL_TLB_ITEM_r
     FILL_TLB_ITEM_r
-    FILL_TLB_ITEM_r
+    // FILL_TLB_ITEM_r
   
     //set datm=1
     li.w      t0, 0x80 

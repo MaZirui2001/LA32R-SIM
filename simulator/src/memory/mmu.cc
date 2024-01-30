@@ -50,7 +50,7 @@ uint64_t tlb_convert(uint32_t vaddr, uint32_t mem_type){
     if(mem_type == 0x4 && !found_d){
         return (uint64_t)PME << 32 | vaddr; // PME
     }
-    return (BITS(found_ppn, 19, found_ps-12) << (found_ps-12)) | BITS(vaddr, found_ps-1, 0);
+    return (BITS(found_ppn, 19, found_ps-12) << found_ps) | BITS(vaddr, found_ps-1, 0);
 
 }
 
@@ -66,13 +66,14 @@ uint64_t addr_translate(uint32_t vaddr, uint32_t mem_type){
         // check csr dmw
         auto dmw0_vseg = BITS(cpu.csr[CSR_IDX::DMW0], 31, 29);
         auto dmw1_vseg = BITS(cpu.csr[CSR_IDX::DMW1], 31, 29);
-        if(dmw0_vseg == BITS(vaddr, 31, 29)){
+        if(dmw0_vseg == BITS(vaddr, 31, 29) && (((cpu.csr[CSR_IDX::DMW0] & 0x1) && BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x0) || ((cpu.csr[CSR_IDX::DMW0] & 0x8) && BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x3)) ){
             return BITS(cpu.csr[CSR_IDX::DMW0], 27, 25) << 29 | BITS(vaddr, 28, 0);
         }
-        if(dmw1_vseg == BITS(vaddr, 31, 29)){
+        if(dmw1_vseg == BITS(vaddr, 31, 29) && (((cpu.csr[CSR_IDX::DMW1] & 0x1) && BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x0) || ((cpu.csr[CSR_IDX::DMW1] & 0x8) && BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x3)) ){
             return BITS(cpu.csr[CSR_IDX::DMW1], 27, 25) << 29 | BITS(vaddr, 28, 0);
         }
         // check tlb
+        // std::cout << std::hex << vaddr << std::endl;
         return tlb_convert(vaddr, mem_type);
 
     }
@@ -106,7 +107,6 @@ void tlb_read(uint32_t idx){
 
 }
 void tlb_write(uint32_t idx){
-    // uint32_t idx = BITS(cpu.csr[CSR_IDX::TLBIDX], tlb_idx_width-1, 0);
     TLB_Entry tlb_entry;
     tlb_entry.vppn = BITS(cpu.csr[CSR_IDX::TLBEHI], 31, 13);
     tlb_entry.ps = BITS(cpu.csr[CSR_IDX::TLBIDX], 31, 24);
