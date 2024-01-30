@@ -78,6 +78,7 @@ struct CPU_State{
     uint32_t halt_pc;
     uint32_t inst;
     bool timer_int;
+    bool idle_state;
     uint32_t timer_past;
     // update state
     void update_state(){
@@ -85,12 +86,15 @@ struct CPU_State{
         stable_counter++;
         // interrupt 
         csr[CSR_IDX::ESTAT] = (csr[CSR_IDX::ESTAT] & 0xfffff7ff) | ((uint32_t)timer_int << 11);
+        if(timer_int){
+            idle_state = false;
+        }
 #ifndef CONFIG_REF
         // timer int
         if(csr[CSR_IDX::TCFG] & 0x1){
             // check if timer int
             if(timer_past == 1 && csr[CSR_IDX::TVAL] == 0){
-                timer_int = true;
+                timer_int = true;              
             }
             // update timer
             timer_past = csr[CSR_IDX::TVAL];
@@ -123,6 +127,9 @@ struct CPU_State{
         }
         if(name == CSR_NAME::TICLR){
             timer_int = false;   
+        }
+        if(name == CSR_NAME::LLBCTL && (val & 0x2)){
+            csr[CSR_IDX::LLBCTL] &= 0xfffffffe;
         }
     }
 };

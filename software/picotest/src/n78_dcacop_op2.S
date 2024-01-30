@@ -10,10 +10,10 @@ LEAF(n78_dcacop_op2)
     li.w      t0, 0x1 
     csrwr   t0, csr_ticlr  
 
-    li.w    t0, 0x1c008000
-    csrwr t0, csr_eentry
-    li.w    t1, 0x1c000000 + TLBREBASE
-    csrwr t1, csr_tlbrentry 
+    // li.w    t0, 0x1c008000
+    // csrwr t0, csr_eentry
+    // li.w    t1, 0x1c000000 + TLBREBASE
+    // csrwr t1, csr_tlbrentry 
  
     la.local  t7, start
 start: 

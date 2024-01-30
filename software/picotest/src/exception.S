@@ -3,7 +3,14 @@
 #include "cpu_cde.h"
 #include "lab_config.h"
 
-
+.global cacop_disable
+cacop_disable:
+    li.w        t0, 0x8 
+    li.w        t1, 0x18 
+    csrxchg   t0, t1, csr_crmd
+    csrwr     zero, csr_dmw0 
+    csrwr     zero, csr_dmw1  
+    jirl      zero, ra, 0x0
 /*
  *  exception handle
  */

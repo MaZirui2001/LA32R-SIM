@@ -36,7 +36,7 @@ void decode_oprand(uint32_t inst, int type, uint32_t &rd, uint32_t &src1, uint32
         case TYPE_4R:    imm = 0; break;
         case TYPE_2RI8:  imm = SBITS(inst, 17, 10); break;
         case TYPE_2RI12: imm = SBITS(inst, 21, 10); break;
-        case TYPE_2RI14: imm = SBITS(inst, 23, 10); break;
+        case TYPE_2RI14: imm = SBITS(inst, 23, 10) << 2; break;
         case TYPE_2RI16: imm = SBITS(inst, 25, 10); break;
         case TYPE_1RI21: imm = BITS(inst, 25, 10) | (SBITS(inst, 4, 0) << 16); break;
         case TYPE_I26:   imm = BITS(inst, 25, 10) | (SBITS(inst, 9, 0) << 16); break;
@@ -54,15 +54,20 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
     uint32_t dst = 0;
     uint32_t csr_rd = BITS(inst, 18, 10); //reduce
     uint32_t npc = cpu.pc + 4;
+    bool with_exp = false;
+    if(cpu.idle_state){
+        npc = cpu.pc;
+        goto finish;
+    }
     
     if(exception_fetch != 0){
         npc = do_exception(exception_fetch, cpu.pc);
         goto finish;
     }
+    
 #ifndef CONFIG_REF
     if((cpu.csr[CSR_IDX::ESTAT] & cpu.csr[CSR_IDX::ECFG] & 0x1fff) && (cpu.csr[CSR_IDX::CRMD] & 0x4)){
-        npc = do_exception(INT, 0x0);
-        goto finish;
+        with_exp = true;
     }
 #endif
     //INST_MATCH(0x80000000, 0xffffffff, TYPE_2R,   TRAP,         cpu.state = SIM_END; cpu.halt_pc = cpu.pc; printf("ok\n"))
@@ -101,6 +106,7 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
     INST_MATCH(0x04000000, 0xff0003e0, TYPE_2RI12, CSRRD,        R(rd) = cpu.csr_read(csr_rd))
     INST_MATCH(0x04000020, 0xff0003e0, TYPE_2RI12, CSRWR,        R(rd) = cpu.csr_read(csr_rd); cpu.csr_write(csr_rd, dst))
     INST_MATCH(0x04000000, 0xff000000, TYPE_2RI12, CSRXCHG,      R(rd) = cpu.csr_read(csr_rd); cpu.csr_write(csr_rd, (dst & src1) | (cpu.csr_read(csr_rd) & ~src1)); )
+    INST_MATCH(0x06000000, 0xffc00000, TYPE_2RI12, CACOP,        if(BITS(inst, 4, 3) == 0x2) {uint32_t vaddr = src1 + imm; auto addr_pair = vaddr_check(vaddr, 0x0, 0x2); if(addr_pair.second != 0) {npc = do_exception(addr_pair.second, vaddr);}})
     INST_MATCH(0x06482800, 0xffffffff, TYPE_3R,    TLBSRCH,      tlb_srch())
     INST_MATCH(0x06482c00, 0xffffffff, TYPE_3R,    TLBRD,        tlb_read(BITS(CSR(CSR_IDX::TLBIDX), 3, 0)))
     INST_MATCH(0x06483000, 0xffffffff, TYPE_3R,    TLBWR,        tlb_write(BITS(CSR(CSR_IDX::TLBIDX), 3, 0)))
@@ -110,9 +116,12 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
     INST_MATCH(0x06483400, 0xffffffff, TYPE_3R,    TLBFILL,      )
 #endif
     INST_MATCH(0x06483800, 0xffffffff, TYPE_3R,    ERTN,         npc = do_ertn())
+    INST_MATCH(0x06488000, 0xffff8000, TYPE_3R,    IDLE,         cpu.idle_state = 1)
     INST_MATCH(0x06498000, 0xffff8000, TYPE_3R,    INVTLB,       if(!tlb_invalid(BITS(inst, 4, 0), src1, src2)){npc = do_exception(INE, 0x0);})
     INST_MATCH(0x14000000, 0xfe000000, TYPE_1RI21, LU12I.W,      R(rd) = BITS(inst, 24, 5) << 12)
     INST_MATCH(0x1c000000, 0xfe000000, TYPE_1RI21, PCADDU12I,    R(rd) = cpu.pc + (BITS(inst, 24, 5) << 12))
+    INST_MATCH(0x20000000, 0xff000000, TYPE_2RI14, LL.W,         uint32_t vaddr = src1 + imm; auto addr_pair = vaddr_check(vaddr, 0x3, 0x2); if(addr_pair.second != 0){npc = do_exception(addr_pair.second, vaddr);} else {R(rd) = paddr_read(addr_pair.first, 4); CSR(CSR_IDX::LLBCTL) |= 1;})
+    INST_MATCH(0x21000000, 0xff000000, TYPE_2RI14, SC.W,         if(BITS(CSR(CSR_IDX::LLBCTL), 0, 0)){uint32_t vaddr = src1 + imm; auto addr_pair = vaddr_check(vaddr, 0x3, 0x4); if(addr_pair.second != 0){npc = do_exception(addr_pair.second, vaddr);} else {paddr_write(addr_pair.first, dst, 4); R(rd) = 1; CSR(CSR_IDX::LLBCTL) &= 0xffffffe;}} else{R(rd) = 0;})
     INST_MATCH(0x28000000, 0xffc00000, TYPE_2RI12, LD.B,         uint32_t vaddr = src1 + imm; auto addr_pair = vaddr_check(vaddr, 0x0, 0x2); if(addr_pair.second != 0){npc = do_exception(addr_pair.second, vaddr);} else {R(rd) = SBITS(paddr_read(addr_pair.first, 1), 7, 0);})
     INST_MATCH(0x28400000, 0xffc00000, TYPE_2RI12, LD.H,         uint32_t vaddr = src1 + imm; auto addr_pair = vaddr_check(vaddr, 0x1, 0x2); if(addr_pair.second != 0){npc = do_exception(addr_pair.second, vaddr);} else {R(rd) = SBITS(paddr_read(addr_pair.first, 2), 15, 0);})
     INST_MATCH(0x28800000, 0xffc00000, TYPE_2RI12, LD.W,         uint32_t vaddr = src1 + imm; auto addr_pair = vaddr_check(vaddr, 0x3, 0x2); if(addr_pair.second != 0){npc = do_exception(addr_pair.second, vaddr);} else {R(rd) = paddr_read(addr_pair.first, 4);})
@@ -142,6 +151,9 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
 finish:
     R(0) = 0;
     cpu.update_state();
+    if(with_exp){
+        npc = do_exception(INT, 0x0);
+    }
     cpu.pc = npc;
     return;
 }

@@ -29,11 +29,6 @@ uint32_t do_exception(uint32_t ecode, uint32_t vaddr){
     if(ecode == 0x3f || (ecode >= 0x1 && ecode <= 0x4) || ecode == 0x7){
         cpu.csr_write(CSR_NAME::TLBEHI, vaddr);
     }
-    // if(cpu.pc == 0x1c000fb8){
-    //     std::cout << std::hex << "ecode = " << ecode << std::endl;
-    // }
-    // std::cout << std::hex << ecode << " " <<  (ecode == 0x3f ? CSR(CSR_IDX::TLBRENTRY) : CSR(CSR_IDX::EENTRY)) <<  std::endl;
-    // std::cout << CSR(CSR_IDX::CRMD) << std::endl;
     return ecode == 0x3f ? CSR(CSR_IDX::TLBRENTRY) : CSR(CSR_IDX::EENTRY);
 }
 
@@ -44,5 +39,9 @@ uint32_t do_ertn(){
     if(BITS(CSR(CSR_IDX::ESTAT), 21, 16) == 0x3f){
         CSR(CSR_IDX::CRMD) = (CSR(CSR_IDX::CRMD) & 0xffffffe7) | 0x10;
     }
+    if(BITS(CSR(CSR_IDX::LLBCTL), 2, 2) == 0){
+        CSR(CSR_IDX::LLBCTL) &= 0xfffffffe;
+    }
+    CSR(CSR_IDX::LLBCTL) &= 0xfffffffb;
     return CSR(CSR_IDX::ERA);
 }
