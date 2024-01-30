@@ -23,6 +23,7 @@ enum {SIM_RUNNING, SIM_STOP, SIM_END, SIM_ABORT};
 
 typedef uint32_t paddr_t;
 typedef uint32_t word_t;
+typedef std::unordered_map<uint32_t, uint32_t> pmem_t;
 
 
 

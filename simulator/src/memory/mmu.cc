@@ -75,6 +75,9 @@ std::pair<uint32_t, uint32_t> addr_translate(uint32_t vaddr, uint32_t mem_type){
         }
         // check tlb
         // std::cout << std::hex << vaddr << std::endl;
+        if(BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x3 && (vaddr & 0x80000000)){
+            return std::make_pair(vaddr, ADEM);
+        }
         auto tlb_res = tlb_convert(vaddr, mem_type);
         return tlb_res;
 

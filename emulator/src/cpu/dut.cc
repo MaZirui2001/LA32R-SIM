@@ -9,7 +9,7 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 
 // init fuction pointer with NULL, they will be assign when init
 void (*difftest_regcpy)(void *dut, bool direction) = NULL;
-void (*difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
+void (*difftest_memcpy)(pmem_t &dut_pmem, size_t n, bool direction) = NULL;
 void (*difftest_exec)(uint64_t n) = NULL;
 void (*difftest_raise_intr)(int irq) = NULL;
 void (*difftest_tlbfill_sync)(uint32_t idx) = NULL;
@@ -20,8 +20,9 @@ void (*difftest_init)(void *dut) = NULL;
 // // the num of instruction that should be skipped
 // static int skip_dut_nr_inst = 0;
 
-extern uint8_t pmem[];
-static uint8_t ref_pmem[CONFIG_PMEM_SIZE];
+// extern uint8_t pmem[];
+// static uint8_t ref_pmem[CONFIG_PMEM_SIZE];
+extern pmem_t pmem;
 
 
 void init_difftest(char *ref_so_file, long img_size) {
@@ -34,7 +35,7 @@ void init_difftest(char *ref_so_file, long img_size) {
     handle = dlopen(ref_so_file, RTLD_LAZY);
     assert(handle);
 
-    difftest_memcpy = (void (*)(paddr_t, void *, size_t, bool))dlsym(handle, "difftest_memcpy");
+    difftest_memcpy = (void (*)(pmem_t&, size_t, bool))dlsym(handle, "difftest_memcpy");
     assert(difftest_memcpy);
 
     difftest_regcpy = (void (*)(void *, bool))dlsym(handle, "difftest_regcpy");
@@ -55,7 +56,8 @@ void init_difftest(char *ref_so_file, long img_size) {
     Log("Differential testing: %s", ANSI_FMT("ON", ANSI_FG_GREEN));
 
     // copy the memory, the registers, the pc to nemu, so our cpu and nemu can run with the same initial state
-    difftest_memcpy(CONFIG_PMEM_BASE, addr_convert(CONFIG_PMEM_BASE), CONFIG_PMEM_SIZE, DIFFTEST_TO_REF);
+    // difftest_memcpy(CONFIG_PMEM_BASE, addr_convert(CONFIG_PMEM_BASE), CONFIG_PMEM_SIZE, DIFFTEST_TO_REF);
+    difftest_memcpy(pmem, 0, DIFFTEST_TO_REF);
     cpu.pc = CONFIG_PMEM_BASE;
     difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
@@ -113,17 +115,17 @@ bool difftest_checkregs(CPU_State *ref_r) {
 }
 
 // check mem
-bool difftest_checkmem(uint8_t *ref_m) {
-    for (int i = 0; i < CONFIG_PMEM_SIZE; i++){
-        if (ref_m[i] != pmem[i]) {
-            printf(ANSI_BG_RED "memory of NPC is different before executing instruction at pc = " FMT_WORD
-                ", mem[%x] right = " FMT_WORD ", wrong = " FMT_WORD "\n",
-                cpu.pc, i, ref_m[i], pmem[i]); 
-            return false;
-        }
-    }
-    return true;
-}
+// bool difftest_checkmem(uint8_t *ref_m) {
+//     for (int i = 0; i < CONFIG_PMEM_SIZE; i++){
+//         if (ref_m[i] != pmem[i]) {
+//             printf(ANSI_BG_RED "memory of NPC is different before executing instruction at pc = " FMT_WORD
+//                 ", mem[%x] right = " FMT_WORD ", wrong = " FMT_WORD "\n",
+//                 cpu.pc, i, ref_m[i], pmem[i]); 
+//             return false;
+//         }
+//     }
+//     return true;
+// }
 
 static void checkregs(CPU_State *ref, paddr_t pc) {
   if (!difftest_checkregs(ref)) {
@@ -133,12 +135,12 @@ static void checkregs(CPU_State *ref, paddr_t pc) {
   }
 }
 
-static void checkmem(uint8_t *ref_m, paddr_t pc) {
-    if (!difftest_checkmem(ref_m)) {
-        cpu.state = SIM_ABORT;
-        cpu.halt_pc = pc;
-    }
-}
+// static void checkmem(uint8_t *ref_m, paddr_t pc) {
+//     if (!difftest_checkmem(ref_m)) {
+//         cpu.state = SIM_ABORT;
+//         cpu.halt_pc = pc;
+//     }
+// }
 
 void difftest_step(uint64_t n) {
     CPU_State ref_r;

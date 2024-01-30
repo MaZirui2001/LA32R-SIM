@@ -22,6 +22,7 @@ typedef struct{
 uint32_t reg_rename_table[32];
 static statistic stat;
 
+extern pmem_t pmem;
 
 #define ILOG_SIZE 32
 static inst_log_t ilog[ILOG_SIZE];
@@ -128,6 +129,7 @@ void cpu_exec(uint64_t n){
     }
 #endif
     while(n--){
+        // std::cout << std::hex << cpu.pc << std::endl;
         uint32_t commit_num = 0;
         commit_num += commit_update(dut->io_commit_en_0, dut->io_commit_pc_0, dut->io_commit_rd_0, dut->io_commit_rd_valid_0, dut->io_commit_rf_wdata_0, dut->io_commit_prd_0, dut->io_commit_csr_waddr_0, dut->io_commit_csr_wdata_0, dut->io_commit_csr_we_0);
         commit_num += commit_update(dut->io_commit_en_1, dut->io_commit_pc_1, dut->io_commit_rd_1, dut->io_commit_rd_valid_1, dut->io_commit_rf_wdata_1, dut->io_commit_prd_1, dut->io_commit_csr_waddr_1, dut->io_commit_csr_wdata_1, dut->io_commit_csr_we_1);
@@ -139,7 +141,7 @@ void cpu_exec(uint64_t n){
 #ifdef DIFFTEST
         if(dut->io_commit_interrupt) {
             difftest_intr(dut->io_commit_interrupt_type);
-            //std::cout << "Interrupt at pc = " << std::hex << dut->io_commit_pc_0 << std::endl;
+            // std::cout << "Interrupt at pc = " << std::hex << dut->io_commit_pc_0 << std::endl;
         }
         else{
             bool uncache = dut->io_commit_is_ucread_0 || dut->io_commit_is_ucread_1;
@@ -176,7 +178,8 @@ void cpu_exec(uint64_t n){
     switch(cpu.state){
         case SIM_END: 
         Log("simulation %s at pc = " FMT_WORD, (cpu.reg[4] == 0 ? INLINE_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : 
-            INLINE_FMT("HIT BAD TRAP", ANSI_FG_RED)), cpu.halt_pc); break;
+            INLINE_FMT("HIT BAD TRAP", ANSI_FG_RED)), cpu.halt_pc); 
+        Log("pmem used: %zu bytes", pmem.size()); break;
         case SIM_ABORT:
         Log("simulation %s at pc = " FMT_WORD, INLINE_FMT("ABORT", ANSI_FG_RED), cpu.halt_pc); break;
         case SIM_STOP:

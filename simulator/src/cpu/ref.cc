@@ -5,11 +5,16 @@
 #include <cstring>
 #include <priv.h>
 #include <mmu.h>
-__EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
+extern std::unordered_map<uint32_t, uint32_t> pmem;
+__EXPORT void difftest_memcpy(std::unordered_map<uint32_t, uint32_t>&dut_pmem, size_t n, bool direction) {
     if (direction == DIFFTEST_TO_REF) {
-        memcpy(addr_convert(addr), buf, n);
-    } else {
-        memcpy(buf, addr_convert(addr), n);
+        // memcpy(addr_convert(addr), buf, n);
+        pmem = dut_pmem;
+        //std::cout << pmem[0x7000000] << std::endl;
+    } 
+    else {
+        // memcpy(buf, addr_convert(addr), n);
+        dut_pmem = pmem;
     }
 }
 __EXPORT void difftest_regcpy(uint64_t *dut, bool direction) {

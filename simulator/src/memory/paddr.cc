@@ -3,30 +3,34 @@
 #include <mmio.h>
 #include <mmu.h>
 
-uint8_t pmem[CONFIG_PMEM_SIZE];
+//uint8_t pmem[CONFIG_PMEM_SIZE];
+std::unordered_map<uint32_t, uint32_t> pmem;
 
 bool in_pmem(uint32_t addr) {
-    return addr >= CONFIG_PMEM_BASE && addr < CONFIG_PMEM_BASE + CONFIG_PMEM_SIZE;
+    //return addr >= CONFIG_PMEM_BASE && addr < CONFIG_PMEM_BASE + CONFIG_PMEM_SIZE;
+    return !(addr >= 0xa0000000 && addr < 0xafffffff);
 }
-
-
 
 uint8_t* addr_convert(uint32_t addr){
-    return pmem + addr - CONFIG_PMEM_BASE;
+    // return pmem + addr - CONFIG_PMEM_BASE;
+    // std::cout << "addr_convert: " << std::hex << addr << std::endl;
+    return (uint8_t*)&pmem[addr >> 2] + (addr & 0x3);
 }
+// uint32_t get_mem_elem(uint32_t addr){
+//     return pmem[addr];
+// }
 
 std::pair<uint32_t, uint32_t> vaddr_check(uint32_t vaddr, uint32_t align_mask, uint32_t mem_type){
-    if(BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x3 && (vaddr & 0x80000000)){
-        std::cout << vaddr << std::endl;
-        return std::make_pair(vaddr, ADEM);
-    }
+    // if(BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x3 && (vaddr & 0x80000000)){
+    //     std::cout << vaddr << std::endl;
+    //     return std::make_pair(vaddr, ADEM);
+    // }
     if(vaddr & align_mask){
         // ALE
         return std::make_pair(vaddr, ALE);
     }
     // tlb
-    auto paddr = addr_translate(vaddr, mem_type);
-    return std::make_pair((uint32_t)(paddr), (uint32_t)(paddr >> 32));
+    return addr_translate(vaddr, mem_type); //std::make_pair((uint32_t)(paddr), (uint32_t)(paddr >> 32));
 }
 
 uint32_t host_read(uint8_t* p, uint32_t len){
@@ -39,7 +43,9 @@ uint32_t host_read(uint8_t* p, uint32_t len){
 }
 uint32_t pmem_read(uint32_t addr, uint32_t len) {
     uint8_t* p = addr_convert(addr);
+    // std::cout << "pmem_read: " << std::hex << addr << std::endl;
     return host_read(p, len);
+    // return pmem[addr >> 2] >> ((addr & 0x03) << 3);
 }
 
 uint32_t paddr_read(uint32_t addr, uint32_t len) {
@@ -66,6 +72,7 @@ void host_write(uint8_t* p, uint32_t data, uint32_t len){
 void pmem_write(uint32_t addr, uint32_t data, uint32_t len) {
     uint8_t* p = addr_convert(addr);
     host_write(p, data, len);
+    //pmem[addr >> 2] = (pmem[addr >> 2] & ~(((uint32_t)0xff) << ((addr & 0x03) << 3))) | (data << ((addr & 0x03) << 3));
 }
 void paddr_write(uint32_t addr, uint32_t data, uint32_t len) {
     if(!in_pmem(addr)){

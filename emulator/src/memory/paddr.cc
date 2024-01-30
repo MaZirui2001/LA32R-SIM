@@ -2,13 +2,15 @@
 #include <cpu.h>
 #include <mmio.h>
 
-uint8_t pmem[CONFIG_PMEM_SIZE];
+pmem_t pmem;
 
 bool in_pmem(uint32_t addr) {
-    return addr >= CONFIG_PMEM_BASE && addr < CONFIG_PMEM_BASE + CONFIG_PMEM_SIZE;
+    //return addr >= CONFIG_PMEM_BASE && addr < CONFIG_PMEM_BASE + CONFIG_PMEM_SIZE;
+    return !(addr >= 0xa0000000 && addr < 0xafffffff);
 }
 uint8_t* addr_convert(uint32_t addr){
-    return pmem + addr - CONFIG_PMEM_BASE;
+    //return pmem + addr - CONFIG_PMEM_BASE;
+    return (uint8_t*)&pmem[addr >> 2] + (addr & 0x3);
 }
 uint32_t host_read(uint8_t* p, uint32_t len){
     // std::cout << "host_read: " << std::hex << (uint32_t)(p-pmem+CONFIG_PMEM_BASE) << std::endl;

@@ -4,7 +4,7 @@
 #include <statistic.h>
 
 
-extern uint8_t pmem[CONFIG_PMEM_SIZE];
+extern pmem_t pmem;
 
 static const uint32_t img [] = {
   0x1c00000c,  // pcaddu12i $t0,0
@@ -16,7 +16,11 @@ static const uint32_t img [] = {
 
 static uint64_t load_img(char* img_file){
     if(img_file == NULL){
-        memcpy(pmem, img, sizeof(img));
+        // memcpy(pmem, img, sizeof(img));
+        for(int i = 0; i < sizeof(img) / sizeof(uint32_t); i++){
+            pmem[i+0x7000000] = img[i];
+            //std::cout << std::hex << pmem[i+0x7000000] << std::endl;
+        }
         Log("No image file specified, using built-in image");
         return 0;
     }
@@ -32,8 +36,13 @@ static uint64_t load_img(char* img_file){
         printf("Image too large\n");
         exit(1);
     }
-    int ret = fread(pmem, size, 1, fp);
-    assert(ret == 1);
+    // int ret = fread(pmem, size, 1, fp);
+    // assert(ret == 1);
+    for(int i = 0; i < size / sizeof(uint32_t); i++){
+        uint32_t data;
+        int ret = fread(&data, sizeof(uint32_t), 1, fp);
+        pmem[i+0x7000000] = data;
+    }
     fclose(fp);
     return size;
 }
