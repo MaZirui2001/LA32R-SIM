@@ -4,6 +4,7 @@
 #include <mmu.h>
 #include <random>
 #include <priv.h>
+
 #define R(i) cpu.reg[i]
 #define CSR(i) cpu.csr[i]
 
@@ -145,13 +146,13 @@ finish:
     return;
 }
 
-uint64_t inst_fetch(uint32_t pc){
+std::pair<uint32_t, uint32_t> inst_fetch(uint32_t pc){
     if(pc & 0x3){
-        return (uint64_t)ADEF << 32 | 0x80000001;
+        return std::make_pair(0x80000001, ADEF);
     }
     auto paddr = addr_translate(pc, 0x1);
-    if(paddr >> 32){
-        return ((paddr >> 32) << 32) | 0x80000001;
+    if(paddr.second != 0){
+        return std::make_pair(0x80000001, paddr.second); 
     }
-    return ((paddr >> 32) << 32) | paddr_read((uint32_t)paddr, 4);
+    return std::make_pair(paddr_read((uint32_t)paddr.first, 4), paddr.second);
 }

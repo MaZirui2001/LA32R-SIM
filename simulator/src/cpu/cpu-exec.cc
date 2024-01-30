@@ -42,17 +42,17 @@ void cpu_exec(uint64_t n){
 #endif
     while(n--){
         auto inst = inst_fetch(cpu.pc);
-        if(inst == 0x80000000){
+        if(inst.first == 0x80000000){
             cpu.state = SIM_END;
             cpu.halt_pc = cpu.pc;
             break;
         }
 #ifdef ITRACE
         ilog[ilog_idx].pc = cpu.pc;
-        ilog[ilog_idx].inst = inst;
+        ilog[ilog_idx].inst = inst.first;
         ilog_idx = (ilog_idx + 1) % ILOG_SIZE;
 #endif
-        decode_exec(inst, (uint32_t)(inst >> 32));
+        decode_exec(inst.first, inst.second);
 // #ifdef DEVICE
 //         if(cpu.state == SIM_RUNNING) device_update();
 // #endif

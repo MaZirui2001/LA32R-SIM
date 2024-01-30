@@ -5,6 +5,6 @@ void tlb_read(uint32_t idx);
 void tlb_write(uint32_t idx);
 void tlb_srch();
 bool tlb_invalid(uint32_t op, uint32_t asid, uint32_t va);
-uint64_t tlb_convert(uint32_t va, uint32_t mem_type);
-uint64_t addr_translate(uint32_t vaddr, uint32_t mem_type);
+std::pair<uint32_t, uint32_t> tlb_convert(uint32_t va, uint32_t mem_type);
+std::pair<uint32_t, uint32_t> addr_translate(uint32_t vaddr, uint32_t mem_type);
 #endif

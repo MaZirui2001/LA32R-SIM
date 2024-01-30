@@ -4,7 +4,7 @@
 
 uint32_t tlb_idx_width = (uint32_t)log2(TLB_SIZE);
 
-uint64_t tlb_convert(uint32_t vaddr, uint32_t mem_type){
+std::pair<uint32_t, uint32_t> tlb_convert(uint32_t vaddr, uint32_t mem_type){
     uint32_t hit_idx = -1;
     uint32_t asid = BITS(cpu.csr[CSR_IDX::ASID], 9, 0);
     bool found_v = false;
@@ -20,7 +20,7 @@ uint64_t tlb_convert(uint32_t vaddr, uint32_t mem_type){
         }
     }
     if(hit_idx == -1){
-        return ((uint64_t)TLBR << 32) | vaddr;
+        return std::make_pair(vaddr, TLBR);
     }else{
         auto tlb_entry = cpu.tlb[hit_idx];
         found_ps = tlb_entry.ps;
@@ -38,43 +38,45 @@ uint64_t tlb_convert(uint32_t vaddr, uint32_t mem_type){
     }
     if(found_v == 0){
         switch(mem_type){
-            case(0x1): return ((uint64_t)PIF << 32) | vaddr; 
-            case(0x2): return ((uint64_t)PIL << 32) | vaddr; 
-            case(0x4): return ((uint64_t)PIS << 32) | vaddr; 
-            default: return (uint64_t)vaddr;
+            case(0x1): return std::make_pair(vaddr, PIF); //((uint64_t)PIF << 32) | vaddr; 
+            case(0x2): return std::make_pair(vaddr, PIL); // ((uint64_t)PIL << 32) | vaddr; 
+            case(0x4): return std::make_pair(vaddr, PIS); // ((uint64_t)PIS << 32) | vaddr; 
+            default: return std::make_pair(vaddr, 0x0);
         }
     }
     if(BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) > found_plv){
-        return (uint64_t)PPI << 32 | vaddr; // PPI
+        return std::make_pair(vaddr, PPI); //(uint64_t)PPI << 32 | vaddr; // PPI
     }
     if(mem_type == 0x4 && !found_d){
-        return (uint64_t)PME << 32 | vaddr; // PME
+        return std::make_pair(vaddr, PME); //(uint64_t)PME << 32 | vaddr; // PME
     }
-    return (BITS(found_ppn, 19, found_ps-12) << found_ps) | BITS(vaddr, found_ps-1, 0);
+    return std::make_pair((BITS(found_ppn, 19, found_ps-12) << found_ps) | BITS(vaddr, found_ps-1, 0), 0x0);
 
 }
 
-uint64_t addr_translate(uint32_t vaddr, uint32_t mem_type){
+std::pair<uint32_t, uint32_t> addr_translate(uint32_t vaddr, uint32_t mem_type){
     // check da or pg
     auto mode = BITS(cpu.csr[CSR_IDX::CRMD], 3, 3);
     if(mode == 1){
         // direct access
-        return vaddr;
+        return std::make_pair(vaddr, 0x0);
     }
     else{
         // page access
         // check csr dmw
         auto dmw0_vseg = BITS(cpu.csr[CSR_IDX::DMW0], 31, 29);
         auto dmw1_vseg = BITS(cpu.csr[CSR_IDX::DMW1], 31, 29);
-        if(dmw0_vseg == BITS(vaddr, 31, 29) && (((cpu.csr[CSR_IDX::DMW0] & 0x1) && BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x0) || ((cpu.csr[CSR_IDX::DMW0] & 0x8) && BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x3)) ){
-            return BITS(cpu.csr[CSR_IDX::DMW0], 27, 25) << 29 | BITS(vaddr, 28, 0);
+        auto plv = BITS(cpu.csr[CSR_IDX::CRMD], 1, 0);
+        if(dmw0_vseg == BITS(vaddr, 31, 29) && BITS(cpu.csr[CSR_IDX::DMW0], plv, plv)){
+            return std::make_pair(BITS(cpu.csr[CSR_IDX::DMW0], 27, 25) << 29 | BITS(vaddr, 28, 0), 0x0);
         }
-        if(dmw1_vseg == BITS(vaddr, 31, 29) && (((cpu.csr[CSR_IDX::DMW1] & 0x1) && BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x0) || ((cpu.csr[CSR_IDX::DMW1] & 0x8) && BITS(cpu.csr[CSR_IDX::CRMD], 1, 0) == 0x3)) ){
-            return BITS(cpu.csr[CSR_IDX::DMW1], 27, 25) << 29 | BITS(vaddr, 28, 0);
+        if(dmw1_vseg == BITS(vaddr, 31, 29) && BITS(cpu.csr[CSR_IDX::DMW1], plv, plv)){
+            return std::make_pair(BITS(cpu.csr[CSR_IDX::DMW1], 27, 25) << 29 | BITS(vaddr, 28, 0), 0x0);
         }
         // check tlb
         // std::cout << std::hex << vaddr << std::endl;
-        return tlb_convert(vaddr, mem_type);
+        auto tlb_res = tlb_convert(vaddr, mem_type);
+        return tlb_res;
 
     }
 }
