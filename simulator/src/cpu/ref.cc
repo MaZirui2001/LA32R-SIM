@@ -26,11 +26,14 @@ __EXPORT void difftest_regcpy(uint64_t *dut, bool direction) {
 }
 
 __EXPORT void difftest_raise_intr(int irq) {
-    cpu.csr[0x4] = (cpu.csr[0x4] & 0xffffe000) | irq;
+    
     if(irq & 0x800){
         cpu.timer_int = 1;
+        cpu.idle_state = 0;
     }
-    cpu.pc = do_exception(0x0, 0x0);
+    cpu.csr[0x4] = (cpu.csr[0x4] & 0xffffe000) | irq;
+    cpu_exec(1);
+    // cpu.pc = do_exception(0x0, 0x0);
 }
 
 __EXPORT void difftest_exec(uint64_t n) {

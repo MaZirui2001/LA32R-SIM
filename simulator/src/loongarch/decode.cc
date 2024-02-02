@@ -65,11 +65,11 @@ void decode_exec(uint32_t inst, uint32_t exception_fetch){
         goto finish;
     }
     
-#ifndef CONFIG_REF
+// #ifndef CONFIG_REF
     if((cpu.csr[CSR_IDX::ESTAT] & cpu.csr[CSR_IDX::ECFG] & 0x1fff) && (cpu.csr[CSR_IDX::CRMD] & 0x4)){
         with_exp = true;
     }
-#endif
+// #endif
     //INST_MATCH(0x80000000, 0xffffffff, TYPE_2R,   TRAP,         cpu.state = SIM_END; cpu.halt_pc = cpu.pc; printf("ok\n"))
     INST_MATCH(0x00006000, 0xfffffc1f, TYPE_2R,    RDCNTID.W,    R(rj) = CSR(CSR_IDX::TID))
     INST_MATCH(0x00006000, 0xffffffe0, TYPE_2R,    RDCNTVL.W,    R(rd) = cpu.stable_counter & 0xffffffff)
