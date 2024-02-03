@@ -8,7 +8,7 @@ AS = $(CROSS_COMPILE)gcc
 
 CFLAGS = -MMD -Og $(INC_PATH)
 CFLAGS += -fno-asynchronous-unwind-tables -fno-builtin -fno-stack-protector
-AFLAGS = 
+AFLAGS =  $(INC_PATH)
 ARFLAGS = rcs
 
 BUILD_DIR = $(abspath ./build)
