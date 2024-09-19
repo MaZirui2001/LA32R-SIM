@@ -1,0 +1,3 @@
+[submodule "LA32R-pipeline-scala"]
+	path = LA32R-pipeline-scala
+	url = git@github.com:MaZirui2001/LA32R-pipeline-scala.git
